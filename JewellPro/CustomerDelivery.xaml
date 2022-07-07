@@ -1,0 +1,297 @@
+﻿<UserControl x:Class="JewellPro.CustomerDelivery"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
+             xmlns:local="clr-namespace:JewellPro"  >
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
+    </UserControl.Resources>
+    <Grid HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+
+        <TabControl Name="empOrderTab" Grid.Row="0" Grid.Column="0" Margin="10" SelectedIndex="{Binding SelectedTabIndex}"  >
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding TabItemSelectionChangeCommand}" CommandParameter="{Binding }" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <TabItem Header="Order Details" Style="{StaticResource JPTabItem}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="290" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="50" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center" Margin="10">
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5" Height="30">
+                            <TextBlock Text="Delivery No :" Style="{StaticResource JPTextBlock}" />
+                            <TextBlock Text="{Binding OrderRefNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource JPTextBlock}" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                            <TextBlock Style="{StaticResource JPTextBlock}"><TextBlock Text="Select Customer : " /><TextBlock Text="*" Foreground="Red" /></TextBlock>
+                            <ComboBox DisplayMemberPath="name" SelectedItem="{Binding Path=SelectedCustomer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerDetails}" Style="{StaticResource JPEditableComboBox}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding CustomerNameSelectionChangeCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                            <TextBlock Style="{StaticResource JPTextBlock}"><TextBlock Text="Select Order No : " /><TextBlock Text="*" Foreground="Red" /></TextBlock>
+                            <ComboBox DisplayMemberPath="orderRefNo" ItemsSource="{Binding OrderRefNos}" SelectedItem="{Binding SelectedCustomerOrder , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource JPComboBox}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding CustomerOrderSelectionChangeCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ComboBox>
+                        </StackPanel>
+
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding OrderDetails, Mode=TwoWay}" SelectedItem="{Binding selectedOrderDetails, Mode=TwoWay}" CanUserReorderColumns="False" CanUserResizeColumns="False" GridLinesVisibility="All" IsReadOnly="True" ColumnWidth="*" Margin="20,10,20,10" AutoGenerateColumns="False" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Width="110" Binding="{Binding id}" Visibility="Collapsed" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />
+                            <DataGridTextColumn Header="Item Type" Width="105" Binding="{Binding jewelType.name}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />
+                            <DataGridTextColumn Header="Description" Width="*" Binding="{Binding description}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />
+                            <DataGridTextColumn Header="Net Weight" Width="110" Binding="{Binding netWeight}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />
+                            <DataGridTemplateColumn Header="Jewell Weight" Width="135" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Style="{StaticResource JPTextBox}" Text="{Binding jewellRecivedWeight, StringFormat=N3,  UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Wastage" Width="135" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Style="{StaticResource JPTextBox}" Text="{Binding wastagePercentage,  StringFormat=N1, UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Detection" Width="100" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <Button HorizontalAlignment="Center" Command="{Binding DataContext.ShowDetectionWindowCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}">
+                                                <materialDesign:PackIcon Kind="Edit" Width="15" Height="15" Foreground="#ffffff" />
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Detection" Width="135" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Style="{StaticResource JPReadOnlyTextBox}" Text="{Binding detection,  UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <!--<DataGridTemplateColumn Header="Total" Width="135" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Style="{StaticResource JPReadOnlyTextBox}" Text="{Binding grandTotal, StringFormat=N3,  UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>-->
+                            <DataGridTemplateColumn Header="100% Pure Gold Total" Width="180" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Style="{StaticResource JPReadOnlyTextBox}" Text="{Binding pureGoldWeight, StringFormat=N3,  UpdateSourceTrigger=PropertyChanged}" Width="100" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Calculate" Width="100" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button HorizontalAlignment="Center" Command="{Binding DataContext.CalculateOrderDetailsCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}">
+                                            <materialDesign:PackIcon Kind="Calculator" Width="15" Height="15" Foreground="#ffffff" />
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="2" Grid.ColumnSpan="2"  Orientation="Horizontal" Margin="5,5,25,5" HorizontalAlignment="Right">
+                        <TextBlock Text="100% Pure Gold Grand Total : " Style="{StaticResource JPTextBlock}" VerticalAlignment="Center" />
+                        <TextBox Text="{Binding TotalOrderDetailsPureGoldWeight, StringFormat=N3, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Style="{StaticResource JPReadOnlyTextBox}" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Gold Details" Style="{StaticResource JPTabItem}" IsEnabled="{Binding IsEnableTabItem, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" >
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="290" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Vertical">
+                        <DataGrid GridLinesVisibility="All" ItemsSource="{Binding AdvanceDetailsCollection}" IsReadOnly="True" ColumnWidth="*" Margin="10" AutoGenerateColumns="False" SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Advance Type" Width="200" Binding="{Binding advanceType.name}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />
+                                <DataGridTextColumn Header="Gold Weight" Width="200" Binding="{Binding goldWeight}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />
+                                <DataGridTextColumn Header="Gold Purity" Width="200" Binding="{Binding goldPurity}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />
+                                <DataGridTextColumn Header="100% Pure Gold Weight" Width="*" Binding="{Binding pureGoldWeight}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}"  />
+                                <!--<DataGridTextColumn Header="Total" Width="*" Binding="{Binding total}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />-->
+                                <!--<DataGridTemplateColumn Header="Edit" Width="80" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button HorizontalAlignment="Center" Command="{Binding DataContext.OrderDetailsEditCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
+                                                <materialDesign:PackIcon Kind="Edit" Width="15" Height="15" Foreground="#ffffff" />
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Delete" Width="80" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button  HorizontalAlignment="Center" Command="{Binding DataContext.OrderDetailsDeleteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
+                                                <materialDesign:PackIcon Kind="Delete" Width="15" Height="15" Foreground="#ffffff" />
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>-->
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <StackPanel Orientation="Horizontal" Margin="5,5,15,5" HorizontalAlignment="Right">
+                            <TextBlock Text="100% Pure Gold Grand Total : " Style="{StaticResource JPTextBlock}" />
+                            <TextBox Text="{Binding TotalAdvanceDetailsPureGoldWeight, StringFormat=N3, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Style="{StaticResource JPReadOnlyTextBox}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Order Preview" Style="{StaticResource JPTabItem}" IsEnabled="{Binding IsEnableTabItem, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" >
+                <Grid Margin="10,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50" Background="AliceBlue">
+                            <TextBlock Text="Credit/Debit Details" VerticalAlignment="Center" TextAlignment="Center"  TextDecorations="Underline" FontWeight="Medium" Width="550" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Height="50">
+                            <TextBlock Text="Running Balance :" Width="350" VerticalAlignment="Center" TextAlignment="Right" />
+                            <TextBox Text="{Binding TotalCreaditDebitGoldWeight, StringFormat=N3, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Width="200" Margin="15,5" Background="AliceBlue" Height="30" IsReadOnly="True" />
+                        </StackPanel>
+                       
+                        <Expander IsExpanded="True" Header="History Details" Background="AliceBlue" ExpandDirection="Down"  VerticalAlignment="Top" Width="550" Height="400">
+                            <DataGrid ItemsSource="{Binding CreditDebitDetailsCollection, Mode=TwoWay}" CanUserReorderColumns="False" CanUserResizeColumns="False" GridLinesVisibility="All" IsReadOnly="True" ColumnWidth="*"  AutoGenerateColumns="False" SelectionMode="Single">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Order No" Width="160" Binding="{Binding orderRefNo}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />
+                                    <DataGridTextColumn Header="Description" Width="*" Binding="{Binding description}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />
+                                    <DataGridTextColumn Header="Gold Weight" Width="150" Binding="{Binding goldWeight}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Expander>
+                    </StackPanel>
+
+
+                    <StackPanel Orientation="Vertical" Grid.Column="1" >
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Height="50" Background="AliceBlue">
+                            <TextBlock Text="Invoice Details" Margin="10" TextAlignment="Center"  TextDecorations="Underline" FontWeight="Medium" Width="550" />
+                        </StackPanel>
+                        
+                        <!---->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Height="50">
+                            <TextBlock Text="Gold Given for Work :" Width="350" Margin="5" VerticalAlignment="Center" TextAlignment="Right" />
+                            <TextBox Text="{Binding TotalAdvanceDetailsPureGoldWeight, StringFormat=N3, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Style="{StaticResource JPFileBrowseTextBox}" Width="200" Margin="15,5" FontWeight="Heavy" Foreground="White" Background="DeepSkyBlue" Height="30" IsReadOnly="True" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Height="50">
+                            <TextBlock Text="Gold Jewellery Weight :" Width="350" Margin="5" VerticalAlignment="Center" TextAlignment="Right" />
+                            <TextBox Text="{Binding TotalOrderDetailsPureGoldWeight, StringFormat=N3, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Style="{StaticResource JPFileBrowseTextBox}" Width="200" Margin="15,5" FontWeight="Heavy" Foreground="White" Background="DeepSkyBlue" Height="30" IsReadOnly="True" />
+                        </StackPanel>
+                        <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Height="50">
+                        <TextBlock Text="Balance Weight :" Width="350" Margin="5" VerticalAlignment="Center" TextAlignment="Right" />
+                        <TextBox Text="{Binding TotalConsolidatedWeight, StringFormat=N3, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Width="200" Margin="15,5" Background="AliceBlue" Height="30" IsReadOnly="True" />
+                    </StackPanel>-->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Height="50">
+                            <TextBlock Text="(100% Pure Gold) Balance Weight :" Width="350" Margin="5" VerticalAlignment="Center" TextAlignment="Right" />
+                            <TextBox Text="{Binding CurrentOrderConsolidatedWeight, StringFormat=N3, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Style="{StaticResource JPFileBrowseTextBox}" Width="200" Margin="15,5" FontWeight="Heavy" Foreground="White" Background="DeepSkyBlue" Height="30" IsReadOnly="True" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Height="50" >
+                            <RadioButton Name="rbtnOrderCompleted" GroupName="OrderStatus" Content="Order Fully Completed" Margin="10" IsChecked="{Binding IsOrderCompleted, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Checked">
+                                        <i:InvokeCommandAction Command="{Binding OrderCompletedCommand}" CommandParameter="Completed" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </RadioButton>
+                            <RadioButton Name="rbtnOrderNotCompleted" GroupName="OrderStatus" Content="Order partially Completed" Margin="10" IsChecked="{Binding IsOrderNotCompleted, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Checked">
+                                        <i:InvokeCommandAction Command="{Binding OrderCompletedCommand}" CommandParameter="NotCompleted"  />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </RadioButton>
+                            <!--<CheckBox Content="Balance Gold Fully Paid" IsChecked="{Binding IsOrderCompleted, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Checked">
+                                        <i:InvokeCommandAction Command="{Binding OrderCompletedCommand}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="Unchecked">
+                                        <i:InvokeCommandAction Command="{Binding OrderCompletedCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </CheckBox>-->
+                            
+                            <!--<TextBlock Text="(100% Pure Gold) Balance Weight :" Width="350" Margin="5" VerticalAlignment="Center" TextAlignment="Right" />
+                            <TextBox Text="{Binding CurrentOrderConsolidatedWeight, StringFormat=N3, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Width="200" Margin="15,5" FontWeight="Heavy" Foreground="White" Background="DeepSkyBlue" Height="30" IsReadOnly="True" />-->
+                        </StackPanel>
+
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Height="50" Visibility="{Binding BalanceGoldWeightPanelVisibility, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}">
+                            <TextBlock Text="Enter Balance in 100% Pure Gold Weight :" Width="380" Margin="5" VerticalAlignment="Center" TextAlignment="Right" />
+                            <TextBox Text="{Binding RawGoldWeight, StringFormat=N3, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Style="{StaticResource JPFileBrowseTextBox}" Width="200" Margin="15,5" Height="30"  />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" >
+                            <TextBlock Text="Addtional Info : " Width="350" Margin="5" VerticalAlignment="Center" TextAlignment="Right" />
+                            <RichTextBox Style="{StaticResource JPRichTextBox}" Width="200" Margin="15,5" Height="80">
+                                <FlowDocument>
+                                    <Paragraph>
+                                        <Run Text="{Binding AdditionalInfo, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" />
+                                    </Paragraph>
+                                </FlowDocument>
+                            </RichTextBox>
+                        </StackPanel>
+                        <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5,5,5,5">
+                            <TextBlock Text="" Width="350" Margin="5" VerticalAlignment="Center" TextAlignment="Right" />
+                            <Button Content="Ok" Style="{StaticResource TabButtons}" Command="{Binding UpdateCreditDebitCommand}" Margin="15,5" Height="30" />
+                        </StackPanel>-->
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+
+        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Save" Style="{StaticResource ActionButtons}" IsEnabled="{Binding Path=IsEnableSaveButton, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Visibility="{Binding IsSaveBtnlVisibility, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" Command="{Binding SaveCommand}" />
+            <Button Content="Generate Customer Order" Style="{StaticResource ActionButtons}" Command="{Binding GenerateCustomerDeliveryInvoiceCommand}" Visibility="{Binding IsGenerateCustomerDeliveryBtnlVisibility, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}"  IsEnabled="{Binding IsEnableGenerateOrder,  UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" />
+            <!--<Button Content="Print" Style="{StaticResource ActionButtons}" Command="{Binding GeneratePrintCommand}" Visibility="{Binding IsPrintBtnlVisibility, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}"  IsEnabled="{Binding IsEnablePrintBtn,  UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" />-->
+            <!--<Button Content="Clear" Style="{StaticResource ActionButtons}" Command="{Binding ClearCommand}" />-->
+        </StackPanel>
+    </Grid>
+</UserControl>

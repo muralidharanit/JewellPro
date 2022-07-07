@@ -1,0 +1,113 @@
+﻿<UserControl x:Class="JewellPro.CustomerDetails"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" >
+    <UserControl.Resources>
+        <DataTemplate x:Key="EditDateTemplate">
+            <StackPanel HorizontalAlignment="Center" Background="Bisque">
+                <Button HorizontalAlignment="Center" Click="EditRow_Click" CommandParameter="{Binding ElementName=dtGridCustomerDetails}">
+                    <materialDesign:PackIcon Kind="Edit" Width="15" Height="15" Foreground="#ffffff" />
+                </Button>
+            </StackPanel>
+
+        </DataTemplate>
+        <DataTemplate x:Key="DeleteDateTemplate">
+            <StackPanel HorizontalAlignment="Center" Background="Aqua">
+                <Button HorizontalAlignment="Center" Click="DeleteRow_Click" CommandParameter="{Binding ElementName=dtGridCustomerDetails}">
+                    <materialDesign:PackIcon Kind="Delete" Width="15" Height="15" Foreground="#ffffff" />
+                </Button>
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="400" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+
+        <GroupBox Grid.Row="0" Margin="10" Header="Customer Details">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Vertical" Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <Label Width="160" Content="Name : *" HorizontalAlignment="Right" />
+                        <TextBox Width="200" Name="txtbxName" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <Label Width="160" Content="Address : *" HorizontalAlignment="Right" />
+                        <TextBox Width="200" Name="txtbxAddress" />
+                    </StackPanel>
+                    <!--<StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <Label Width="160" Content="Date Of Birth :" HorizontalAlignment="Right" />
+                        <DatePicker Width="200" Name="dtDob" />
+                    </StackPanel>-->
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <Label Width="160" Content="Gender :" HorizontalAlignment="Right" />
+                        <ComboBox Width="200" Name="cbxGender" IsEditable="True" HorizontalAlignment="Left" SelectedIndex="0" >
+                            <ComboBoxItem>Male</ComboBoxItem>
+                            <ComboBoxItem>Female</ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <Label Width="160" Content="Mobile : *" HorizontalAlignment="Right" />
+                        <TextBox Width="200" Name="txtbxMobile" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <Label Width="160" Content="Email : " HorizontalAlignment="Right" />
+                        <TextBox Width="200" Name="txtbxEmail"  />
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Vertical" Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <Label Width="160" Content="GST No : " HorizontalAlignment="Right" />
+                        <TextBox Width="200" Name="txtbxGST"  />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <Label Width="160" Content="PAN No : " HorizontalAlignment="Right" />
+                        <TextBox Width="200" Name="txtbxPAN"  />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <Label Width="160" Content="Addhaar No : " HorizontalAlignment="Right" />
+                        <TextBox Width="200" Name="txtbxAddhaar" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <Label Width="160" Content="Description : " HorizontalAlignment="Right" />
+                        <TextBox Width="200" Name="txtbxDescription"  />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="1" Grid.ColumnSpan="1" Margin="10" Header="All Customer Details" VerticalAlignment="Top">
+            <DataGrid Height="400" Name="dtGridCustomerDetails"  GridLinesVisibility="All" IsReadOnly="True" ColumnWidth="*" Margin="5" AutoGenerateColumns="False" SelectionMode="Single">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name"  Width="120" Binding="{Binding name}" />
+                    <DataGridTextColumn Header="Address" Binding="{Binding address}" />
+                    <DataGridTextColumn Header="Description" Width="160" Binding="{Binding description}" />
+                    <DataGridTextColumn Header="E Mail" Width="90" Binding="{Binding email}" />
+                    <DataGridTextColumn Header="PAN" Width="75" Binding="{Binding pan}" />
+                    <DataGridTextColumn Header="GST No" Width="95" Binding="{Binding gst}" />
+                    <DataGridTextColumn Header="Mobile" Width="100" Binding="{Binding mobile}" />
+                    <DataGridTemplateColumn Header="Edit" Width="70" CellTemplate="{StaticResource EditDateTemplate}" />
+                    <DataGridTemplateColumn Header="Delete" Width="70" CellTemplate="{StaticResource DeleteDateTemplate}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Name="btnAddUpdate" Content="Add Employee" Width="200" Height="25" Margin="10" Click="AddUpdateCustomer_Click" />
+            <Button Content="Clear" Width="110" Height="25" Margin="10" Click="Clear_Click" />
+        </StackPanel>
+    </Grid>
+</UserControl>
