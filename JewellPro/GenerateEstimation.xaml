@@ -70,17 +70,9 @@
                             <TextBlock Style="{StaticResource JPTextBlock}">
                                 <TextBlock Text="Jewel Purity : " /><TextBlock Text="*" Foreground="Red" />
                             </TextBlock>
-                            <TextBox Text="{Binding OrderDetails.jewelPurity, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource JPTextBox}" />
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
-                            <TextBlock Style="{StaticResource JPTextBlock}">
-                                <TextBlock Text="Jewel Purity : " /><TextBlock Text="*" Foreground="Red" />
-                            </TextBlock>
                             <ComboBox DisplayMemberPath="displayText" 
-                                      SelectedItem="{Binding Path=SelectedPurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                      ItemsSource="{Binding Puritys}" Style="{StaticResource JPEditableComboBox}">
+                                      Text="{Binding Path=OrderDetails.jewelPurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                      TextSearch.TextPath="displayText" ItemsSource="{Binding Puritys}" Style="{StaticResource JPEditableComboBox}">
                             </ComboBox>
                         </StackPanel>
 
