@@ -61,9 +61,6 @@
     <Reference Include="GalaSoft.MvvmLight.WPF4">
       <HintPath>..\packages\GalaSoft\GalaSoft.MvvmLight.WPF4.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.2.10, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpZipLib.1.3.2\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
@@ -139,6 +136,7 @@
       <DependentUpon>AdvancedSearch.xaml</DependentUpon>
     </Compile>
     <Compile Include="Configuration.cs" />
+    <Compile Include="CustomerDetailsViewModel.cs" />
     <Compile Include="EmployeeOrder.xaml.cs">
       <DependentUpon>EmployeeOrder.xaml</DependentUpon>
     </Compile>

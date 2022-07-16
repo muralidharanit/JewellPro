@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows;
 using Npgsql;
 using System.Data;
+using Newtonsoft.Json;
 
 namespace JewellPro
 {
@@ -18,12 +19,9 @@ namespace JewellPro
             helper = new Helper();
             EditPane = false;
             SaveButtonVisibility = Visibility.Collapsed;
-            EditButtonVisibility = Visibility.Visible;
-            Kt24GoldChecked = false;
-            Kt22GoldChecked = true;
-            Kt20GoldChecked = false;
-            Kt18GoldChecked = false;
+            EditButtonVisibility = Visibility.Visible;           
             GetGoldRates();
+            LoadUserPreference();
         }
 
         #region Properties
@@ -35,27 +33,13 @@ namespace JewellPro
             set { _Rates = value; RaisePropertyChanged("Rates"); }
         }
 
-        private string _22KtGoldRate;
-        public string Kt22GoldRate
+        private ObservableCollection<Rate> _ShowRates;
+        public ObservableCollection<Rate> ShowRates
         {
-            get { return _22KtGoldRate; }
-            set { _22KtGoldRate = value; RaisePropertyChanged("Kt22GoldRate"); }
+            get { return _ShowRates; }
+            set { _ShowRates = value; RaisePropertyChanged("ShowRates"); }
         }
-
-        private string _20KtGoldRate;
-        public string Kt20GoldRate
-        {
-            get { return _20KtGoldRate; }
-            set { _20KtGoldRate = value; RaisePropertyChanged("Kt20GoldRate"); }
-        }
-
-        private string _18KtGoldRate;
-        public string Kt18GoldRate
-        {
-            get { return _18KtGoldRate; }
-            set { _18KtGoldRate = value; RaisePropertyChanged("Kt18GoldRate"); }
-        }
-
+        
         private string _PureGoldRate;
         public string PureGoldRate
         {
@@ -91,33 +75,13 @@ namespace JewellPro
             set { _SaveButtonVisibility = value; RaisePropertyChanged("SaveButtonVisibility"); }
         }
 
-        private bool _kt24GoldChecked;
-        public bool Kt24GoldChecked
+        private bool _IsEnabledRateListBox;
+        public bool IsEnabledRateListBox
         {
-            get { return _kt24GoldChecked; }
-            set { _kt24GoldChecked = value; RaisePropertyChanged("Kt24GoldChecked"); }
+            get { return _IsEnabledRateListBox; }
+            set { _IsEnabledRateListBox = value; RaisePropertyChanged("IsEnabledRateListBox"); }
         }
-
-        private bool _kt22GoldChecked;
-        public bool Kt22GoldChecked
-        {
-            get { return _kt22GoldChecked; }
-            set { _kt22GoldChecked = value; RaisePropertyChanged("Kt22GoldChecked"); }
-        }
-
-        private bool _kt20GoldChecked;
-        public bool Kt20GoldChecked
-        {
-            get { return _kt20GoldChecked; }
-            set { _kt20GoldChecked = value; RaisePropertyChanged("Kt20GoldChecked"); }
-        }
-
-        private bool _kt18GoldChecked;
-        public bool Kt18GoldChecked
-        {
-            get { return _kt18GoldChecked; }
-            set { _kt18GoldChecked = value; RaisePropertyChanged("Kt18GoldChecked"); }
-        }
+        
 
         #endregion Properties
 
@@ -135,6 +99,17 @@ namespace JewellPro
             }
         }
 
+        RelayCommand _SaveUserPreferenceCommand = null;
+        public ICommand SaveUserPreferenceCommand
+        {
+            get
+            {
+                if (_SaveUserPreferenceCommand == null)
+                    _SaveUserPreferenceCommand = new RelayCommand(() => OnSaveUserPreferenceCommandclick());
+                return _SaveUserPreferenceCommand;
+            }
+        }
+
         RelayCommand _EditCommand = null;
         public ICommand EditCommand
         {
@@ -145,6 +120,19 @@ namespace JewellPro
                 return _EditCommand;
             }
         }
+
+        RelayCommand _RateSelectionChangeCommand = null;
+        public ICommand RateSelectionChangeCommand
+        {
+            get
+            {
+                if (_RateSelectionChangeCommand == null)
+                    _RateSelectionChangeCommand = new RelayCommand(() => OnRateSelectionChangeCommandclick());
+                return _RateSelectionChangeCommand;
+            }
+        }
+        
+
 
         RelayCommand _LogoutCommand = null;
         public ICommand LogoutCommand
@@ -163,25 +151,33 @@ namespace JewellPro
 
         public void GetGoldRates()
         {
-            Rates = helper.GetRates();
-
-            if(Rates != null)
+            var TempRates = helper.GetRates();
+            Rates = new ObservableCollection<Rate>();
+            if (TempRates != null)
             {
-                foreach(var obj in Rates)
+                foreach(var obj in TempRates)
                 {
                     if(obj.name.ToLower() =="gold")
                     {
                         PureGoldRate = (Convert.ToInt16(obj.rate)).ToString("F");
                         Configuration.PureGoldRate = PureGoldRate;
 
-                        Kt22GoldRate = (Convert.ToInt16(obj.rate) * 92 / 100).ToString("F");
-                        Kt20GoldRate = (Convert.ToInt16(obj.rate) * 84 / 100).ToString("F");
-                        Kt18GoldRate = (Convert.ToInt16(obj.rate) * 75 / 100).ToString("F");
+                        Rate kt24 = new Rate { isChecked = false, name = "24 Kt", isEnabled = true, description = "24 Kt " + Convert.ToInt16(obj.rate).ToString("F") };
+                        Rate kt22 = new Rate { isChecked = false, name = "22 Kt", isEnabled = true, description = "22 Kt " + (Convert.ToInt16(obj.rate) * 92 / 100).ToString("F") };
+                        Rate kt20 = new Rate { isChecked = false, name = "20 Kt", isEnabled = true, description = "20 Kt " + (Convert.ToInt16(obj.rate) * 84 / 100).ToString("F") };
+                        Rate kt18 = new Rate { isChecked = false, name = "18 Kt", isEnabled = true, description = "18 Kt " + (Convert.ToInt16(obj.rate) * 75 / 100).ToString("F") };
+
+                        Rates.Add(kt24);
+                        Rates.Add(kt22);
+                        Rates.Add(kt20);
+                        Rates.Add(kt18);
                     }
                     else if (obj.name.ToLower() == "silver")
                     {
                         SilverRate = (Convert.ToInt16(obj.rate)).ToString("F");
                         Configuration.SilverRate = SilverRate;
+                        Rate sliver = new Rate { isChecked = false, name = "Silver", isEnabled = true, description = "Silver " + SilverRate };
+                        Rates.Add(sliver);
                     }
                 }
             }
@@ -227,6 +223,90 @@ namespace JewellPro
             {
                 MessageBox.Show("Gold/Silver rate are entered Incorrect format", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 GetGoldRates();
+            }
+        }
+       
+        void OnSaveUserPreferenceCommandclick()
+        {
+            UserPreference userPreferenceInfo = new UserPreference();
+            //userPreferenceInfo.Kt18GoldChecked = Kt18GoldChecked;
+            //userPreferenceInfo.Kt20GoldChecked = Kt20GoldChecked;
+            //userPreferenceInfo.Kt22GoldChecked = Kt22GoldChecked;
+            //userPreferenceInfo.Kt24GoldChecked = Kt24GoldChecked;
+            //userPreferenceInfo.SilverChecked = SilverChecked;
+
+            string userInfo = JsonConvert.SerializeObject(userPreferenceInfo);
+            string sqlQuery = string.Format("update login set preference ='{0}' where id ={1}", userInfo, CommanDetails.user.id);
+
+            using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
+            {
+                NpgsqlTransaction trans = connection.BeginTransaction();
+                try
+                {
+                    using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, sqlQuery, CommandType.Text))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    trans.Commit();
+                    MessageBox.Show("User preference information saved successfully", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    Logger.LogError(ex.Message);
+                }
+            }
+        }
+
+        void LoadUserPreference()
+        {
+            UserPreference userPreferenceInfo = CommanDetails.user.userPreference;
+            if (userPreferenceInfo != null)
+            {
+                //Kt18GoldChecked = userPreferenceInfo.Kt18GoldChecked;
+                //Kt20GoldChecked = userPreferenceInfo.Kt20GoldChecked;
+                //Kt22GoldChecked = userPreferenceInfo.Kt22GoldChecked;
+                //Kt24GoldChecked = userPreferenceInfo.Kt24GoldChecked;
+                //SilverChecked = userPreferenceInfo.SilverChecked;
+            }
+        }
+
+        void OnRateSelectionChangeCommandclick()
+        {
+            int count = 0;
+            foreach(Rate rate in Rates)
+            {
+                if(rate.isChecked)
+                {
+                    count = count + 1;
+                }
+            }
+
+            if(count >= Helper.RateDisplayCount)
+            {
+                foreach (Rate rate in Rates)
+                {
+                    if (!rate.isChecked)
+                    {
+                        rate.isEnabled = false;
+                    }
+                }
+            }
+            else
+            {
+                foreach (Rate rate in Rates)
+                {
+                    rate.isEnabled = true;
+                }
+            }
+
+            ShowRates = new ObservableCollection<Rate>();
+            foreach (Rate rate in Rates)
+            {
+                if (rate.isChecked)
+                {
+                    ShowRates.Add(rate);
+                }
             }
         }
 

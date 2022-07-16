@@ -1,14 +1,17 @@
 ﻿using CommonLayer;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Npgsql;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Drawing.Imaging;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 //using System.Drawing.Drawing2D;
 //using System.Drawing.Imaging;
 using System.IO;
+using System.Management;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -16,16 +19,14 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using System.Drawing.Drawing2D;
-using System.Management;
-using System.Windows.Data;
-using System.Linq;
-using System.Collections;
 
 namespace JewellPro
 {
     public class Helper
     {
+        public static UserPreference LoggedInUserPreference;
+
+        public static int RateDisplayCount = 2;
 
         public static string NumberToWords(int number)
         {
@@ -385,9 +386,9 @@ namespace JewellPro
             return chargesControls;
         }
 
-        public ObservableCollection<Customer> GetAllCustomerDetails()
+        public ObservableCollection<Customer> GetAllCustomerDetails(string isDeleted = "False")
         {
-            string sqlQuery = "SELECT * FROM Customer where isDeleted = False Order by Name";
+            string sqlQuery = string.Format("SELECT * FROM Customer where isDeleted = {0} Order by Name", isDeleted);
             NpgsqlDataReader dataReader = GetTableData(sqlQuery);
             ObservableCollection<Customer> CustomerDetails = null;
             try
@@ -516,6 +517,34 @@ namespace JewellPro
             return JewelTypes;
         }
 
+        public ObservableCollection<Gender> GetAllGenders()
+        {
+            string sqlQuery = "SELECT * FROM gender Order by id";
+            NpgsqlDataReader dataReader = GetTableData(sqlQuery);
+            ObservableCollection<Gender> GenderCollection = null;
+            try
+            {
+                if (dataReader != null)
+                {
+                    GenderCollection = new ObservableCollection<Gender>();
+                    while (dataReader.Read())
+                    {
+                        Gender gender = new Gender
+                        {
+                            id = Convert.ToInt32(dataReader["Id"]),
+                            name = Convert.ToString(dataReader["gender"])                            
+                        };
+                        GenderCollection.Add(gender);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.Message);
+            }
+            return GenderCollection;
+        }
+
         public ObservableCollection<AdvanceType> GetAllAdvanceTypes()
         {
             string sqlQuery = "SELECT * FROM advance_type where is_active = True Order by id";
@@ -609,7 +638,7 @@ namespace JewellPro
                 Logger.LogError(ex.Message);
             }
             return detectionControls;
-        }
+        }        
 
         public ObservableCollection<Rate> GetRates()
         {
@@ -813,10 +842,8 @@ namespace JewellPro
             }
 
             return mbInfo;
-        }
-
+        }       
     }
-
 
     public static class CloneObject
     {

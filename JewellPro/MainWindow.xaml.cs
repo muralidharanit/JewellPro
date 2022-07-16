@@ -1,5 +1,4 @@
-﻿using JewellPro;
-using MaterialDesignThemes.Wpf;
+﻿using MaterialDesignThemes.Wpf;
 using System.Collections.Generic;
 using System.Windows;
 using static JewellPro.EnumInfo;
@@ -54,7 +53,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Customer Order";
-                    CustomerOrder customerOrder = new CustomerOrder(contentPane.ActualHeight - 260);
+                    CustomerOrder customerOrder = new CustomerOrder(contentPane.ActualHeight - 200);
                     usercontrolPane.Children.Add(customerOrder);
                 }
 
@@ -62,7 +61,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Customer Estimation";
-                    GenerateEstimation customerOrder = new GenerateEstimation(contentPane.ActualHeight - 190);
+                    GenerateEstimation customerOrder = new GenerateEstimation(contentPane.ActualHeight - 200);
                     usercontrolPane.Children.Add(customerOrder);
                 }
 
@@ -70,7 +69,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Customer Delivery";
-                    CustomerDelivery customerDelivery = new CustomerDelivery(contentPane.ActualHeight - 260);
+                    CustomerDelivery customerDelivery = new CustomerDelivery(contentPane.ActualHeight - 200);
                     usercontrolPane.Children.Add(customerDelivery);
                 }
 
@@ -78,7 +77,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Employee Order";
-                    EmployeeOrder employeeOrder = new EmployeeOrder(contentPane.ActualHeight - 260);
+                    EmployeeOrder employeeOrder = new EmployeeOrder(contentPane.ActualHeight - 200);
                     usercontrolPane.Children.Add(employeeOrder);
                 }
 
@@ -92,7 +91,8 @@ namespace JewellPro
                 if ((trvMenuItem.SelectedItem as SubItem).Id == AppMenus.ManageCustomer)
                 {
                     usercontrolPane.Children.Clear();
-                    CustomerDetails customerDetails = new CustomerDetails(contentPane.ActualHeight - 60);
+                    txtblkAppHeader.Text = "Customer Details";
+                    CustomerDetails customerDetails = new CustomerDetails(contentPane.ActualHeight - 200);
                     usercontrolPane.Children.Add(customerDetails);
                 }
 

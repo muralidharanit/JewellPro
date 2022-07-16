@@ -133,7 +133,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <DataGrid Grid.Row="1" Grid.ColumnSpan="2" GridLinesVisibility="All" IsReadOnly="True" ItemsSource="{Binding OrderDetailsCollection, Mode=TwoWay}" ColumnWidth="*" Margin="5" AutoGenerateColumns="False" SelectionMode="Single">
+                    <DataGrid Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource JPDataGrid}" ItemsSource="{Binding OrderDetailsCollection, Mode=TwoWay}" >
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Jewel Type" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelType.name}" CellStyle="{StaticResource JPDataGridCell}"  />
                             <DataGridTextColumn Header="Jewel Purity" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelPurity}" CellStyle="{StaticResource JPDataGridCell}" />

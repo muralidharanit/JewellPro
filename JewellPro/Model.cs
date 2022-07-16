@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace JewellPro
 {
+    [Serializable]
     public class BaseClass 
     {
         public long id { get; set; }
@@ -227,7 +228,10 @@ namespace JewellPro
         public int id { get; set; }
         public string userName { get; set; }
         public string lastLoggedIn { get; set; }
+        public UserPreference userPreference { get; set; }
         public UserType userType { get; set; }
+
+
     }
 
     public class UserType 
@@ -250,11 +254,13 @@ namespace JewellPro
         public string displayText { get; set; }
     }
 
+    [Serializable]
     public class Customer : CommonUserInfo
     {
         public string gst { get; set; }
     }
 
+    [Serializable]
     public class CommonUserInfo : BaseClass
     {        
         public string address { get; set; }
@@ -268,6 +274,14 @@ namespace JewellPro
         public string pan { get; set; }
         public bool isSelected { get; set; }
         
+    }
+
+    public class Gender
+    {
+        public int id { get; set; }
+
+        public string name { get; set; }
+
     }
 
     public class AdvanceType : BaseClass
@@ -380,13 +394,37 @@ namespace JewellPro
         public string total { get; set; }
     }
 
-    public class Rate
+    public class UserPreference
+    {
+        public string pageId { get; set; }
+        public bool Kt24GoldChecked { get; set; }
+        public bool Kt22GoldChecked { get; set; }
+        public bool Kt20GoldChecked { get; set; }
+        public bool Kt18GoldChecked { get; set; }
+        public bool SilverChecked { get; set; }
+    }
+
+    public class Rate : NotifyObject
     {
         public int id { get; set; }
         public string name { get; set; }
         public int rate { get; set; }
         public int purity { get; set; }
         public string description { get; set; }
+        
+        private bool _isChecked { get; set; }
+        public bool isChecked
+        {
+            get { return _isChecked; }
+            set { _isChecked = value; RaisePropertyChanged("isChecked"); }
+        }
+
+        private bool _isEnabled { get; set; }
+        public bool isEnabled
+        {
+            get { return _isEnabled; }
+            set { _isEnabled = value; RaisePropertyChanged("isEnabled"); }
+        }
     }
 
     public class ExcelFileArgs

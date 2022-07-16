@@ -3,12 +3,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"            
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" >
-    <UserControl.Resources>
-        <Style x:Key="CenterGridHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        </Style>
-    </UserControl.Resources>
-
+    
     <Grid HorizontalAlignment="Stretch" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -130,7 +125,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <DataGrid Grid.Row="1" Grid.ColumnSpan="2" GridLinesVisibility="All" IsReadOnly="True" ItemsSource="{Binding OrderDetailsCollection, Mode=TwoWay}" ColumnWidth="*" Margin="5" AutoGenerateColumns="False" SelectionMode="Single">
+                    <DataGrid Grid.Row="1" Grid.ColumnSpan="2"  ItemsSource="{Binding OrderDetailsCollection, Mode=TwoWay}" Style="{StaticResource JPDataGrid}" >
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Jewel Type" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelType.name}" CellStyle="{StaticResource JPDataGridCell}"  />
                             <DataGridTextColumn Header="Jewel Purity" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelPurity}" CellStyle="{StaticResource JPDataGridCell}" />
@@ -230,7 +225,7 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Vertical">
-                        <DataGrid GridLinesVisibility="All" ItemsSource="{Binding AdvanceDetailsCollection}" IsReadOnly="True" ColumnWidth="*" Margin="10" AutoGenerateColumns="False" SelectionMode="Single">
+                        <DataGrid ItemsSource="{Binding AdvanceDetailsCollection}" Style="{StaticResource JPDataGrid}" >
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Advance Type" Width="200" Binding="{Binding advanceType.name}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}"  />
                                 <DataGridTextColumn Header="Gold Weight" Width="200" Binding="{Binding goldWeight}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}"  />

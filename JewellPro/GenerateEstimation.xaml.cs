@@ -14,6 +14,6 @@ namespace JewellPro
 
             GenerateEstimationViewModel generateEstimationViewModel = new GenerateEstimationViewModel();
             this.DataContext = generateEstimationViewModel;
-        }
+        }        
     }
 }

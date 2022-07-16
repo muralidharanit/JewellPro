@@ -1,5 +1,6 @@
 ﻿using CommonLayer;
 using JewellPro;
+using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System.Data;
@@ -49,7 +50,8 @@ namespace WpfApp2
                                         {
                                             id = Convert.ToInt32(dataReader["Id"]),
                                             userName = Convert.ToString(dataReader["Username"]),
-                                            lastLoggedIn = Convert.ToString(dataReader["Last_logged_in"])
+                                            lastLoggedIn = Convert.ToString(dataReader["Last_logged_in"]),
+                                            userPreference = GetUserPreference(Convert.ToString(dataReader["preference"]))
                                         };
 
                                         this.Hide();
@@ -79,6 +81,11 @@ namespace WpfApp2
             txtUsername.Text = string.Empty;
             txtPassword.Password = string.Empty;
             lblWarning.Content = string.Empty;
+        }
+
+        public UserPreference GetUserPreference(string userPreferenceInfo)
+        {
+            return JsonConvert.DeserializeObject<UserPreference>(userPreferenceInfo);
         }
     }
 }

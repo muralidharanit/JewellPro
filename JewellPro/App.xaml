@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            
             <Style TargetType="TextBox" x:Key="JPTextBox"  >
                 <Setter Property="Background" Value="AliceBlue" />
                 <Setter Property="Width" Value="200" />
@@ -36,6 +37,15 @@
                 <Setter Property="FontSize" Value="20" />
                 <Setter Property="FontWeight" Value="Bold" />
                 <Setter Property="Margin" Value="0,0,15,0" />
+            </Style>
+
+            <Style TargetType="TextBlock" x:Key="JPRateTextBlock" >
+                <Setter Property="Width" Value="130" />
+                <Setter Property="HorizontalAlignment" Value="Right" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Margin" Value="0,0,15,0" />
+                <Setter Property="Foreground" Value="White" />
             </Style>
 
             <Style TargetType="TextBox" x:Key="JPReadOnlyTextBox" BasedOn="{StaticResource JPTextBox}">
@@ -89,6 +99,16 @@
                 <Setter Property="FontSize" Value="17" />
             </Style>
 
+            <Style x:Key="JPDataGrid" TargetType="DataGrid" >
+                <Setter Property="GridLinesVisibility" Value="All" />
+                <Setter Property="IsReadOnly" Value="True" />
+                <Setter Property="ColumnWidth" Value="*" />
+                <Setter Property="Margin" Value="10" />
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="SelectionMode" Value="Single" />
+            </Style>
+
+
             <Style x:Key="ActionButtons" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
                 <Setter Property="Width" Value="200" />
                 <Setter Property="Height" Value="30" />
@@ -98,8 +118,8 @@
 
             <Style x:Key="RateButtons" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
                 <Setter Property="Width" Value="80" />
-                <Setter Property="Height" Value="30" />
-                <Setter Property="Margin" Value="10,0,10,0" />
+                <Setter Property="Height" Value="25" />
+                <Setter Property="Margin" Value="5,0,5,0" />
                 <Setter Property="HorizontalAlignment" Value="Right" />
                 <Setter Property="Foreground" Value="White"/>
             </Style>
@@ -142,7 +162,23 @@
                 <Setter Property="Margin" Value="0" />
             </Style>
 
-
+            <Style x:Key="ParamDatagridStyle" TargetType="{x:Type DataGrid}" >
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="RowHeight" Value="25" />
+                <Setter Property="CanUserReorderColumns" Value="False" />
+                <Setter Property="CanUserResizeColumns" Value="True" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="CanUserResizeRows" Value="False" />
+                <Setter Property="GridLinesVisibility" Value="None" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+                <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="MinHeight" Value="250" />
+                <Setter Property="IsReadOnly" Value="True" />
+                <Setter Property="ColumnWidth" Value="*" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
