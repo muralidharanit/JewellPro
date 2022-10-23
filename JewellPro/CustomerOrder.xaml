@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"            
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" >
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:JewellPro">
     
     <Grid HorizontalAlignment="Stretch" >
         <Grid.ColumnDefinitions>
@@ -59,10 +60,12 @@
                             <TextBlock Style="{StaticResource JPTextBlock}">
                                 <TextBlock Text="Jewel Purity : " /><TextBlock Text="*" Foreground="Red" />
                             </TextBlock>
-                            <TextBox Text="{Binding OrderDetails.jewelPurity, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource JPTextBox}" />
+                            <ComboBox DisplayMemberPath="displayText" SelectedItem="{Binding SelectedPurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Text="{Binding Path=OrderDetails.jewelPurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                      TextSearch.TextPath="displayText" ItemsSource="{Binding Puritys}" Style="{StaticResource JPEditableComboBox}">
+                            </ComboBox>
                         </StackPanel>
-
+                        
                         <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                             <TextBlock Style="{StaticResource JPTextBlock}">
                                 <TextBlock Text="Size / Length : " /><!--<TextBlock Text="*" Foreground="Red" />-->
@@ -125,7 +128,10 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <DataGrid Grid.Row="1" Grid.ColumnSpan="2"  ItemsSource="{Binding OrderDetailsCollection, Mode=TwoWay}" Style="{StaticResource JPDataGrid}" >
+                    <DataGrid Grid.Row="1" Grid.ColumnSpan="2"  ItemsSource="{Binding OrderDetailsCollection, Mode=TwoWay}" 
+                              
+                              CanUserReorderColumns="False" CanUserResizeColumns="False" GridLinesVisibility="All" 
+                              IsReadOnly="True" ColumnWidth="*" Margin="20,10,20,10" AutoGenerateColumns="False" SelectionMode="Single">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Jewel Type" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelType.name}" CellStyle="{StaticResource JPDataGridCell}"  />
                             <DataGridTextColumn Header="Jewel Purity" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelPurity}" CellStyle="{StaticResource JPDataGridCell}" />
@@ -158,7 +164,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Gold Details" Style="{StaticResource JPTabItem}" >
+            <TabItem Header="Advance Details" Style="{StaticResource JPTabItem}" >
                 <Grid Margin="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -202,9 +208,21 @@
                             <TextBox Text="{Binding AdvanceDetail.goldPurity, StringFormat=N2,  UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource JPTextBox}" />
                         </StackPanel>
 
+                        
+
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5" Tag="3">
+                            <TextBlock Text="Pure Gold Rate (24 Kt) :  " Style="{StaticResource JPTextBlock}" />
+                            <TextBox Text="{x:Static local:Configuration.PureGoldRate}" Style="{StaticResource JPTextBox}" IsReadOnly="True" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5" Tag="3">
+                            <TextBlock Text="Advance Amount :  " Style="{StaticResource JPTextBlock}" />
+                            <TextBox Text="{Binding AdvanceDetail.amount, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource JPTextBox}" />
+                        </StackPanel>
+                        
                         <StackPanel Orientation="Horizontal" Margin="5,5,5,5" Tag="0">
                             <TextBlock Text="If any addtional Info : " Style="{StaticResource JPTextBlock}" />
 
@@ -268,3 +286,5 @@
         </StackPanel>
     </Grid>
 </UserControl>
+
+<!--IsEnabled="{Binding IsGenerateInvoiceEnabled, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}"--> 

@@ -11,6 +11,7 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using static JewellPro.EnumInfo;
 
 namespace JewellPro
 {
@@ -51,7 +52,11 @@ namespace JewellPro
         public ObservableCollection<OrderDetails> OrderDetailsCollection
         {
             get { return _orderDetailsCollection; }
-            set { _orderDetailsCollection = value; RaisePropertyChanged("OrderDetailsCollection"); }
+            set
+            { 
+                _orderDetailsCollection = value; 
+                RaisePropertyChanged("OrderDetailsCollection");
+            }
         }
 
         private ObservableCollection<JewelType> _jewelTypes;
@@ -122,6 +127,27 @@ namespace JewellPro
         {
             get { return _isAdvanceButtonEnabled; }
             set { _isAdvanceButtonEnabled = value; RaisePropertyChanged("IsAdvanceButtonEnabled"); }
+        }
+
+        private bool _isGenerateInvoiceEnabled;
+        public bool IsGenerateInvoiceEnabled
+        {
+            get { return _isGenerateInvoiceEnabled; }
+            set { _isGenerateInvoiceEnabled = value; RaisePropertyChanged("IsGenerateInvoiceEnabled"); }
+        }
+
+        private Purity _SelectedPurity;
+        public Purity SelectedPurity
+        {
+            get { return _SelectedPurity; }
+            set { _SelectedPurity = value; RaisePropertyChanged("SelectedPurity"); }
+        }
+
+        private ObservableCollection<Purity> _puritys;
+        public ObservableCollection<Purity> Puritys
+        {
+            get { return _puritys; }
+            set { _puritys = value; RaisePropertyChanged("Puritys"); }
         }
 
         #endregion Properties
@@ -261,11 +287,15 @@ namespace JewellPro
 
         private void OnLoad()
         {
+            //Load Master data
             CustomerDetails = helper.GetAllCustomerDetails();
             JewelTypes = helper.GetAllLoadJewelTypes();
             OrderRefNo = helper.GetNextOrderRefNo(OrderType.Customer);
             AdvanceTypesCollection = helper.GetAllAdvanceTypes();
+            Puritys = helper.GetAllPurityDetails();
+            
             TotalGoldWeight = string.Empty;
+            IsGenerateInvoiceEnabled = false;
 
             OrderDetails = new OrderDetails();
             OrderDetails.orderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -274,10 +304,19 @@ namespace JewellPro
             
             AdvanceDetail = new AdvanceDetails();
             AdvanceDetail.advanceDate = DateTime.Now.ToString();
-            AdvanceDetail.advanceType = AdvanceTypesCollection[0];
+
             AdvanceDetailsCollection = new ObservableCollection<AdvanceDetails>();
 
-            SelectedAdvanceType = AdvanceTypesCollection[0];
+            for (int i = 0; i <= AdvanceTypesCollection.Count - 1; i++)
+            {
+                if (AdvanceTypesCollection[i].name.Equals("none", StringComparison.OrdinalIgnoreCase))
+                {
+                    SelectedAdvanceType = AdvanceTypesCollection[i];
+                    AdvanceDetail.advanceType = AdvanceTypesCollection[i];
+                    break;
+                }
+            }
+
             OrderButtonLabel = Convert.ToString(UserControlState.Add);
             AdvanceButtonLabel = Convert.ToString(UserControlState.Add);
 
@@ -352,12 +391,15 @@ namespace JewellPro
                 errorControl.AppendLine();
             }
 
-            if (string.IsNullOrEmpty(OrderDetails.jewelPurity))
+
+            //ValidatePurity
+            if (string.IsNullOrWhiteSpace(Helper.GetPurity(SelectedPurity, OrderDetails)))
             {
                 errorControl.AppendLine("Enter Jewel Purity");
                 errorControl.AppendLine();
             }
 
+            
             if (string.IsNullOrEmpty(OrderDetails.netWeight))
             {
                 errorControl.AppendLine("Enter Jewellery Net Weight");
@@ -449,6 +491,7 @@ namespace JewellPro
             {
                 OrderDetails.customer = SelectedCustomer;
                 OrderDetails.jewelType = SelectedJewelType;
+                OrderDetails.jewelPurity = Helper.GetPurity(SelectedPurity, OrderDetails);
                 if (OrderButtonLabel == Convert.ToString(UserControlState.Add))
                 {
                     OrderDetails.subOrderNo = "SUB" + DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -482,7 +525,7 @@ namespace JewellPro
             OrderButtonLabel = Convert.ToString(UserControlState.Update);
             SelectedCustomer = (orderDetail as OrderDetails).customer;
             SelectedJewelType = (orderDetail as OrderDetails).jewelType;
-            OrderDetails = (orderDetail as OrderDetails);
+            OrderDetails = CloneObject.DeepClone<OrderDetails>(orderDetail as OrderDetails);
         }
 
         void OnOrderDetailsDeleteCommand(object orderDetail)
@@ -579,12 +622,11 @@ namespace JewellPro
         void OnAdvanceTypeSelectionChangeCommandclick()
         {
             IsAdvanceButtonEnabled = true;
-            if (SelectedAdvanceType.name.ToLower().Equals("none"))
+            if (SelectedAdvanceType != null && SelectedAdvanceType.name.ToLower().Equals("none"))
             {
                 IsAdvanceButtonEnabled = false;
             }
         }
-
 
         void OnGenerateInvoiceCommandclick()
         {

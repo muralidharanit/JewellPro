@@ -25,5 +25,8 @@ namespace JewellPro
             ManageCustomer,
             ManageEmployee
         }
+        public enum UserControlState { Add, Update, Delete };
+
+        public enum OrderType { Customer, Employee, Estimation }
     }
 }

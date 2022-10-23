@@ -99,7 +99,15 @@ namespace JewellPro
             set { _TotalGoldWeight = value; RaisePropertyChanged("TotalGoldWeight"); }
         }
 
+        private GenerateEstimationGridColumns _GridColumnsVisibility;
+        public GenerateEstimationGridColumns GridColumnsVisibility
+        {
+            get { return _GridColumnsVisibility; }
+            set { _GridColumnsVisibility = value; RaisePropertyChanged("GridColumnsVisibility"); }
+        }
+
         #endregion Properties
+
 
         public GenerateEstimationViewModel()
         {
@@ -199,7 +207,7 @@ namespace JewellPro
             Puritys = helper.GetAllPurityDetails();
             EstimationRefNo = helper.GetNextOrderRefNo(OrderType.Estimation);
             OrderButtonLabel = Convert.ToString(UserControlState.Add);
-
+            GridColumnsVisibility = new GenerateEstimationGridColumns { attachement = false, description = true, dueDate = false, jewelPurity = true, jewelType = true, netWeight = true, seal = true, size = true };
             OrderDetails = new OrderDetails();
             OrderDetails.orderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
             OrderDetails.orderDate = DateTime.Now.ToString();

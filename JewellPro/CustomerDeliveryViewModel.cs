@@ -406,7 +406,6 @@ namespace JewellPro
                             id = Convert.ToInt32(dataReader["id"]),
                             orderNo = Convert.ToString(dataReader["order_no"]),
                             orderRefNo = Convert.ToString(dataReader["order_ref_no"]),
-                            
                         };
                         OrderRefNos.Add(order);
                     }

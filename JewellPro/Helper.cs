@@ -12,6 +12,7 @@ using System.Drawing.Imaging;
 //using System.Drawing.Imaging;
 using System.IO;
 using System.Management;
+using System.Net.Mail;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -19,15 +20,18 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using static JewellPro.EnumInfo;
 
 namespace JewellPro
 {
     public class Helper
     {
         public static UserPreference LoggedInUserPreference;
-
         public static int RateDisplayCount = 2;
-
+        public static int MaxDescriptionLimit = 80;
+        public static string SenderEmail = "";
+        public static string SenderPassword = "";
+        
         public static string NumberToWords(int number)
         {
             if (number == 0)
@@ -183,6 +187,28 @@ namespace JewellPro
         {
             TextRange textRange = new TextRange(rtb.Document.ContentStart, rtb.Document.ContentEnd);
             return textRange.Text;
+        }
+
+        public static string GetPurity(Purity selectedPurity, OrderDetails orderDetails)
+        {
+            if (selectedPurity == null)
+            {
+                decimal _purity;
+                if (!Decimal.TryParse(orderDetails.jewelPurity, out _purity))
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return Convert.ToString(_purity);
+                }
+            }
+            else if(selectedPurity != null)
+            {
+                return selectedPurity.purity;
+            }
+
+            return string.Empty;
         }
 
         public static string GetGrandTotal(ObservableCollection<AdvanceDetails> goldeDetails)
@@ -771,7 +797,7 @@ namespace JewellPro
             return advance;
         }
 
-        public static int MaxDescriptionLimit = 80;
+        
         public static string Truncate(string value)
         {
             return value.Length <= MaxDescriptionLimit ? value : value.Substring(0, MaxDescriptionLimit) + "...";
@@ -843,6 +869,37 @@ namespace JewellPro
 
             return mbInfo;
         }       
+
+        public bool SendEmail(CommonUserInfo userInfo, MailInfo mailInfo)
+        {
+            try
+            {
+                MailMessage mail = new MailMessage();
+                SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
+                mail.From = new MailAddress(SenderEmail);
+                mail.To.Add("to_address");
+                mail.Subject = "Test Mail - 1";
+                mail.Body = "mail with attachment";
+
+                System.Net.Mail.Attachment attachment;
+                attachment = new System.Net.Mail.Attachment("your attachment file");
+                mail.Attachments.Add(attachment);
+
+                SmtpServer.Port = 587;
+                SmtpServer.Credentials = new System.Net.NetworkCredential(SenderEmail, SenderPassword);
+                SmtpServer.EnableSsl = true;
+
+                SmtpServer.Send(mail);
+                MessageBox.Show("mail Send");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+                return true;
+            }
+            return true;
+        }
+
     }
 
     public static class CloneObject
@@ -859,10 +916,6 @@ namespace JewellPro
             }
         }
     }
-
-    public enum UserControlState { Add, Update, Delete };
-
-    public enum OrderType { Customer, Employee, Estimation }
 
     public class CustomException : Exception
     {
@@ -893,8 +946,6 @@ namespace JewellPro
                 return instance;
             }
         }
-
-        public Customer SelectedCustomer { get; set; }
     }
 
 }

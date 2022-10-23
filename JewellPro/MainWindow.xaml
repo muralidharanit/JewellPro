@@ -95,7 +95,7 @@
                         <TextBlock Text="Silver : " HorizontalAlignment="Right" FontSize="20" FontWeight="Bold" Margin="10,0,5,0"/>
                         <TextBox Style="{StaticResource JPRateTextBox}" Text="{Binding SilverRate, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <Button Content="Save" Style="{StaticResource RateButtons}" Command="{Binding SaveCommand}" />
+                        <Button Content="Save" Style="{StaticResource RateButtons}" Command="{Binding SaveCommand}" ToolTip="Save Gold/Siver Rate" />
                     </StackPanel>
 
 
@@ -118,11 +118,11 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
                         
-                        <Button Content="Edit" Style="{StaticResource RateButtons}" Command="{Binding EditCommand}"  />
+                        <Button Content="Edit" Style="{StaticResource RateButtons}" Command="{Binding EditCommand}" ToolTip="Set Gold/Siver Rate"  />
                     </StackPanel>
 
-                    <Button Grid.Column="2" HorizontalAlignment="Left" Command="{Binding SaveUserPreferenceCommand}" ToolTip="Browse" Height="25" Margin="-2,0,0,0">
-                        <materialDesign:PackIcon Kind="UserDetails"  Foreground="#ffffff" />
+                    <Button Grid.Column="2" HorizontalAlignment="Left" Command="{Binding SaveUserPreferenceCommand}" ToolTip="Save User Preferences" Height="25" Margin="-2,0,0,0">
+                        <materialDesign:PackIcon Kind="ContentSaveSettings"  Foreground="#ffffff" />
                     </Button>
 
                     <StackPanel Grid.Column="3" HorizontalAlignment="Right" Orientation="Horizontal">

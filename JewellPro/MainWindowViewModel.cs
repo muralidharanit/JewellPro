@@ -17,6 +17,7 @@ namespace JewellPro
         public MainWindowViewModel()
         {
             helper = new Helper();
+            ShowRates = new ObservableCollection<Rate>();
             EditPane = false;
             SaveButtonVisibility = Visibility.Collapsed;
             EditButtonVisibility = Visibility.Visible;           
@@ -147,6 +148,7 @@ namespace JewellPro
 
         #endregion iCommands
 
+
         #region Methods
 
         public void GetGoldRates()
@@ -224,16 +226,13 @@ namespace JewellPro
                 MessageBox.Show("Gold/Silver rate are entered Incorrect format", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 GetGoldRates();
             }
+            LoadUserPreference();
         }
        
         void OnSaveUserPreferenceCommandclick()
         {
             UserPreference userPreferenceInfo = new UserPreference();
-            //userPreferenceInfo.Kt18GoldChecked = Kt18GoldChecked;
-            //userPreferenceInfo.Kt20GoldChecked = Kt20GoldChecked;
-            //userPreferenceInfo.Kt22GoldChecked = Kt22GoldChecked;
-            //userPreferenceInfo.Kt24GoldChecked = Kt24GoldChecked;
-            //userPreferenceInfo.SilverChecked = SilverChecked;
+            userPreferenceInfo.Rates = Rates;
 
             string userInfo = JsonConvert.SerializeObject(userPreferenceInfo);
             string sqlQuery = string.Format("update login set preference ='{0}' where id ={1}", userInfo, CommanDetails.user.id);
@@ -256,19 +255,28 @@ namespace JewellPro
                     Logger.LogError(ex.Message);
                 }
             }
+            LoadUserPreference();
         }
 
         void LoadUserPreference()
         {
             UserPreference userPreferenceInfo = CommanDetails.user.userPreference;
-            if (userPreferenceInfo != null)
+            if (userPreferenceInfo.Rates != null)
             {
-                //Kt18GoldChecked = userPreferenceInfo.Kt18GoldChecked;
-                //Kt20GoldChecked = userPreferenceInfo.Kt20GoldChecked;
-                //Kt22GoldChecked = userPreferenceInfo.Kt22GoldChecked;
-                //Kt24GoldChecked = userPreferenceInfo.Kt24GoldChecked;
-                //SilverChecked = userPreferenceInfo.SilverChecked;
+                foreach(var userPref in userPreferenceInfo.Rates)
+                {
+                    foreach (var uiRates in Rates)
+                    {
+                        if(userPref.isChecked && uiRates.name == userPref.name)
+                        {
+                            ShowRates.Add(userPref);
+                            uiRates.isChecked = true;
+                            break;
+                        }
+                    }
+                }
             }
+            OnRateSelectionChangeCommandclick();
         }
 
         void OnRateSelectionChangeCommandclick()

@@ -8,7 +8,7 @@ namespace JewellPro
 {
     public class Configuration
     {
-        public static string PureGoldRate;
-        public static string SilverRate;
+        public static string PureGoldRate = "";
+        public static string SilverRate = "";
     }
 }

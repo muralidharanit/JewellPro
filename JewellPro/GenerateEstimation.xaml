@@ -10,6 +10,7 @@
         <Style x:Key="CenterGridHeaderStyle" TargetType="DataGridColumnHeader">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
         </Style>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
     </UserControl.Resources>
 
     <Grid HorizontalAlignment="Stretch" >
@@ -78,7 +79,7 @@
 
                         <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                             <TextBlock Style="{StaticResource JPTextBlock}">
-                                <TextBlock Text="Size / Length : " /><!--<TextBlock Text="*" Foreground="Red" />-->
+                                <TextBlock Text="Size / Length : " />
                             </TextBlock>
                             <TextBox Text="{Binding OrderDetails.size, UpdateSourceTrigger=PropertyChanged}" 
                                      Style="{StaticResource JPTextBox}" />
@@ -94,12 +95,6 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
-                            <TextBlock Style="{StaticResource JPTextBlock}" Text="Seal : " />
-                            <TextBox Text="{Binding OrderDetails.seal, UpdateSourceTrigger=PropertyChanged}" 
-                                     Style="{StaticResource JPTextBox}" />
-                        </StackPanel>
-
                         <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                             <TextBlock Style="{StaticResource JPTextBlock}" Text="Description : " />
                             <RichTextBox Style="{StaticResource JPRichTextBox}" Height="80" >
@@ -140,15 +135,15 @@
 
                     <DataGrid Grid.Row="1" Grid.ColumnSpan="2" GridLinesVisibility="All" IsReadOnly="True" ItemsSource="{Binding OrderDetailsCollection, Mode=TwoWay}" ColumnWidth="*" Margin="5" AutoGenerateColumns="False" SelectionMode="Single">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Jewel Type" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelType.name}" CellStyle="{StaticResource JPDataGridCell}"  />
-                            <DataGridTextColumn Header="Jewel Purity" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelPurity}" CellStyle="{StaticResource JPDataGridCell}" />
-                            <DataGridTextColumn Header="Size" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="70" Binding="{Binding size}" CellStyle="{StaticResource JPDataGridCell}" />
-                            <DataGridTextColumn Header="Net Weight" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="110" Binding="{Binding netWeight}" CellStyle="{StaticResource JPDataGridCell}" />
-                            <DataGridTextColumn Header="Seal" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="70" Binding="{Binding seal}" CellStyle="{StaticResource JPDataGridCell}" />
-                            <DataGridTextColumn Header="Description" HeaderStyle="{StaticResource JPGridHeaderStyle}" Binding="{Binding description}" CellStyle="{StaticResource JPDataGridCell}" />
-                            <DataGridTextColumn Header="Attachement" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="130" Binding="{Binding attachement}" CellStyle="{StaticResource JPDataGridCell}" />
-                            <DataGridTextColumn Header="Due Date" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="110" Binding="{Binding dueDate}" CellStyle="{StaticResource JPDataGridCell}" />
-                            <DataGridTemplateColumn Header="Edit" Width="80" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}">
+                            <DataGridTextColumn Header="Jewel Type" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelType.name}" CellStyle="{StaticResource JPDataGridCell}" Visibility="{Binding Path=GridColumnsVisibility.jewelType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"  />
+                            <DataGridTextColumn Header="Jewel Purity" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelPurity}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.jewelPurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                            <DataGridTextColumn Header="Size" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="70" Binding="{Binding size}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.size, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                            <DataGridTextColumn Header="Net Weight" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="110" Binding="{Binding netWeight}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.netWeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                            <DataGridTextColumn Header="Seal" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="70" Binding="{Binding seal}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.seal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                            <DataGridTextColumn Header="Description" HeaderStyle="{StaticResource JPGridHeaderStyle}" Binding="{Binding description}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                            <DataGridTextColumn Header="Attachement" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="130" Binding="{Binding attachement}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.attachement, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                            <DataGridTextColumn Header="Due Date" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="110" Binding="{Binding dueDate}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.dueDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                            <DataGridTemplateColumn Header="Edit" Width="80" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" >
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button HorizontalAlignment="Center" Command="{Binding DataContext.OrderDetailsEditCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
@@ -174,8 +169,8 @@
 
 
         <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Generate Customer Order" Style="{StaticResource ActionButtons}" Command="{Binding GenerateInvoiceCommand}" />
-            <!--<Button Content="Clear" Style="{StaticResource ActionButtons}" Command="{Binding ClearCommand}" />-->
+            <Button Content="Generate Estimation Order" Style="{StaticResource ActionButtons}" Command="{Binding GenerateInvoiceCommand}" />
+            <Button Content="Clear" Style="{StaticResource ActionButtons}" Command="{Binding ClearCommand}" />
         </StackPanel>
     </Grid>
 </UserControl>

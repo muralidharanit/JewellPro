@@ -24,5 +24,11 @@ namespace JewellPro
             MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             //Write into log file
         }
+
+        public static void LogError(Exception error)
+        {
+            MessageBox.Show(error.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //Write into log file
+        }
     }
 }

@@ -203,16 +203,19 @@ namespace JewellPro
         }
     }
 
+    [Serializable]
     public class DetectionControl : CustomControls
     {
         
     }
 
+    [Serializable]
     public class ChargesControl : CustomControls
     {
 
     }
 
+    [Serializable]
     public class CustomControls 
     {
         public int id { get; set; }
@@ -223,6 +226,7 @@ namespace JewellPro
         public int pkId { get; set; }
     }
 
+    [Serializable]
     public class User 
     {
         public int id { get; set; }
@@ -230,21 +234,91 @@ namespace JewellPro
         public string lastLoggedIn { get; set; }
         public UserPreference userPreference { get; set; }
         public UserType userType { get; set; }
-
-
     }
 
+    [Serializable]
+    public class MailInfo
+    {
+        public string Subject { get; set; }
+        public string Body { get; set; }
+        public string Attachments { get; set; }
+        public string AutoTrigger { get; set; }
+    }
+
+    [Serializable]
     public class UserType 
     {
         public int id { get; set; }
         public string userType { get; set; }
     }
 
+    [Serializable]
     public class Employee : CommonUserInfo
     {
 
     }
 
+    [Serializable]
+    public class GenerateEstimationGridColumns : NotifyObject
+    {
+        private bool _jewelType;
+        public bool jewelType
+        {
+            get { return _jewelType; }
+            set { _jewelType = value; RaisePropertyChanged("jewelType"); }
+        }
+
+        private bool _jewelPurity;
+        public bool jewelPurity
+        {
+            get { return _jewelPurity; }
+            set { _jewelPurity = value; RaisePropertyChanged("jewelPurity"); }
+        }
+
+        private bool _size;
+        public bool size
+        {
+            get { return _size; }
+            set { _size = value; RaisePropertyChanged("size"); }
+        }
+
+        private bool _netWeight;
+        public bool netWeight
+        {
+            get { return _netWeight; }
+            set { _netWeight = value; RaisePropertyChanged("netWeight"); }
+        }
+
+        private bool _seal;
+        public bool seal
+        {
+            get { return _seal; }
+            set { _seal = value; RaisePropertyChanged("seal"); }
+        }
+
+        private bool _description;
+        public bool description
+        {
+            get { return _description; }
+            set { _description = value; RaisePropertyChanged("description"); }
+        }
+
+        private bool _attachement;
+        public bool attachement
+        {
+            get { return _attachement; }
+            set { _attachement = value; RaisePropertyChanged("attachement"); }
+        }
+
+        private bool _dueDate;
+        public bool dueDate
+        {
+            get { return _dueDate; }
+            set { _dueDate = value; RaisePropertyChanged("dueDate"); }
+        }
+    }
+
+    [Serializable]
     public class Purity 
     {
         public int id { get; set; }
@@ -276,6 +350,7 @@ namespace JewellPro
         
     }
 
+    [Serializable]
     public class Gender
     {
         public int id { get; set; }
@@ -284,11 +359,13 @@ namespace JewellPro
 
     }
 
+    [Serializable]
     public class AdvanceType : BaseClass
     {
 
     }
 
+    [Serializable]
     public class AdvanceDetails : NotifyObject
     {
         public long id { get; set; }
@@ -348,6 +425,7 @@ namespace JewellPro
         }
     }
 
+    [Serializable]
     public class CreditDebitDetails : NotifyObject
     {
         public long id { get; set; }
@@ -371,11 +449,13 @@ namespace JewellPro
         public string orderRefNo { get; set; }
     }
 
+    [Serializable]
     public class JewelType : BaseClass
     {
 
     }
 
+    [Serializable]
     public class Wastage
     {
         public string jewellWeight { get; set; }
@@ -384,6 +464,7 @@ namespace JewellPro
         public string detection { get; set; }
     }
 
+    [Serializable]
     public class GoldeDetails
     {
         public long id { get; set; }
@@ -394,16 +475,14 @@ namespace JewellPro
         public string total { get; set; }
     }
 
+    [Serializable]
     public class UserPreference
     {
         public string pageId { get; set; }
-        public bool Kt24GoldChecked { get; set; }
-        public bool Kt22GoldChecked { get; set; }
-        public bool Kt20GoldChecked { get; set; }
-        public bool Kt18GoldChecked { get; set; }
-        public bool SilverChecked { get; set; }
+        public ObservableCollection<Rate> Rates { get; set; }
     }
 
+    [Serializable]
     public class Rate : NotifyObject
     {
         public int id { get; set; }
@@ -427,6 +506,7 @@ namespace JewellPro
         }
     }
 
+    [Serializable]
     public class ExcelFileArgs
     {
         public string orderRefNo { get; set; }
