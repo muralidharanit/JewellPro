@@ -255,7 +255,25 @@ namespace JewellPro
                             fk_customer_order = Convert.ToInt64(cmd.ExecuteScalar());
                         }
 
-                        if (fk_customer_order == 0)
+                        if (fk_customer_order > 0)
+                        {
+                            List<string> custOrderDetails = new List<string>();
+                            foreach (OrderDetails obj in OrderDetailsCollection)
+                            {
+                                custOrderDetails.Add(string.Format("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}',{8},{9})", obj.size,
+                                    obj.netWeight, obj.seal, obj.description, obj.attachement, obj.orderDate, obj.dueDate, obj.jewelPurity,
+                                    obj.jewelType.id, fk_customer_order));
+                            }
+
+                            string custOrderList = string.Join<string>(",", custOrderDetails);
+                            string query_customer_order_details = "Insert into estimation_order_details(size, net_weight, seal, description, attachement, order_date, due_date, ornament_purity, fk_ornament_type_id, fk_customer_order_id) values " + custOrderList;
+
+                            using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order_details, CommandType.Text))
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        else if (fk_customer_order == 0)
                         {
                             throw new Exception("Order creation failed. close and open the tool.");
                         }
@@ -264,7 +282,7 @@ namespace JewellPro
                         MessageBoxResult messageBoxResult = MessageBox.Show("Customer estimation order added successfully", "Record", MessageBoxButton.YesNo, MessageBoxImage.Information);
                         if (MessageBoxResult.Yes == messageBoxResult)
                         {
-                            OnGeneratePrintCommand();
+                            OnGenerateExcelCommand();
                         }
                         OnLoad();
                     }
@@ -443,16 +461,32 @@ namespace JewellPro
         {
             try
             {
-                OrderDetails orderDetails = new OrderDetails { orderDate = DateTime.Now.ToString("dd MMMM yyyy"), orderRefNo = EstimationRefNo };
-                ExcelFileArgs excelFileArgs = new ExcelFileArgs { orderDetails = OrderDetailsCollection, selectedCustomer = SelectedCustomer, selectedCustomerOrder = orderDetails };
-                ExcelGenerator excelGenerator = new ExcelGenerator();
-                excelGenerator.GenerateCustomerEstimationInvoice(excelFileArgs);
+               
+                
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex.Message);
             }
         }
+
+        void OnGenerateExcelCommand()
+        {
+            try
+            {
+                OrderDetails orderDetails = new OrderDetails { orderDate = DateTime.Now.ToString("dd MMMM yyyy"), orderRefNo = EstimationRefNo };
+                ExcelFileArgs excelFileArgs = new ExcelFileArgs { orderDetails = OrderDetailsCollection, selectedCustomer = SelectedCustomer, selectedCustomerOrder = orderDetails };
+                ExcelGenerator excelGenerator = new ExcelGenerator();
+                excelGenerator.GenerateCustomerEstimationInvoice(excelFileArgs);                
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+            }
+        }
+
+        
+
 
         #endregion Methods
 

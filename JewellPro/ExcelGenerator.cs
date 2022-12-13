@@ -1,6 +1,7 @@
 ﻿namespace JewellPro
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.IO;
     using System.Reflection;
@@ -13,16 +14,20 @@
         private string excelTemplate = "";
         private string currentAppPath = "";
         string excelOutputFilePath = "";
+        string excelEstimationFilePath = "";
         string temDirPath = "";
+        string excelEstimationOutputFilePath = "";
 
         public ExcelGenerator()
         {
             currentAppPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             temDirPath = Path.Combine(currentAppPath, DateTime.Now.ToString("yyyyMMddHHmmss"));
-            excelTemplate = Path.Combine(currentAppPath, "OFFICE_COPY.xlsx");
-            excelOutputFilePath = Path.Combine(temDirPath, "OFFICE_COPY.xlsx");
+            excelEstimationOutputFilePath = Path.Combine(temDirPath, "Estimation.xlsx");
+
+            excelEstimationFilePath = Path.Combine(currentAppPath, "template", "Estimation.xlsx");
+
             Directory.CreateDirectory(temDirPath);
-            File.Copy(excelTemplate, excelOutputFilePath, true);
+            File.Copy(excelEstimationFilePath, excelEstimationOutputFilePath, true);
         }
 
         private Excel.Workbook CreateExcelWorkBook(string filePath, Excel.Application xlApp)
@@ -37,16 +42,17 @@
         public bool GenerateCustomerEstimationInvoice(ExcelFileArgs excelFileArgs)
         {
             Excel.Application xlApp = new Excel.Application();
-            Excel.Workbook xlWorkBook = CreateExcelWorkBook(excelOutputFilePath, xlApp);
+            Excel.Workbook xlWorkBook = CreateExcelWorkBook(excelEstimationOutputFilePath, xlApp);
             Excel.Worksheet xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
             try
             {
-                xlWorkSheet.Range["I3"].Value2 = Convert.ToString(excelFileArgs.selectedCustomerOrder.orderDate);
-                xlWorkSheet.Range["I4"].Value2 = Convert.ToString(excelFileArgs.selectedCustomerOrder.orderRefNo);
-                xlWorkSheet.Range["G6"].Value2 = Convert.ToString(excelFileArgs.selectedCustomer.address + "\n" + excelFileArgs.selectedCustomer.mobile);
+                xlWorkSheet.Range["H2"].Value2 = Convert.ToString(excelFileArgs.selectedCustomerOrder.orderDate);
+                xlWorkSheet.Range["E4"].Value2 = Convert.ToString(excelFileArgs.selectedCustomer.address);
+                xlWorkSheet.Range["E5"].Value2 = Convert.ToString(excelFileArgs.selectedCustomer.mobile);// + "\n" + excelFileArgs.selectedCustomer.mobile);
+                
+                xlWorkSheet.Range["A6"].Value2 = Convert.ToString(excelFileArgs.selectedCustomer.mobile);
 
-
-                xlWorkBook.SaveAs(excelOutputFilePath, Excel.XlFileFormat.xlOpenXMLWorkbook,
+                xlWorkBook.SaveAs(excelEstimationOutputFilePath, Excel.XlFileFormat.xlOpenXMLWorkbook,
                     Missing.Value, Missing.Value, Missing.Value, Missing.Value, Excel.XlSaveAsAccessMode.xlNoChange,
                     Excel.XlSaveConflictResolution.xlLocalSessionChanges, Missing.Value, Missing.Value,
                     Missing.Value, Missing.Value);
@@ -282,6 +288,22 @@
             Marshal.ReleaseComObject(xlWorkSheet);
             Marshal.ReleaseComObject(xlWorkBook);
             Marshal.ReleaseComObject(xlApp);
+        }
+
+        Dictionary<string, string> GetCustomerEstimationKeyValue()
+        {
+            Dictionary<string, string> customerEstimation = new Dictionary<string, string>();
+            customerEstimation.Add("Date", "H2");
+            customerEstimation.Add("CustomerAddress", "E4");
+            customerEstimation.Add("CustomerPhone", "E5");
+            
+            customerEstimation.Add("GoldRateInfo", "A6");
+            customerEstimation.Add("RateFrozenInfo", "A7");
+
+            customerEstimation.Add("TotalItems", "C17");
+            customerEstimation.Add("TotalWeight", "E17");
+            customerEstimation.Add("TotalWeight", "H17");
+            return customerEstimation;
         }
     }
 }
