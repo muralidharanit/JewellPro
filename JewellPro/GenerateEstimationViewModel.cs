@@ -344,15 +344,31 @@ namespace JewellPro
                 errorControl.AppendLine();
             }
 
+            if (!string.IsNullOrEmpty(OrderDetails.quantity) && !Helper.IsValidInteger(OrderDetails.quantity))
+            {
+                errorControl.AppendLine("Enter Valid jewel Quantity");
+                errorControl.AppendLine();
+            }
+
             if (string.IsNullOrEmpty(OrderDetails.jewelPurity))
             {
                 errorControl.AppendLine("Enter Jewel Purity");
+                errorControl.AppendLine();
+            }
+            else if (!Helper.IsValidDecimal(OrderDetails.jewelPurity))
+            {
+                errorControl.AppendLine("Enter Valid Jewel Purity. Example 88.00");
                 errorControl.AppendLine();
             }
 
             if (string.IsNullOrEmpty(OrderDetails.netWeight))
             {
                 errorControl.AppendLine("Enter Jewellery Net Weight");
+                errorControl.AppendLine();
+            }
+            else if (!Helper.IsValidDecimal(OrderDetails.netWeight))
+            {
+                errorControl.AppendLine("Enter Valid Weight. Example 48.560");
                 errorControl.AppendLine();
             }
 
@@ -474,7 +490,7 @@ namespace JewellPro
         {
             try
             {
-                OrderDetails orderDetails = new OrderDetails { orderDate = DateTime.Now.ToString("dd MMMM yyyy"), orderRefNo = EstimationRefNo };
+                OrderDetails orderDetails = new OrderDetails { orderDate = DateTime.Now.ToString("dd-mm-yyyy"), orderRefNo = EstimationRefNo };
                 ExcelFileArgs excelFileArgs = new ExcelFileArgs { orderDetails = OrderDetailsCollection, selectedCustomer = SelectedCustomer, selectedCustomerOrder = orderDetails };
                 ExcelGenerator excelGenerator = new ExcelGenerator();
                 excelGenerator.GenerateCustomerEstimationInvoice(excelFileArgs);                
@@ -484,8 +500,6 @@ namespace JewellPro
                 Logger.LogError(ex);
             }
         }
-
-        
 
 
         #endregion Methods

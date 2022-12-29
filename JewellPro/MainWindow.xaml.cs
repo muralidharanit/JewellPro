@@ -61,7 +61,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Customer Estimation";
-                    GenerateEstimation customerOrder = new GenerateEstimation(contentPane.ActualHeight - 200);
+                    GenerateEstimation customerOrder = new GenerateEstimation(contentPane.ActualHeight - 230);
                     usercontrolPane.Children.Add(customerOrder);
                 }
 

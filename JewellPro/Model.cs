@@ -180,6 +180,13 @@ namespace JewellPro
             set { _grandTotal = value; RaisePropertyChanged("grandTotal"); }
         }
 
+        private string _quantity;
+        public string quantity
+        {
+            get { return _quantity; }
+            set { _quantity = value; RaisePropertyChanged("quantity"); }
+        }
+
         ObservableCollection<DetectionControl> _detectionDetails;
         public ObservableCollection<DetectionControl> detectionDetails
         {

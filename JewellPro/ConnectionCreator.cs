@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using JewellPro;
+using Npgsql;
 using System;
 using System.Configuration;
 using System.Data;
@@ -85,6 +86,7 @@ namespace CommonLayer
                 {
                     connection.Dispose();
                 }
+                Logger.LogError(ex);
             }
             return connection;
         }
@@ -114,6 +116,7 @@ namespace CommonLayer
                 {
                     connection.Dispose();
                 }
+                Logger.LogError(ex);
             }
             return connection;
         }

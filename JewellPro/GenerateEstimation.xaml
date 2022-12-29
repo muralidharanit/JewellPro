@@ -71,10 +71,12 @@
                             <TextBlock Style="{StaticResource JPTextBlock}">
                                 <TextBlock Text="Jewel Purity : " /><TextBlock Text="*" Foreground="Red" />
                             </TextBlock>
-                            <ComboBox DisplayMemberPath="displayText" 
+                            <TextBox Text="{Binding OrderDetails.jewelPurity, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource JPTextBox}" />
+                            <!--<ComboBox DisplayMemberPath="displayText" 
                                       Text="{Binding Path=OrderDetails.jewelPurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                       TextSearch.TextPath="displayText" ItemsSource="{Binding Puritys}" Style="{StaticResource JPEditableComboBox}">
-                            </ComboBox>
+                            </ComboBox>-->
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
@@ -82,6 +84,14 @@
                                 <TextBlock Text="Size / Length : " />
                             </TextBlock>
                             <TextBox Text="{Binding OrderDetails.size, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource JPTextBox}" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                            <TextBlock Style="{StaticResource JPTextBlock}">
+                                <TextBlock Text="Quantity : " />
+                            </TextBlock>
+                            <TextBox Text="{Binding OrderDetails.quantity, UpdateSourceTrigger=PropertyChanged}" 
                                      Style="{StaticResource JPTextBox}" />
                         </StackPanel>
 
@@ -104,6 +114,14 @@
                                     </Paragraph>
                                 </FlowDocument>
                             </RichTextBox>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                            <TextBlock Style="{StaticResource JPTextBlock}">
+                                <TextBlock Text="Seal : " />
+                            </TextBlock>
+                            <TextBox Text="{Binding OrderDetails.seal, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource JPTextBox}" />
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="5,5,5,5">

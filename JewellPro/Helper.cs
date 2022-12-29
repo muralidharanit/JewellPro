@@ -771,6 +771,7 @@ namespace JewellPro
         {
             OrderDetails order = new OrderDetails();
             order.seal = !string.IsNullOrEmpty(orderDetails.seal) ? orderDetails.seal : string.Empty;
+            order.quantity = !string.IsNullOrEmpty(orderDetails.quantity) ? orderDetails.quantity : string.Empty;
             order.size = !string.IsNullOrEmpty(orderDetails.size) ? orderDetails.size : string.Empty;
             order.wastage = !string.IsNullOrEmpty(orderDetails.wastage) ? orderDetails.wastage : string.Empty;
             order.wastagePercentage = !string.IsNullOrEmpty(orderDetails.wastagePercentage) ? orderDetails.wastagePercentage : string.Empty;
@@ -900,6 +901,60 @@ namespace JewellPro
             return true;
         }
 
+        public static bool IsValidDecimal(string value, int pointPrecision=3)
+        {
+            decimal number;
+            if (Decimal.TryParse(value, out number))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool IsValidInteger(string value)
+        {
+            decimal number;
+            if (Decimal.TryParse(value, out number))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static string GetSubstringByString(string a, string b, string c)
+        {
+            if(c.IndexOf(a) == -1)
+            {
+                return string.Empty;
+            }
+            else if (c.IndexOf(b) == -1)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return c.Substring((c.IndexOf(a) + a.Length), (c.IndexOf(b) - c.IndexOf(a) - a.Length));
+            }
+        }
+
+        public static decimal GetGoldCharges(OrderDetails orderDetails)
+        {
+            decimal GetGoldCharge = 0;
+            GetGoldCharge = Convert.ToDecimal(Configuration.PureGoldRate) * Convert.ToDecimal(orderDetails.jewelPurity) * Convert.ToDecimal(orderDetails.netWeight);
+            return GetGoldCharge;
+        }
+
+        public static decimal GetEstimatedValue(OrderDetails orderDetails)
+        {
+            decimal EstimatedValue = 0;
+            EstimatedValue = Convert.ToDecimal(Configuration.PureGoldRate) * Convert.ToDecimal(orderDetails.jewelPurity) * Convert.ToDecimal(orderDetails.netWeight);
+
+            decimal watageVal = 0;
+            watageVal = (EstimatedValue * Convert.ToDecimal(orderDetails.wastage)) / 100;
+
+            return EstimatedValue + watageVal;
+        }
+        
     }
 
     public static class CloneObject

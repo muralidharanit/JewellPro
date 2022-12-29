@@ -46,11 +46,49 @@
             Excel.Worksheet xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
             try
             {
+                //Order date
                 xlWorkSheet.Range["H2"].Value2 = Convert.ToString(excelFileArgs.selectedCustomerOrder.orderDate);
+                //Order Name
+                xlWorkSheet.Range["E3"].Value2 = Convert.ToString(excelFileArgs.selectedCustomer.name);
+                //Customer Address
                 xlWorkSheet.Range["E4"].Value2 = Convert.ToString(excelFileArgs.selectedCustomer.address);
+                //Customer mobile
                 xlWorkSheet.Range["E5"].Value2 = Convert.ToString(excelFileArgs.selectedCustomer.mobile);// + "\n" + excelFileArgs.selectedCustomer.mobile);
+
+                int sno = 1;
+                int rowno = 10;
+                int totalQuantity = 0;
+                decimal totalGoldCharges = 0;
+                decimal totalEstimatedValue = 0;
+
+                foreach (OrderDetails order in excelFileArgs.orderDetails)
+                {
+                    xlWorkSheet.Range["A" + rowno.ToString()].Value2 = Convert.ToString(sno);
+                    xlWorkSheet.Range["B" + rowno.ToString()].Value2 = Convert.ToString(order.jewelType);
+                    xlWorkSheet.Range["C" + rowno.ToString()].Value2 = Convert.ToString(order.quantity);
+                    totalQuantity = totalQuantity + Convert.ToInt16(order.quantity);
+
+                    xlWorkSheet.Range["D" + rowno.ToString()].Value2 = Convert.ToString(order.jewelPurity);
+                    xlWorkSheet.Range["E" + rowno.ToString()].Value2 = Convert.ToString(order.netWeight);
+
+                    decimal goldCharge = Helper.GetGoldCharges(order);
+                    totalGoldCharges = totalGoldCharges + goldCharge;
+                    xlWorkSheet.Range["F" + rowno.ToString()].Value2 = Convert.ToString(goldCharge);
+
+                    xlWorkSheet.Range["G" + rowno.ToString()].Value2 = Convert.ToString(order.wastage);
+
+                    decimal estmateCharge = Helper.GetEstimatedValue(order);
+                    totalEstimatedValue = totalEstimatedValue + estmateCharge;
+                    xlWorkSheet.Range["H" + rowno.ToString()].Value2 = Convert.ToString(estmateCharge);//EstimatedValue//Convert.ToString(order.wastage);
+
+                    rowno = rowno + 1;
+                    sno = sno + 1;
+                }
+
+
+
+
                 
-                xlWorkSheet.Range["A6"].Value2 = Convert.ToString(excelFileArgs.selectedCustomer.mobile);
 
                 xlWorkBook.SaveAs(excelEstimationOutputFilePath, Excel.XlFileFormat.xlOpenXMLWorkbook,
                     Missing.Value, Missing.Value, Missing.Value, Missing.Value, Excel.XlSaveAsAccessMode.xlNoChange,
@@ -170,7 +208,7 @@
             int sNo = 0;
             int orderInfoStartIndex = 9;
             int orderTempIndex = 0;
-            int orderInfoImageIndex = 54;
+            //int orderInfoImageIndex = 54;
             foreach (OrderDetails order in excelFileArgs.orderDetails)
             {
                 sNo += 1;
