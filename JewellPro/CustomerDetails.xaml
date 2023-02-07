@@ -20,13 +20,12 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="400" />
+            <RowDefinition Height="300" />
             <RowDefinition Height="*" />
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
 
-        <GroupBox Grid.Row="0" Margin="10" Header="Customer Details" VerticalAlignment="Top">
-            <Grid  Grid.ColumnSpan="1" Margin="10">
+        <Grid  Grid.ColumnSpan="1" Margin="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -115,24 +114,34 @@
                         <TextBox Name="txtbxDescription" Text="{Binding CustomerDetail.description, UpdateSourceTrigger=PropertyChanged}" 
                                      Style="{StaticResource JPTextBox}" />
                     </StackPanel>
-                </StackPanel>
-            </Grid>
-        </GroupBox>
 
-        <DataGrid Grid.Row="1" ItemsSource="{Binding CustomerDetailsCollection, Mode=TwoWay}" Style="{StaticResource JPDataGrid}" >
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <TextBlock Style="{StaticResource JPTextBlock}" Text="Date of Birth : " />
+                        <DatePicker Text="{Binding CustomerDetail.dob, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                Style="{StaticResource JPDatePicker}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                        <TextBlock Style="{StaticResource JPTextBlock}" Text="Date of Anniversary  : " />
+                        <DatePicker Text="{Binding CustomerDetail.anniversary, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                            Style="{StaticResource JPDatePicker}" />
+                    </StackPanel>
+            </StackPanel>
+            </Grid>
+
+        <DataGrid Grid.Row="1" GridLinesVisibility="All" IsReadOnly="True" ItemsSource="{Binding CustomerDetailsCollection, Mode=TwoWay}" ColumnWidth="*" Margin="15" AutoGenerateColumns="False" SelectionMode="Single">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name"  Width="120" Binding="{Binding name}" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}"/>
                 <DataGridTextColumn Header="Address"  HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" Binding="{Binding address}" />
                 <DataGridTextColumn Header="Description" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" Width="160" Binding="{Binding description}" />
                 <DataGridTextColumn Header="E Mail" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" Width="150" Binding="{Binding email}" />
-                <!--<DataGridTextColumn Header="PAN" Width="75" Binding="{Binding pan}" />
-                <DataGridTextColumn Header="GST No" Width="95" Binding="{Binding gst}" />-->
                 <DataGridTextColumn Header="Mobile" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" Width="150" Binding="{Binding mobile}" />
                 <DataGridTemplateColumn Header="Edit" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" Width="100" CellTemplate="{StaticResource EditDateTemplate}" />
                 <DataGridTemplateColumn Header="Delete" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" Width="100" CellTemplate="{StaticResource DeleteDateTemplate}" />
             </DataGrid.Columns>
         </DataGrid>
 
+        
         <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Update Customer" Style="{StaticResource ActionButtons}" Visibility="{Binding UpdateCustomerButtonVisibility,  UpdateSourceTrigger=PropertyChanged}"  Command="{Binding UpdateCustomerCommand}" />
             <Button Content="Add Customer" Style="{StaticResource ActionButtons}"  Visibility="{Binding AddCustomerButtonVisibility,  UpdateSourceTrigger=PropertyChanged}" Command="{Binding AddCustomerCommand}"/>

@@ -8,6 +8,7 @@ using System.Windows;
 using Npgsql;
 using System.Data;
 using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace JewellPro
 {
@@ -21,7 +22,6 @@ namespace JewellPro
             EditPane = false;
             SaveButtonVisibility = Visibility.Collapsed;
             EditButtonVisibility = Visibility.Visible;           
-            GetGoldRates();
             LoadUserPreference();
         }
 
@@ -151,40 +151,6 @@ namespace JewellPro
 
         #region Methods
 
-        public void GetGoldRates()
-        {
-            var TempRates = helper.GetRates();
-            Rates = new ObservableCollection<Rate>();
-            if (TempRates != null)
-            {
-                foreach(var obj in TempRates)
-                {
-                    if(obj.name.ToLower() =="gold")
-                    {
-                        PureGoldRate = (Convert.ToInt16(obj.rate)).ToString("F");
-                        Configuration.PureGoldRate = PureGoldRate;
-
-                        Rate kt24 = new Rate { isChecked = false, name = "24 Kt", isEnabled = true, description = "24 Kt " + Convert.ToInt16(obj.rate).ToString("F") };
-                        Rate kt22 = new Rate { isChecked = false, name = "22 Kt", isEnabled = true, description = "22 Kt " + (Convert.ToInt16(obj.rate) * 92 / 100).ToString("F") };
-                        Rate kt20 = new Rate { isChecked = false, name = "20 Kt", isEnabled = true, description = "20 Kt " + (Convert.ToInt16(obj.rate) * 84 / 100).ToString("F") };
-                        Rate kt18 = new Rate { isChecked = false, name = "18 Kt", isEnabled = true, description = "18 Kt " + (Convert.ToInt16(obj.rate) * 75 / 100).ToString("F") };
-
-                        Rates.Add(kt24);
-                        Rates.Add(kt22);
-                        Rates.Add(kt20);
-                        Rates.Add(kt18);
-                    }
-                    else if (obj.name.ToLower() == "silver")
-                    {
-                        SilverRate = (Convert.ToInt16(obj.rate)).ToString("F");
-                        Configuration.SilverRate = SilverRate;
-                        Rate sliver = new Rate { isChecked = false, name = "Silver", isEnabled = true, description = "Silver " + SilverRate };
-                        Rates.Add(sliver);
-                    }
-                }
-            }
-        }
-
         void OnSaveCommandclick()
         {
             EditPane = false;
@@ -212,7 +178,6 @@ namespace JewellPro
                         }
 
                         trans.Commit();
-                        GetGoldRates();
                     }
                     catch (Exception ex)
                     {
@@ -224,7 +189,6 @@ namespace JewellPro
             else
             {
                 MessageBox.Show("Gold/Silver rate are entered Incorrect format", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                GetGoldRates();
             }
             LoadUserPreference();
         }
@@ -233,8 +197,9 @@ namespace JewellPro
         {
             UserPreference userPreferenceInfo = new UserPreference();
             userPreferenceInfo.Rates = Rates;
-
-            string userInfo = JsonConvert.SerializeObject(userPreferenceInfo);
+            
+            CommanDetails.user.userPreference.Rates = Rates;
+            string userInfo = JsonConvert.SerializeObject(CommanDetails.user.userPreference);
             string sqlQuery = string.Format("update login set preference ='{0}' where id ={1}", userInfo, CommanDetails.user.id);
 
             using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
@@ -252,7 +217,7 @@ namespace JewellPro
                 catch (Exception ex)
                 {
                     trans.Rollback();
-                    Logger.LogError(ex.Message);
+                    Logger.LogError(ex);
                 }
             }
             LoadUserPreference();
@@ -265,18 +230,18 @@ namespace JewellPro
             {
                 foreach(var userPref in userPreferenceInfo.Rates)
                 {
-                    foreach (var uiRates in Rates)
-                    {
-                        if(userPref.isChecked && uiRates.name == userPref.name)
-                        {
-                            ShowRates.Add(userPref);
-                            uiRates.isChecked = true;
-                            break;
-                        }
-                    }
+                    //foreach (var uiRates in Rates)
+                    //{
+                    //    if (userPref.isChecked && uiRates.name == userPref.name)
+                    //    {
+                    //        ShowRates.Add(userPref);
+                    //        uiRates.isChecked = true;
+                    //        break;
+                    //    }
+                    //}
                 }
             }
-            OnRateSelectionChangeCommandclick();
+            //OnRateSelectionChangeCommandclick();
         }
 
         void OnRateSelectionChangeCommandclick()

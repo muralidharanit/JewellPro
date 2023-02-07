@@ -1,0 +1,68 @@
+﻿<UserControl x:Class="JewellPro.ManageEstimation"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:JewellPro"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:editors="http://wpfcontrols.com/"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity">
+    <Grid HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+
+        <TabControl Name="empOrderTab" Grid.Row="0" Grid.Column="0" Margin="10" SelectedIndex="{Binding SelectedTabIndex}"  >
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding TabItemSelectionChangeCommand}" CommandParameter="{Binding }" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <TabItem Header="Estimation Details" Style="{StaticResource JPTabItem}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="290" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="50" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center" Margin="10">
+
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                            <TextBlock Style="{StaticResource JPTextBlock}"><TextBlock Text="Select Customer : " /><TextBlock Text="*" Foreground="Red" /></TextBlock>
+                            <ComboBox DisplayMemberPath="name" SelectedItem="{Binding Path=SelectedCustomer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerDetails}" Style="{StaticResource JPEditableComboBox}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding CustomerNameSelectionChangeCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                            <TextBlock Style="{StaticResource JPTextBlock}"><TextBlock Text="Select Order No : " /><TextBlock Text="*" Foreground="Red" /></TextBlock>
+                            <ComboBox DisplayMemberPath="orderRefNo" ItemsSource="{Binding EstimationRefNos}" SelectedItem="{Binding SelectedCustomerOrder , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource JPComboBox}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding CustomerEstimationSelectionChangeCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ComboBox>
+                        </StackPanel>
+
+                    </StackPanel>
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</UserControl>

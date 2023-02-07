@@ -9,10 +9,10 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
         xmlns:command="http://www.galasoft.ch/mvvmlight"
         TextOptions.TextFormattingMode="Ideal" 
-        TextOptions.TextRenderingMode="Auto" 
+        TextOptions.TextRenderingMode="Auto" WindowStartupLocation="CenterScreen"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}" 
-        ResizeMode="NoResize"  mc:Ignorable="d" WindowState="Maximized" Title="MainWindow" Closed="MainWindow_Closed" >
+        mc:Ignorable="d" WindowState="Maximized" Title="MainWindow" Closed="MainWindow_Closed" >
 
     <Window.Resources>
         <DataTemplate x:Key="DatagridParamDateTemplate">
@@ -36,7 +36,7 @@
     
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="280" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -113,7 +113,7 @@
                             </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding description}" Style="{StaticResource JPRateTextBlock}"   />
+                                    <TextBlock Text="{Binding description}" Style="{StaticResource JPRateTextBlock}"  />
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -128,7 +128,7 @@
                     <StackPanel Grid.Column="3" HorizontalAlignment="Right" Orientation="Horizontal">
                         <materialDesign:PopupBox Grid.Column="2" PlacementMode="BottomAndAlignRightEdges" Cursor="Hand" PopupMode="Click" StaysOpen="True" >
                             <StackPanel>
-                                <ListBox ItemsSource="{Binding Rates}" Width="150" >
+                                <ListBox ItemsSource="{Binding CommanDetails.user.userPreference.Rates}" Width="150" >
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <CheckBox Content="{Binding name}" Margin="5" IsChecked="{Binding isChecked, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding isEnabled, UpdateSourceTrigger=PropertyChanged}"  >

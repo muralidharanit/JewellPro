@@ -292,7 +292,7 @@ namespace JewellPro
             JewelTypes = helper.GetAllLoadJewelTypes();
             OrderRefNo = helper.GetNextOrderRefNo(OrderType.Customer);
             AdvanceTypesCollection = helper.GetAllAdvanceTypes();
-            Puritys = helper.GetAllPurityDetails();
+            //Puritys = helper.GetAllPurityDetails();
             
             TotalGoldWeight = string.Empty;
             IsGenerateInvoiceEnabled = false;

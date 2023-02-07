@@ -133,7 +133,6 @@ namespace JewellPro
 
         void OnLoad()
         {
-            CustomerDetail = new Customer();
             ClearUIControls();
             CustomerDetailsCollection = helper.GetAllCustomerDetails();
             GenderCollection = helper.GetAllGenders();
@@ -141,7 +140,7 @@ namespace JewellPro
 
         void OnClearCommandCommandClick()
         {
-            OnLoad();
+            ClearUIControls();
         }
 
         private void OnCustomerDetailsEditCommandClick(object customerDetail)
@@ -158,9 +157,9 @@ namespace JewellPro
             {
                 if (AddCustomerButtonVisibility == Visibility.Visible && UpdateCustomerButtonVisibility != Visibility.Visible)
                 {
-                    string query = String.Format("Insert into Customer (name, description, address, email, aadhaar, gst, mobile, pan, gender) VALUES " +
-                    "('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}')", 
-                    CustomerDetail.name, CustomerDetail.description, CustomerDetail.address, CustomerDetail.email, CustomerDetail.aadhaar, CustomerDetail.gst, CustomerDetail.mobile, CustomerDetail.pan, SelectedGender.name);
+                    string query = String.Format("Insert into Customer (name, description, address, email, aadhaar, gst, mobile, pan, gender, dob, anniversary) VALUES " +
+                    "('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}','{9}','{10}')", 
+                    CustomerDetail.name, CustomerDetail.description, CustomerDetail.address, CustomerDetail.email, CustomerDetail.aadhaar, CustomerDetail.gst, CustomerDetail.mobile, CustomerDetail.pan, SelectedGender.name, CustomerDetail.dob, CustomerDetail.anniversary);
 
                     string msgResult = String.Format("Customer '{0}' added successfully.", CustomerDetail.name);
 
@@ -198,8 +197,8 @@ namespace JewellPro
             {
                 if(UpdateCustomerButtonVisibility == Visibility.Visible && AddCustomerButtonVisibility != Visibility.Visible)
                 {
-                    string query = String.Format("Update Customer set name ='{0}', description ='{1}', address = '{2}', email='{3}', aadhaar ='{4}', gst='{5}', mobile='{6}', pan ='{7}', gender ='{8}' WHERE id = {9}",
-                        CustomerDetail.name, CustomerDetail.description, CustomerDetail.address, CustomerDetail.email, CustomerDetail.aadhaar, CustomerDetail.gst, CustomerDetail.mobile, CustomerDetail.pan, SelectedGender.name, CustomerDetail.id);
+                    string query = String.Format("Update Customer set name ='{0}', description ='{1}', address = '{2}', email='{3}', aadhaar ='{4}', gst='{5}', mobile='{6}', pan ='{7}', gender ='{8}', dob ='{9}', anniversary ='{10}' WHERE id = {11}",
+                        CustomerDetail.name, CustomerDetail.description, CustomerDetail.address, CustomerDetail.email, CustomerDetail.aadhaar, CustomerDetail.gst, CustomerDetail.mobile, CustomerDetail.pan, SelectedGender.name, CustomerDetail.dob, CustomerDetail.anniversary, CustomerDetail.id);
 
                     string msgResult = String.Format("Customer '{0}' updated successfully.", CustomerDetail.name);
 
@@ -290,7 +289,16 @@ namespace JewellPro
                 errorControl += " Address,";
             }
 
-            if (string.IsNullOrWhiteSpace(CustomerDetail.mobile))
+            if (!string.IsNullOrWhiteSpace(CustomerDetail.email))
+            {
+                if(!Helper.IsValidEmail(CustomerDetail.email))
+                {
+                    errorControl += " Email,";
+                }
+            }
+            
+
+            if (string.IsNullOrWhiteSpace(CustomerDetail.mobile) && CustomerDetail.mobile.All(char.IsDigit))
             {
                 errorControl += " Mobile,";
             }
@@ -308,6 +316,7 @@ namespace JewellPro
         void ClearUIControls()
         {
             CustomerDetail = new Customer();
+            SelectedGender =  null;
             AddCustomerButtonVisibility = Visibility.Visible;
             UpdateCustomerButtonVisibility = Visibility.Collapsed;
         }

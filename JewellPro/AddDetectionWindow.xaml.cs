@@ -14,9 +14,12 @@ namespace JewellPro
         private ObservableCollection<ChargesControl> chargesControls;
 
         private dynamic viewmodelObj;
-        public AddDetectionWindow(dynamic ViewmodelObj, ObservableCollection<DetectionControl> DetectionControls, ObservableCollection<ChargesControl> ChargesControls)
+        public AddDetectionWindow(dynamic ViewmodelObj, ObservableCollection<DetectionControl> DetectionControls, ObservableCollection<ChargesControl> ChargesControls, bool isHideDetection = false, bool isHideCharges = false)
         {
             InitializeComponent();
+            empOrderTab.SelectedIndex= 0;
+            tabCharges.Visibility = isHideCharges == true ? Visibility.Collapsed : Visibility.Visible;
+            tabDetections.Visibility = isHideDetection == true ? Visibility.Collapsed : Visibility.Visible;
             viewmodelObj = ViewmodelObj;
             detectionControls = DetectionControls;
             chargesControls = ChargesControls;

@@ -22,9 +22,13 @@ namespace JewellPro
             ItemMenu dashboard = new ItemMenu() { Header = "Dashboard", Icon = PackIconKind.TabletDashboard, Id = AppMenus.Dashboard };
             menuItems.Add(dashboard);
 
+            ItemMenu estimation = new ItemMenu() { Header = "Estimation", Icon = PackIconKind.Manufacturing, IsExpanded = true, IsSelected = false };
+            estimation.Members.Add(new SubItem() { Header = "Generate Estimation", Icon = PackIconKind.Abacus, Id = AppMenus.CustomerEstimation });
+            estimation.Members.Add(new SubItem() { Header = "Modify/Delete Estimation", Icon = PackIconKind.Abacus, Id = AppMenus.ModifyCustomerEstimation });
+            menuItems.Add(estimation);
+
             ItemMenu customer = new ItemMenu() { Header = "Customer", Icon = PackIconKind.AccountPlus, IsExpanded = true, IsSelected = false };
             customer.Members.Add(new SubItem() { Header = "New Order", Icon = PackIconKind.CreateNewFolder, Id = AppMenus.CustomerNewOrder });
-            customer.Members.Add(new SubItem() { Header = "Generate Estimation", Icon = PackIconKind.Abacus, Id = AppMenus.CustomerEstimation });
             customer.Members.Add(new SubItem() { Header = "Order Delivery", Icon = PackIconKind.CashOnDelivery, Id = AppMenus.CustomerDelivery });
             customer.Members.Add(new SubItem() { Header = "Modify Order", Icon = PackIconKind.DatabaseEdit, Id = AppMenus.CustomerModifyOrder });
             menuItems.Add(customer);
@@ -39,6 +43,8 @@ namespace JewellPro
             manage.Members.Add(new SubItem() { Header = "Customer", Icon = PackIconKind.CreateNewFolder, Id = AppMenus.ManageCustomer });
             manage.Members.Add(new SubItem() { Header = "Employee", Icon = PackIconKind.CashOnDelivery, Id = AppMenus.ManageEmployee });
             menuItems.Add(manage);
+
+            
 
             ItemMenu report = new ItemMenu() { Header = "Report", Icon = PackIconKind.Report, Id = AppMenus.Report };
             menuItems.Add(report);
@@ -63,6 +69,14 @@ namespace JewellPro
                     txtblkAppHeader.Text = "Customer Estimation";
                     GenerateEstimation customerOrder = new GenerateEstimation(contentPane.ActualHeight - 230);
                     usercontrolPane.Children.Add(customerOrder);
+                }
+
+                if ((trvMenuItem.SelectedItem as SubItem).Id == AppMenus.ModifyCustomerEstimation)
+                {
+                    usercontrolPane.Children.Clear();
+                    txtblkAppHeader.Text = "Manage Estimation";
+                    ManageEstimation manageEstimation = new ManageEstimation(contentPane.ActualHeight - 230);
+                    usercontrolPane.Children.Add(manageEstimation);
                 }
 
                 if ((trvMenuItem.SelectedItem as SubItem).Id == AppMenus.CustomerDelivery)
@@ -92,7 +106,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Customer Details";
-                    CustomerDetails customerDetails = new CustomerDetails(contentPane.ActualHeight - 200);
+                    CustomerDetails customerDetails = new CustomerDetails(contentPane.ActualHeight - 230);
                     usercontrolPane.Children.Add(customerDetails);
                 }
 

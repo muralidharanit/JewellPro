@@ -53,7 +53,8 @@ namespace WpfApp2
                                             lastLoggedIn = Convert.ToString(dataReader["Last_logged_in"]),
                                             userPreference = GetUserPreference(Convert.ToString(dataReader["preference"]))
                                         };
-
+                                        //Set Base metal rates
+                                        UpdateBaseMetalRates();
                                         this.Hide();
 
                                         MainWindow mainWindow = new MainWindow();
@@ -86,6 +87,12 @@ namespace WpfApp2
         public UserPreference GetUserPreference(string userPreferenceInfo)
         {
             return JsonConvert.DeserializeObject<UserPreference>(userPreferenceInfo);
+        }
+
+        public void UpdateBaseMetalRates()
+        {
+            Configuration.PureGoldRate = Convert.ToString(Helper.GetBaseRateByName("Gold").rate);
+            Configuration.SilverRate = Convert.ToString(Helper.GetBaseRateByName("Silver").rate);
         }
     }
 }

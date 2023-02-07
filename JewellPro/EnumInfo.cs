@@ -15,6 +15,7 @@ namespace JewellPro
         {
             CustomerNewOrder,
             CustomerEstimation,
+            ModifyCustomerEstimation,
             CustomerModifyOrder,
             CustomerDelivery,
             EmployeeNewOrder,

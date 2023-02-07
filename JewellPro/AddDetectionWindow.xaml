@@ -17,12 +17,11 @@
         </Grid.RowDefinitions>
 
         <TabControl Name="empOrderTab" Grid.Row="0" Grid.Column="0"  Margin="10">
-            <TabItem Header="Detections" Style="{StaticResource JPTabItem}" TabIndex="0">
-                <StackPanel Name="spnlDetection" Orientation="Vertical" Margin="10" />
-            </TabItem>
-
-            <TabItem Header="Charges" Style="{StaticResource JPTabItem}">
+            <TabItem Header="Charges" Name="tabCharges" Style="{StaticResource JPTabItem}" >
                 <StackPanel Name="spnlCharges" Orientation="Vertical" Margin="10" />
+            </TabItem>
+            <TabItem Header="Detections" Name="tabDetections" Style="{StaticResource JPTabItem}" >
+                <StackPanel Name="spnlDetection" Orientation="Vertical" Margin="10" />
             </TabItem>
         </TabControl>
         

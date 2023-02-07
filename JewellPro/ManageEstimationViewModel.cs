@@ -15,10 +15,16 @@ using static JewellPro.EnumInfo;
 
 namespace JewellPro
 {
-    public class GenerateEstimationViewModel : ViewModelBase
+    public class ManageEstimationViewModel : ViewModelBase
     {
+        public ManageEstimationViewModel() 
+        {
+            helper = new Helper();
+            OnLoad();
+        }
+
         #region Properties
-        
+
         private Helper helper;
 
         private string _OrderButtonLabel;
@@ -26,6 +32,13 @@ namespace JewellPro
         {
             get { return _OrderButtonLabel; }
             set { _OrderButtonLabel = value; RaisePropertyChanged("OrderButtonLabel"); }
+        }
+
+        private ObservableCollection<OrderDetails> _EstimationRefNos;
+        public ObservableCollection<OrderDetails> EstimationRefNos
+        {
+            get { return _EstimationRefNos; }
+            set { _EstimationRefNos = value; RaisePropertyChanged("EstimationRefNos"); }
         }
 
         private string _EstimationRefNo;
@@ -69,7 +82,7 @@ namespace JewellPro
             get { return _puritys; }
             set { _puritys = value; RaisePropertyChanged("Puritys"); }
         }
-        
+
 
         private Customer _SelectedCustomer;
         public Customer SelectedCustomer
@@ -109,14 +122,18 @@ namespace JewellPro
         #endregion Properties
 
 
-        public GenerateEstimationViewModel()
-        {
-            helper = new Helper();
-            OnLoad();
-        }
-
-
         #region iCommands
+
+        RelayCommand _CustomerNameSelectionChangeCommand = null;
+        public ICommand CustomerNameSelectionChangeCommand
+        {
+            get
+            {
+                if (_CustomerNameSelectionChangeCommand == null)
+                    _CustomerNameSelectionChangeCommand = new RelayCommand(() => OnCustomerNameSelectionChangeCommand());
+                return _CustomerNameSelectionChangeCommand;
+            }
+        }
 
         RelayCommand _ShowSearchDetailsCommand = null;
         public ICommand ShowSearchDetailsCommand
@@ -195,17 +212,6 @@ namespace JewellPro
             }
         }
 
-        RelayCommand _ShowDetectionWindowCommand = null;
-        public ICommand ShowDetectionWindowCommand
-        {
-            get
-            {
-                if (_ShowDetectionWindowCommand == null)
-                    _ShowDetectionWindowCommand = new RelayCommand(() => OnShowDetectionWindowCommand());
-                return _ShowDetectionWindowCommand;
-            }
-        }
-
         #endregion iCommands
 
 
@@ -219,10 +225,39 @@ namespace JewellPro
             EstimationRefNo = helper.GetNextOrderRefNo(OrderType.Estimation);
             OrderButtonLabel = Convert.ToString(UserControlState.Add);
             GridColumnsVisibility = new GenerateEstimationGridColumns { attachement = false, description = true, dueDate = false, jewelPurity = true, jewelType = true, netWeight = true, seal = true, size = true };
-
-            OrderDetails = Helper.GenerateNewOrderDetailsInstance();
+            OrderDetails = new OrderDetails();
+            OrderDetails.orderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
+            OrderDetails.orderDate = DateTime.Now.ToString();
             OrderDetailsCollection = new ObservableCollection<OrderDetails>();
+
             TotalGoldWeight = string.Empty;
+        }
+
+        void OnCustomerNameSelectionChangeCommand()
+        {
+            string sqlQuery = string.Format("select * from estimation_order where fk_customer_id = {0} and is_completed = false", SelectedCustomer.id);
+            NpgsqlDataReader dataReader = helper.GetTableData(sqlQuery);
+            try
+            {
+                if (dataReader != null)
+                {
+                    EstimationRefNos = new ObservableCollection<OrderDetails>();
+                    while (dataReader.Read())
+                    {
+                        OrderDetails order = new OrderDetails
+                        {
+                            id = Convert.ToInt32(dataReader["id"]),
+                            orderNo = Convert.ToString(dataReader["order_no"]),
+                            orderRefNo = Convert.ToString(dataReader["order_ref_no"]),
+                        };
+                        EstimationRefNos.Add(order);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.Message);
+            }
         }
 
         bool ValidateCustomerOrderDetailsCollection()
@@ -286,7 +321,7 @@ namespace JewellPro
                         {
                             throw new Exception("Order creation failed. close and open the tool.");
                         }
-                        
+
                         trans.Commit();
                         MessageBoxResult messageBoxResult = MessageBox.Show("Customer estimation order added successfully", "Record", MessageBoxButton.YesNo, MessageBoxImage.Information);
                         if (MessageBoxResult.Yes == messageBoxResult)
@@ -302,18 +337,6 @@ namespace JewellPro
                     }
                 }
             }
-        }
-
-        void OnShowDetectionWindowCommand()
-        {
-            AddDetectionWindow addDetectionWindow = new AddDetectionWindow(this, OrderDetails.detectionDetails, OrderDetails.chargesDetails, isHideDetection:true);
-            addDetectionWindow.ShowDialog();
-            addDetectionWindow.Owner = System.Windows.Application.Current.MainWindow;
-        }
-
-        public void UpdateDetectionDetails(ObservableCollection<DetectionControl> DetectionControls, ObservableCollection<ChargesControl> ChargesControls)
-        {
-            //Console.WriteLine();
         }
 
         void OnAddAttachementCommandclick()
@@ -349,7 +372,7 @@ namespace JewellPro
             }
         }
 
-        bool ValidateOrder()
+        bool ValidateCustomerOrder()
         {
             StringBuilder errorControl = new StringBuilder();
 
@@ -380,20 +403,6 @@ namespace JewellPro
             {
                 errorControl.AppendLine("Enter Valid Jewel Purity. Example 88.00");
                 errorControl.AppendLine();
-            }
-
-            if(OrderDetails.isRateFreeze)
-            {
-                if (string.IsNullOrEmpty(OrderDetails.rateFreezeDate))
-                {
-                    errorControl.AppendLine("Rate freeze selected please select the freeze date");
-                    errorControl.AppendLine();
-                }
-                else if (string.IsNullOrEmpty(OrderDetails.freezeRate) || !Helper.IsValidInteger(OrderDetails.freezeRate))
-                {
-                    errorControl.AppendLine("Rate freeze selected please enter valid amount");
-                    errorControl.AppendLine();
-                }
             }
 
             if (!string.IsNullOrEmpty(OrderDetails.wastage))
@@ -428,13 +437,15 @@ namespace JewellPro
 
         void OnAddOrderCommandclick()
         {
-            if (ValidateOrder())
+            if (ValidateCustomerOrder())
             {
                 OrderDetails.customer = SelectedCustomer;
                 OrderDetails.jewelType = SelectedJewelType;
                 if (OrderButtonLabel == Convert.ToString(UserControlState.Add))
                 {
+                    OrderDetails.subOrderNo = "SUB" + DateTime.Now.ToString("yyyyMMddHHmmss");
                     OrderDetailsCollection.Add(OrderDetails);
+
                 }
                 else if (OrderButtonLabel == Convert.ToString(UserControlState.Update))
                 {
@@ -453,7 +464,8 @@ namespace JewellPro
                 {
                     throw new CustomException("Unknown state found in OnAddOrderCommandclick");
                 }
-                OrderDetails = Helper.GenerateNewOrderDetailsInstance();
+                OrderDetails = new OrderDetails();
+                OrderDetails.orderDate = DateTime.Now.ToString();
             }
         }
 
@@ -462,7 +474,7 @@ namespace JewellPro
             OrderButtonLabel = Convert.ToString(UserControlState.Update);
             SelectedCustomer = (orderDetail as OrderDetails).customer;
             SelectedJewelType = (orderDetail as OrderDetails).jewelType;
-            OrderDetails = CloneObject.DeepClone<OrderDetails>(orderDetail as OrderDetails);
+            OrderDetails = helper.CloneOrderDetails(orderDetail as OrderDetails);
         }
 
         void OnOrderDetailsDeleteCommand(object orderDetail)
@@ -476,7 +488,8 @@ namespace JewellPro
                     if (order.subOrderNo == (orderDetail as OrderDetails).subOrderNo)
                     {
                         OrderDetailsCollection.Remove(order);
-                        OrderDetails = Helper.GenerateNewOrderDetailsInstance();
+                        OrderDetails = new OrderDetails();
+                        OrderDetails.orderDate = DateTime.Now.ToString();
                         OrderButtonLabel = Convert.ToString(UserControlState.Add);
                         break;
                     }
@@ -486,7 +499,7 @@ namespace JewellPro
 
         void OnShowSearchDetailsCommandclick()
         {
-            AdvancedSearch advancedSearch  = new AdvancedSearch(SearchTypes.Customer, this);
+            AdvancedSearch advancedSearch = new AdvancedSearch(SearchTypes.Customer, this);
             advancedSearch.ShowDialog();
         }
 
@@ -510,15 +523,16 @@ namespace JewellPro
                 SelectedCustomer = null;
             }
             SelectedJewelType = null;
-            OrderDetails = Helper.GenerateNewOrderDetailsInstance();
+            OrderDetails = new OrderDetails();
+            OrderDetails.orderDate = DateTime.Now.ToString();
         }
 
         void OnGeneratePrintCommand()
         {
             try
             {
-               
-                
+
+
             }
             catch (Exception ex)
             {
@@ -530,16 +544,10 @@ namespace JewellPro
         {
             try
             {
-                //orderDetailsList
-
-                OrderDetails orderDetails = new OrderDetails();
-                orderDetails.orderDetailsList= OrderDetailsCollection;
-                orderDetails.orderDate= DateTime.Now.ToString("dd-MM-yyyy");
-                orderDetails.orderRefNo = EstimationRefNo;
-                //{ orderDate = , orderRefNo = EstimationRefNo  };
-                //ExcelFileArgs excelFileArgs = new ExcelFileArgs { orderDetails = OrderDetailsCollection, selectedCustomer = SelectedCustomer, selectedCustomerOrder = orderDetails };
+                OrderDetails orderDetails = new OrderDetails { orderDate = DateTime.Now.ToString("dd-MM-yyyy"), orderRefNo = EstimationRefNo };
+                ExcelFileArgs excelFileArgs = new ExcelFileArgs { orderDetails = OrderDetailsCollection, selectedCustomer = SelectedCustomer, selectedCustomerOrder = orderDetails };
                 ExcelGenerator excelGenerator = new ExcelGenerator();
-                excelGenerator.GenerateCustomerEstimationInvoice(orderDetails);                
+                excelGenerator.GenerateCustomerEstimationInvoice(orderDetails);
             }
             catch (Exception ex)
             {

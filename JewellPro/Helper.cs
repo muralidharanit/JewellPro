@@ -8,6 +8,7 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Globalization;
 //using System.Drawing.Drawing2D;
 //using System.Drawing.Imaging;
 using System.IO;
@@ -21,13 +22,14 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using static JewellPro.EnumInfo;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace JewellPro
 {
     public class Helper
     {
         public static UserPreference LoggedInUserPreference;
-        public static int RateDisplayCount = 2;
+        public static int RateDisplayCount = 3;
         public static int MaxDescriptionLimit = 80;
         public static string SenderEmail = "";
         public static string SenderPassword = "";
@@ -435,6 +437,8 @@ namespace JewellPro
                             mobile = Convert.ToString(dataReader["mobile"]),
                             pan = Convert.ToString(dataReader["pan"]),
                             gender = Convert.ToString(dataReader["gender"]),
+                            dob = Convert.ToString(dataReader["dob"]),
+                            anniversary = Convert.ToString(dataReader["anniversary"]),
                             gst = Convert.ToString(dataReader["gst"])
                         };
                         CustomerDetails.Add(customer);
@@ -466,6 +470,7 @@ namespace JewellPro
                             metalType = Convert.ToString(dataReader["metal"]),
                             description = Convert.ToString(dataReader["description"]),
                             purity = Convert.ToString(dataReader["purity"]),
+                            karat = Convert.ToString(dataReader["karat"]),
                             displayText = Convert.ToString(dataReader["display_text"]),
                         };
                         puritys.Add(purity);
@@ -600,28 +605,34 @@ namespace JewellPro
             return AdvanceTypesCollection;
         }
 
-        public ObservableCollection<ChargesControl> GetAllChargesControls()
+        public static ObservableCollection<ChargesControl> GetAllChargesControls()
         {
             string sqlQuery = "SELECT * FROM charges_type Order by Id";
             ObservableCollection<ChargesControl> chargesControls = null;
             try
             {
-                using (NpgsqlDataReader dataReader = GetTableData(sqlQuery))
+                using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
                 {
-                    if (dataReader != null)
+                    using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, sqlQuery, CommandType.Text))
                     {
-                        chargesControls = new ObservableCollection<ChargesControl>();
-                        while (dataReader.Read())
+                        using (NpgsqlDataReader dataReader = cmd.ExecuteReader())
                         {
-                            ChargesControl charges = new ChargesControl
+                            if (dataReader != null)
                             {
-                                id = Convert.ToInt32(dataReader["Id"]),
-                                name = Convert.ToString(dataReader["name"]),
-                                description = Convert.ToString(dataReader["description"]),
-                                controlType = "TextBox",
-                                value = string.Empty
-                            };
-                            chargesControls.Add(charges);
+                                chargesControls = new ObservableCollection<ChargesControl>();
+                                while (dataReader.Read())
+                                {
+                                    ChargesControl charges = new ChargesControl
+                                    {
+                                        id = Convert.ToInt32(dataReader["Id"]),
+                                        name = Convert.ToString(dataReader["name"]),
+                                        description = Convert.ToString(dataReader["description"]),
+                                        controlType = "TextBox",
+                                        value = string.Empty
+                                    };
+                                    chargesControls.Add(charges);
+                                }
+                            }
                         }
                     }
                 }
@@ -633,28 +644,34 @@ namespace JewellPro
             return chargesControls;
         }
 
-        public ObservableCollection<DetectionControl> GetAllDetectionControls()
+        public static ObservableCollection<DetectionControl> GetAllDetectionControls()
         {
             string sqlQuery = "SELECT * FROM detection_type Order by Id";
             ObservableCollection<DetectionControl> detectionControls = null;
             try
             {
-                using (NpgsqlDataReader dataReader = GetTableData(sqlQuery))
+                using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
                 {
-                    if (dataReader != null)
+                    using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, sqlQuery, CommandType.Text))
                     {
-                        detectionControls = new ObservableCollection<DetectionControl>();
-                        while (dataReader.Read())
+                        using (NpgsqlDataReader dataReader = cmd.ExecuteReader())
                         {
-                            DetectionControl detection = new DetectionControl
+                            if (dataReader != null)
                             {
-                                id = Convert.ToInt32(dataReader["Id"]),
-                                name = Convert.ToString(dataReader["name"]),
-                                description = Convert.ToString(dataReader["description"]),
-                                controlType = "TextBox",
-                                value = string.Empty
-                            };
-                            detectionControls.Add(detection);
+                                detectionControls = new ObservableCollection<DetectionControl>();
+                                while (dataReader.Read())
+                                {
+                                    DetectionControl detection = new DetectionControl
+                                    {
+                                        id = Convert.ToInt32(dataReader["Id"]),
+                                        name = Convert.ToString(dataReader["name"]),
+                                        description = Convert.ToString(dataReader["description"]),
+                                        controlType = "TextBox",
+                                        value = string.Empty
+                                    };
+                                    detectionControls.Add(detection);
+                                }
+                            }
                         }
                     }
                 }
@@ -665,38 +682,6 @@ namespace JewellPro
             }
             return detectionControls;
         }        
-
-        public ObservableCollection<Rate> GetRates()
-        {
-            string sqlQuery = "SELECT * FROM Rate Order by Id";
-            ObservableCollection<Rate> Rates = null;
-            try
-            {
-                using (NpgsqlDataReader dataReader = GetTableData(sqlQuery))
-                {
-                    if (dataReader != null)
-                    {
-                        Rates = new ObservableCollection<Rate>();
-                        while (dataReader.Read())
-                        {
-                            Rate rate = new Rate
-                            {
-                                id = Convert.ToInt32(dataReader["Id"]),
-                                name = Convert.ToString(dataReader["name"]),
-                                rate = (int)Convert.ToDecimal(dataReader["rate"]),
-                                description = Convert.ToString(dataReader["description"]),
-                            };
-                            Rates.Add(rate);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message);
-            }
-            return Rates;
-        }
 
         public long GetNextSerialValue(string tableNameForSerialNo)
         {
@@ -732,7 +717,7 @@ namespace JewellPro
             if (orderType == OrderType.Customer)
             {
                 sqlQuery = "select max(id) as Id from customer_order";
-                OrderRefNo = "CUS_ORD_";
+                OrderRefNo = "ORD_APS";
             }
             else if (orderType == OrderType.Employee)
             {
@@ -742,7 +727,7 @@ namespace JewellPro
             else if (orderType == OrderType.Estimation)
             {
                 sqlQuery = "select max(id) as Id from estimation_order";
-                OrderRefNo = "EST_ORD_";
+                OrderRefNo = "EST_APS_";
             }
 
             NpgsqlDataReader dataReader = GetTableData(sqlQuery);
@@ -901,7 +886,78 @@ namespace JewellPro
             return true;
         }
 
-        public static bool IsValidDecimal(string value, int pointPrecision=3)
+        public static ObservableCollection<Rate> GetRates()
+        {
+            string sqlQuery = "SELECT * FROM Rate Order by Id";
+            ObservableCollection<Rate> Rates = null;
+            try
+            {
+                using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
+                {
+                    using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, sqlQuery, CommandType.Text))
+                    {
+                        using (NpgsqlDataReader dataReader = cmd.ExecuteReader())
+                        {
+                            if (dataReader != null)
+                            {
+                                Rates = new ObservableCollection<Rate>();
+                                while (dataReader.Read())
+                                {
+                                    Rate rate = new Rate
+                                    {
+                                        id = Convert.ToInt32(dataReader["Id"]),
+                                        name = Convert.ToString(dataReader["name"]),
+                                        rate = (int)Convert.ToDecimal(dataReader["rate"]),
+                                        description = Convert.ToString(dataReader["description"]),
+                                    };
+                                    Rates.Add(rate);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.Message);
+            }
+            return Rates;
+        }
+
+        public static Rate GetBaseRateByName(string name)
+        {
+            var TempRates = GetRates();
+            if (TempRates != null)
+            {
+                foreach (var obj in TempRates)
+                {
+                    if (obj.name.ToLower() == name.ToLower())
+                    {
+                        return new Rate { isChecked = false, name = obj.name, isEnabled = true, description = obj.description + Convert.ToDecimal(obj.rate).ToString("F"), rate = obj.rate };
+                    }
+                }
+            }
+            return null;
+        }
+
+        public static ObservableCollection<Rate> GetStandardRates()
+        {
+            var rates = new ObservableCollection<Rate>();
+            return rates;
+        }
+
+        public static bool IsValidEmail(string value)
+        {
+            Regex regex = new Regex(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", RegexOptions.CultureInvariant | RegexOptions.Singleline);
+            bool isValidEmail = regex.IsMatch(value);
+            if (isValidEmail)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool IsValidDecimal(string value, int pointPrecision = 3)
         {
             decimal number;
             if (Decimal.TryParse(value, out number))
@@ -921,6 +977,7 @@ namespace JewellPro
             return false;
         }
 
+
         public static string GetSubstringByString(string a, string b, string c)
         {
             if(c.IndexOf(a) == -1)
@@ -939,22 +996,66 @@ namespace JewellPro
 
         public static decimal GetGoldCharges(OrderDetails orderDetails)
         {
-            decimal GetGoldCharge = 0;
-            GetGoldCharge = Convert.ToDecimal(Configuration.PureGoldRate) * Convert.ToDecimal(orderDetails.jewelPurity) * Convert.ToDecimal(orderDetails.netWeight);
-            return GetGoldCharge;
+            
+            decimal goldCharge = 0;
+            var t = (Convert.ToDecimal(Configuration.PureGoldRate) * Convert.ToDecimal(orderDetails.jewelPurity)) / 100;
+
+            goldCharge = t * Convert.ToDecimal(orderDetails.netWeight);
+            return goldCharge;
         }
 
         public static decimal GetEstimatedValue(OrderDetails orderDetails)
         {
-            decimal EstimatedValue = 0;
-            EstimatedValue = Convert.ToDecimal(Configuration.PureGoldRate) * Convert.ToDecimal(orderDetails.jewelPurity) * Convert.ToDecimal(orderDetails.netWeight);
+            decimal goldCharge = 0;
+            var t = (Convert.ToDecimal(Configuration.PureGoldRate) * Convert.ToDecimal(orderDetails.jewelPurity)) / 100;
+
+            goldCharge = t * Convert.ToDecimal(orderDetails.netWeight);
 
             decimal watageVal = 0;
-            watageVal = (EstimatedValue * Convert.ToDecimal(orderDetails.wastage)) / 100;
+            watageVal = (goldCharge * Convert.ToDecimal(orderDetails.wastage)) / 100;
 
-            return EstimatedValue + watageVal;
+            return goldCharge + watageVal;
+        }
+
+        public static string FormatRupees(decimal rupee)
+        {
+            string formattedPrice = string.Empty;
+            formattedPrice = (Math.Round(rupee)).ToString("N", new CultureInfo("hi-IN"));            
+            return formattedPrice;
         }
         
+        public static void GetUserPreference()
+        {
+            //UserPreference userPreferenceInfo = CommanDetails.user.userPreference;
+            //if (userPreferenceInfo.Rates != null)
+            //{
+            //    foreach (var userPref in userPreferenceInfo.Rates)
+            //    {
+            //        foreach (var uiRates in Rates)
+            //        {
+            //            if (userPref.isChecked && uiRates.name == userPref.name)
+            //            {
+            //                ShowRates.Add(userPref);
+            //                uiRates.isChecked = true;
+            //                break;
+            //            }
+            //        }
+            //    }
+            //}
+        }
+
+        public static OrderDetails GenerateNewOrderDetailsInstance()
+        {
+            OrderDetails OrderDetails = new OrderDetails();
+            OrderDetails.orderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
+            OrderDetails.subOrderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
+            OrderDetails.rateFreezeDate = DateTime.Now.ToString();
+            OrderDetails.orderDate = DateTime.Now.ToString();
+            OrderDetails.freezeRate = Configuration.PureGoldRate;
+            OrderDetails.detectionDetails = Helper.GetAllDetectionControls();
+            OrderDetails.chargesDetails = Helper.GetAllChargesControls();
+            return OrderDetails;
+        }
     }
 
     public static class CloneObject

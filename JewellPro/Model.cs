@@ -123,7 +123,43 @@ namespace JewellPro
             get { return _dueDate; }
             set { _dueDate = value; RaisePropertyChanged("dueDate"); }
         }
-       
+
+        private string _makingCharge;
+        public string makingCharge
+        {
+            get { return _makingCharge; }
+            set { _makingCharge = value; RaisePropertyChanged("makingCharge"); }
+        }
+        
+        private string _rateFreezeDate;
+        public string rateFreezeDate
+        {
+            get { return _rateFreezeDate; }
+            set { _rateFreezeDate = value; RaisePropertyChanged("rateFreezeDate"); }
+        }
+
+        private bool _isRateFrozen;
+        public bool isRateFreeze
+        {
+            get { return _isRateFrozen; }
+            set { _isRateFrozen = value; RaisePropertyChanged("isRateFreeze"); }
+        }
+
+        private bool _isPriorityOrder;
+        public bool isPriorityOrder
+        {
+            get { return _isPriorityOrder; }
+            set { _isPriorityOrder = value; RaisePropertyChanged("isPriorityOrder"); }
+        }
+
+
+        private string _freezeRate;
+        public string freezeRate
+        {
+            get { return _freezeRate; }
+            set { _freezeRate = value; RaisePropertyChanged("freezeRate"); }
+        }
+
         private string _jewelPurity;
         public string jewelPurity
         {
@@ -207,6 +243,13 @@ namespace JewellPro
         {
             get { return _advanceDetails; }
             set { _advanceDetails = value; RaisePropertyChanged("advanceDetails"); }
+        }
+
+        ObservableCollection<OrderDetails> _orderDetailsList;
+        public ObservableCollection<OrderDetails> orderDetailsList
+        {
+            get { return _orderDetailsList; }
+            set { _orderDetailsList = value; RaisePropertyChanged("orderDetailsList"); }
         }
     }
 
@@ -333,6 +376,7 @@ namespace JewellPro
         public string description { get; set; }
         public string purity { get; set; }
         public string displayText { get; set; }
+        public string karat { get; set; }
     }
 
     [Serializable]
@@ -354,7 +398,7 @@ namespace JewellPro
         public string aadhaar { get; set; }
         public string pan { get; set; }
         public bool isSelected { get; set; }
-        
+        public string anniversary { get; set; }
     }
 
     [Serializable]
