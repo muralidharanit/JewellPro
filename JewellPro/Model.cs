@@ -277,7 +277,7 @@ namespace JewellPro
     }
 
     [Serializable]
-    public class User 
+    public class Login 
     {
         public int id { get; set; }
         public string userName { get; set; }
@@ -303,7 +303,7 @@ namespace JewellPro
     }
 
     [Serializable]
-    public class Employee : CommonUserInfo
+    public class Employee : User
     {
 
     }
@@ -380,13 +380,13 @@ namespace JewellPro
     }
 
     [Serializable]
-    public class Customer : CommonUserInfo
+    public class Customer : User
     {
         public string gst { get; set; }
     }
 
     [Serializable]
-    public class CommonUserInfo : BaseClass
+    public class User : BaseClass
     {        
         public string address { get; set; }
         public string email { get; set; }
@@ -567,6 +567,14 @@ namespace JewellPro
         public OrderDetails selectedCustomerOrder { get; set; }
         public ObservableCollection<AdvanceDetails> advanceDetails { get; set; }
         public ObservableCollection<OrderDetails> orderDetails { get; set; }
+    }
+
+    [Serializable]
+    public class ReportStatus
+    {
+        public string reportPath { get; set; }
+        public bool status { get; set; }
+        public string errorInfo { get; set; }
     }
 
     [Serializable]

@@ -56,26 +56,18 @@ namespace JewellPro
             set { _jewelTypes = value; RaisePropertyChanged("JewelTypes"); }
         }
 
-        private Purity _SelectedPurity;
-        public Purity SelectedPurity
-        {
-            get { return _SelectedPurity; }
-            set { _SelectedPurity = value; RaisePropertyChanged("SelectedPurity"); }
-        }
-
-        private ObservableCollection<Purity> _puritys;
-        public ObservableCollection<Purity> Puritys
-        {
-            get { return _puritys; }
-            set { _puritys = value; RaisePropertyChanged("Puritys"); }
-        }
-        
-
         private Customer _SelectedCustomer;
         public Customer SelectedCustomer
         {
             get { return _SelectedCustomer; }
             set { _SelectedCustomer = value; RaisePropertyChanged("SelectedCustomer"); }
+        }
+
+        private OrderDetails _Order;
+        public OrderDetails Order
+        {
+            get { return _Order; }
+            set { _Order = value; RaisePropertyChanged("Order"); }
         }
 
         private OrderDetails _OrderDetails;
@@ -92,13 +84,6 @@ namespace JewellPro
             set { _SelectedJewelType = value; RaisePropertyChanged("SelectedJewelType"); }
         }
 
-        private string _TotalGoldWeight;
-        public string TotalGoldWeight
-        {
-            get { return _TotalGoldWeight; }
-            set { _TotalGoldWeight = value; RaisePropertyChanged("TotalGoldWeight"); }
-        }
-
         private GenerateEstimationGridColumns _GridColumnsVisibility;
         public GenerateEstimationGridColumns GridColumnsVisibility
         {
@@ -107,7 +92,6 @@ namespace JewellPro
         }
 
         #endregion Properties
-
 
         public GenerateEstimationViewModel()
         {
@@ -215,14 +199,17 @@ namespace JewellPro
         {
             CustomerDetails = helper.GetAllCustomerDetails();
             JewelTypes = helper.GetAllLoadJewelTypes();
-            //Puritys = helper.GetAllPurityDetails();
-            EstimationRefNo = helper.GetNextOrderRefNo(OrderType.Estimation);
+            EstimationRefNo = "ESTM_APS_" + helper.GetNextOrderRefNo();
             OrderButtonLabel = Convert.ToString(UserControlState.Add);
             GridColumnsVisibility = new GenerateEstimationGridColumns { attachement = false, description = true, dueDate = false, jewelPurity = true, jewelType = true, netWeight = true, seal = true, size = true };
 
+            Order = new OrderDetails();
+            Order.rateFreezeDate = DateTime.Now.ToString();
+            Order.freezeRate = Configuration.PureGoldRate;
+            //Order.isPriorityOrder = fal;
+
             OrderDetails = Helper.GenerateNewOrderDetailsInstance();
             OrderDetailsCollection = new ObservableCollection<OrderDetails>();
-            TotalGoldWeight = string.Empty;
         }
 
         bool ValidateCustomerOrderDetailsCollection()
@@ -256,49 +243,83 @@ namespace JewellPro
                     NpgsqlTransaction trans = connection.BeginTransaction();
                     try
                     {
-                        //Insert into customer_order table
-                        long fk_customer_order = 0;
-                        string query_customer_order = String.Format("Insert into estimation_order (order_no, order_ref_no, fk_customer_id) values('{0}','{1}', {2}) RETURNING id", DateTime.Now.ToString("yyyyMMddHHmmss"), EstimationRefNo, SelectedCustomer.id);
-                        using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order, CommandType.Text))
+                        long fk_order_id = 0;
+
+                        string query_customer_order = string.Format("Insert into orders " +
+                            "(order_no, fk_customer_id, fk_order_type, order_date) values('{0}', {1}, {2}, '{3}') RETURNING id",
+                            DateTime.Now.ToString("yyyyMMddHHmmss"), SelectedCustomer.id, (int)OrderType.Estimation, DateTime.Now.ToString("dd-MM-yyyy"));
+
+                        if (Order.isRateFreeze && Order.isPriorityOrder)
                         {
-                            fk_customer_order = Convert.ToInt64(cmd.ExecuteScalar());
+                            query_customer_order = string.Format("Insert into orders " +
+                            "(order_no, fk_customer_id, fk_order_type, order_date, is_rate_freeze, freeze_date, freeze_amount, is_priority_order) values('{0}', {1}, {2}, '{3}', '{4}','{5}', '{6}','{7}') RETURNING id",
+                            DateTime.Now.ToString("yyyyMMddHHmmss"), SelectedCustomer.id, (int)OrderType.Estimation, DateTime.Now.ToString("dd-MM-yyyy"), Order.isRateFreeze, Order.rateFreezeDate, Order.freezeRate, Order.isPriorityOrder);
+                        }
+                        else if (Order.isRateFreeze)
+                        {
+                            query_customer_order = string.Format("Insert into orders " +
+                            "(order_no, fk_customer_id, fk_order_type, order_date, is_rate_freeze, freeze_date, freeze_amount) values('{0}', {1}, {2}, '{3}', '{4}','{5}', '{6}') RETURNING id",
+                            DateTime.Now.ToString("yyyyMMddHHmmss"), SelectedCustomer.id, (int)OrderType.Estimation, DateTime.Now.ToString("dd-MM-yyyy"), Order.isRateFreeze, Order.rateFreezeDate, Order.freezeRate);
+                        }
+                        else if (Order.isPriorityOrder)
+                        {
+                            query_customer_order = string.Format("Insert into orders " +
+                            "(order_no, fk_customer_id, fk_order_type, order_date, is_priority_order) values('{0}', {1}, {2}, '{3}', '{4}') RETURNING id",
+                            DateTime.Now.ToString("yyyyMMddHHmmss"), SelectedCustomer.id, (int)OrderType.Estimation, DateTime.Now.ToString("dd-MM-yyyy"), Order.isPriorityOrder);
                         }
 
-                        if (fk_customer_order > 0)
+                        using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order, CommandType.Text))
+                        {
+                            fk_order_id = Convert.ToInt64(cmd.ExecuteScalar());
+                        }
+
+                        if (fk_order_id > 0)
                         {
                             List<string> custOrderDetails = new List<string>();
                             foreach (OrderDetails obj in OrderDetailsCollection)
                             {
-                                custOrderDetails.Add(string.Format("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}',{9}, {10})", obj.size,
-                                    obj.netWeight, obj.seal, obj.description, obj.attachement, obj.orderDate, obj.dueDate, obj.jewelPurity, obj.wastage,
-                                    obj.jewelType.id, fk_customer_order));
+                                custOrderDetails.Add(string.Format("('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}',{9}, {10})",
+                                    obj.size, obj.netWeight, obj.seal, obj.description, obj.attachement, obj.orderDate, obj.dueDate, obj.jewelPurity, obj.wastage,
+                                    obj.jewelType.id, fk_order_id));
                             }
 
                             string custOrderList = string.Join<string>(",", custOrderDetails);
-                            string query_customer_order_details = "Insert into estimation_order_details(size, net_weight, seal, description, attachement, order_date, due_date, ornament_purity, wastage, fk_ornament_type_id, fk_customer_order_id) values " + custOrderList;
+                            string query_customer_order_details = "Insert into order_details(size, net_weight, seal, description, attachement, order_date, due_date, ornament_purity, wastage, fk_ornament_type_id, fk_order_id) values " + custOrderList;
 
                             using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order_details, CommandType.Text))
                             {
                                 cmd.ExecuteNonQuery();
                             }
                         }
-                        else if (fk_customer_order == 0)
+                        else if (fk_order_id == 0)
                         {
                             throw new Exception("Order creation failed. close and open the tool.");
                         }
-                        
-                        trans.Commit();
-                        MessageBoxResult messageBoxResult = MessageBox.Show("Customer estimation order added successfully", "Record", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                        if (MessageBoxResult.Yes == messageBoxResult)
-                        {
-                            OnGenerateExcelCommand();
-                        }
-                        OnLoad();
+                        trans.Commit();                        
                     }
                     catch (Exception ex)
                     {
                         trans.Rollback();
-                        Logger.LogError(ex.Message);
+                        Logger.LogError(ex);
+                    }
+
+                    try
+                    {
+                        var reportStatus = OnGenerateExcelCommand();
+                        if (reportStatus.status)
+                        {
+                            ConfirmationDialog confirmationDialog = new ConfirmationDialog(SelectedCustomer, reportStatus);
+                            confirmationDialog.ShowDialog();
+                            //OnLoad();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Customer estimation report not generated", "Record", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        Logger.LogError(ex);
                     }
                 }
             }
@@ -404,7 +425,6 @@ namespace JewellPro
                     errorControl.AppendLine();
                 }
             }
-
 
             if (string.IsNullOrEmpty(OrderDetails.netWeight))
             {
@@ -526,25 +546,22 @@ namespace JewellPro
             }
         }
 
-        void OnGenerateExcelCommand()
+        ReportStatus OnGenerateExcelCommand()
         {
             try
             {
-                //orderDetailsList
-
-                OrderDetails orderDetails = new OrderDetails();
-                orderDetails.orderDetailsList= OrderDetailsCollection;
-                orderDetails.orderDate= DateTime.Now.ToString("dd-MM-yyyy");
-                orderDetails.orderRefNo = EstimationRefNo;
-                //{ orderDate = , orderRefNo = EstimationRefNo  };
-                //ExcelFileArgs excelFileArgs = new ExcelFileArgs { orderDetails = OrderDetailsCollection, selectedCustomer = SelectedCustomer, selectedCustomerOrder = orderDetails };
+                Order.customer = SelectedCustomer;
+                Order.orderDetailsList = OrderDetailsCollection;
+                Order.orderDate = DateTime.Now.ToString("dd-MM-yyyy");
+                Order.orderRefNo = EstimationRefNo;
                 ExcelGenerator excelGenerator = new ExcelGenerator();
-                excelGenerator.GenerateCustomerEstimationInvoice(orderDetails);                
+                return excelGenerator.GenerateCustomerEstimationInvoice(Order);          
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex);
             }
+            return null;
         }
 
 

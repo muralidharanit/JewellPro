@@ -59,7 +59,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Customer Order";
-                    CustomerOrder customerOrder = new CustomerOrder(contentPane.ActualHeight - 200);
+                    CustomerOrder customerOrder = new CustomerOrder(this.Height - 70);
                     usercontrolPane.Children.Add(customerOrder);
                 }
 
@@ -67,7 +67,8 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Customer Estimation";
-                    GenerateEstimation customerOrder = new GenerateEstimation(contentPane.ActualHeight - 230);
+                    var t = this.Height;
+                    GenerateEstimation customerOrder = new GenerateEstimation(this.Height - 70);
                     usercontrolPane.Children.Add(customerOrder);
                 }
 
@@ -75,7 +76,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Manage Estimation";
-                    ManageEstimation manageEstimation = new ManageEstimation(contentPane.ActualHeight - 230);
+                    ManageEstimation manageEstimation = new ManageEstimation(this.Height - 70);
                     usercontrolPane.Children.Add(manageEstimation);
                 }
 
@@ -83,7 +84,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Customer Delivery";
-                    CustomerDelivery customerDelivery = new CustomerDelivery(contentPane.ActualHeight - 200);
+                    CustomerDelivery customerDelivery = new CustomerDelivery(this.Height - 70);
                     usercontrolPane.Children.Add(customerDelivery);
                 }
 
@@ -91,7 +92,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Employee Order";
-                    EmployeeOrder employeeOrder = new EmployeeOrder(contentPane.ActualHeight - 200);
+                    EmployeeOrder employeeOrder = new EmployeeOrder(this.Height - 70);
                     usercontrolPane.Children.Add(employeeOrder);
                 }
 
@@ -106,7 +107,7 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Customer Details";
-                    CustomerDetails customerDetails = new CustomerDetails(contentPane.ActualHeight - 230);
+                    CustomerDetails customerDetails = new CustomerDetails(this.Height - 70);
                     usercontrolPane.Children.Add(customerDetails);
                 }
 

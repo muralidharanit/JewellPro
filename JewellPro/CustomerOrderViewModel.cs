@@ -290,7 +290,7 @@ namespace JewellPro
             //Load Master data
             CustomerDetails = helper.GetAllCustomerDetails();
             JewelTypes = helper.GetAllLoadJewelTypes();
-            OrderRefNo = helper.GetNextOrderRefNo(OrderType.Customer);
+            OrderRefNo = helper.GetNextOrderRefNo();
             AdvanceTypesCollection = helper.GetAllAdvanceTypes();
             //Puritys = helper.GetAllPurityDetails();
             

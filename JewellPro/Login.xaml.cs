@@ -46,7 +46,7 @@ namespace WpfApp2
                                 {
                                     if (string.Equals(Convert.ToString(dataReader["Username"]), txtUsername.Text) && string.Equals(Convert.ToString(dataReader["Password"]), txtPassword.Password))
                                     {
-                                        CommanDetails.user = new User
+                                        CommanDetails.user = new JewellPro.Login
                                         {
                                             id = Convert.ToInt32(dataReader["Id"]),
                                             userName = Convert.ToString(dataReader["Username"]),

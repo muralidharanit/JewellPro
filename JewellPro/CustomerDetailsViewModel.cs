@@ -321,7 +321,7 @@ namespace JewellPro
             UpdateCustomerButtonVisibility = Visibility.Collapsed;
         }
 
-        void SetGenderInfo(CommonUserInfo commonUserInfo)
+        void SetGenderInfo(User commonUserInfo)
         {
             foreach (var obj in GenderCollection)
             {

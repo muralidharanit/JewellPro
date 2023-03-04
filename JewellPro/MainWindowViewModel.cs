@@ -212,7 +212,7 @@ namespace JewellPro
                         cmd.ExecuteNonQuery();
                     }
                     trans.Commit();
-                    MessageBox.Show("User preference information saved successfully", "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Login preference information saved successfully", "", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {

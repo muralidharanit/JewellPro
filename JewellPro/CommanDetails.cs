@@ -8,7 +8,7 @@ namespace JewellPro
 {
     public class CommanDetails
     {
-        public static User user;
+        public static Login user;
 
     }
 }

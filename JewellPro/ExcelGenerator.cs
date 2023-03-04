@@ -1,5 +1,6 @@
 ﻿namespace JewellPro
 {
+    using Microsoft.Office.Interop.Excel;
     using Spire.Xls;
     using System;
     using System.Collections.Generic;
@@ -7,6 +8,7 @@
     using System.IO;
     using System.Reflection;
     using System.Runtime.InteropServices;
+    using System.Runtime.InteropServices.ComTypes;
     using System.Text;
     using Excel = Microsoft.Office.Interop.Excel;
 
@@ -15,21 +17,11 @@
         //private string excelTemplate = "";
         private string currentAppPath = "";
         string excelOutputFilePath = "";
-        string excelEstimationFilePath = "";
+        string excelEstimationSourceFilePath = "";
         string temDirPath = "";
         string excelEstimationOutputFilePath = "";
 
-        public ExcelGenerator()
-        {
-            currentAppPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            temDirPath = Path.Combine(currentAppPath, DateTime.Now.ToString("yyyyMMddHHmmss"));
-            excelEstimationOutputFilePath = Path.Combine(temDirPath, "Estimation.xlsx");
-
-            excelEstimationFilePath = Path.Combine(currentAppPath, "template", "Estimation.xlsx");
-
-            Directory.CreateDirectory(temDirPath);
-            File.Copy(excelEstimationFilePath, excelEstimationOutputFilePath, true);
-        }
+        public ExcelGenerator() { }
 
         private Excel.Workbook CreateExcelWorkBook(string filePath, Excel.Application xlApp)
         {
@@ -40,20 +32,46 @@
             return xlWorkBook;
         }
 
-        public bool GenerateCustomerEstimationInvoice(OrderDetails orderDetails)
+        private string GetEstimationOutputFilePath()
         {
-            Excel.Application xlApp = new Excel.Application();
-            Excel.Workbook xlWorkBook = CreateExcelWorkBook(excelEstimationOutputFilePath, xlApp);
-            Excel.Worksheet xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
             try
             {
-                //Order date
+                currentAppPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                temDirPath = Path.Combine(currentAppPath, "Reports", "Estimation", DateTime.Now.ToString("yyyyMMddHHmmss"));
+                Directory.CreateDirectory(temDirPath);
+
+                excelEstimationOutputFilePath = Path.Combine(temDirPath, "Estimation.xlsx");
+
+                excelEstimationSourceFilePath = Path.Combine(currentAppPath, "template", "Estimation.xlsx");
+                
+                File.Copy(excelEstimationSourceFilePath, excelEstimationOutputFilePath, true);
+                return excelEstimationOutputFilePath;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+            }
+            return string.Empty;
+        }
+
+        public ReportStatus GenerateCustomerEstimationInvoice(OrderDetails orderDetails)
+        {
+            string estimationReportPath = GetEstimationOutputFilePath();
+
+            if (string.IsNullOrWhiteSpace(estimationReportPath))
+                throw new Exception("Estimation Report File not generated");
+
+            ReportStatus reportStatus = new ReportStatus();            
+
+            Excel.Application xlApp = new Excel.Application();
+            Excel.Workbook xlWorkBook = CreateExcelWorkBook(estimationReportPath, xlApp);
+            Excel.Worksheet xlWorkSheet = (Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
+
+            try
+            {
                 xlWorkSheet.Range["H2"].Value2 = Convert.ToString(orderDetails.orderDate);
-                //Order Name
                 xlWorkSheet.Range["E3"].Value2 = Convert.ToString(orderDetails.customer.name);
-                //Customer Address
                 xlWorkSheet.Range["E4"].Value2 = Convert.ToString(orderDetails.customer.address);
-                //Customer mobile
                 xlWorkSheet.Range["E5"].Value2 = "Ph: +91 " +Convert.ToString(orderDetails.customer.mobile);// + "\n" + excelFileArgs.selectedCustomer.mobile);
 
                 int sno = 1;
@@ -72,7 +90,7 @@
 
                     xlWorkSheet.Range["D" + rowno.ToString()].Value2 = Convert.ToString(order.jewelPurity);
                     xlWorkSheet.Range["E" + rowno.ToString()].Value2 = Convert.ToString(order.netWeight)+"g";
-                    totalGoldWeight = totalGoldWeight + Convert.ToDecimal(order.netWeight);
+                    totalGoldWeight = totalGoldWeight + (Convert.ToDecimal(order.quantity) * Convert.ToDecimal(order.netWeight));
 
 
                     decimal goldCharge = Helper.GetGoldCharges(order);
@@ -83,46 +101,69 @@
 
                     decimal estmateCharge = Helper.GetEstimatedValue(order);
                     totalEstimatedValue = totalEstimatedValue + estmateCharge;
-                    xlWorkSheet.Range["H" + rowno.ToString()].Value2 = Helper.FormatRupees(estmateCharge);//EstimatedValue//Convert.ToString(order.wastage);
+                    xlWorkSheet.Range["H" + rowno.ToString()].Value2 = Helper.FormatRupees(estmateCharge);
 
                     rowno = rowno + 1;
                     sno = sno + 1;
                 }
-
-                //Standard Gold Rate: 22 Karat (91.6% Purity) – Rs. 4,885/- | Gold Rate: (85% Purity) – Rs. 4,530/- Gold 
-
-                if(orderDetails.isRateFreeze)
-                {
-                    xlWorkSheet.Range["A7"].Value2 = Convert.ToString("Rate Frozen: Yes | Frozen Date: "+ Convert.ToString(orderDetails.rateFreezeDate)  + " | Customer Signature: ");
-                }
-                else
-                {
-                    xlWorkSheet.Range["A7"].Value2 = Convert.ToString("Rate Frozen: No | Frozen Date: Nil | Customer Signature: Nil");
-                }
-
-                
-                //
-
                 xlWorkSheet.Range["C16"].Value2 = Convert.ToString(totalQuantity);
                 xlWorkSheet.Range["E16"].Value2 = Convert.ToString(totalGoldWeight);
                 xlWorkSheet.Range["H16"].Value2 = Helper.FormatRupees(totalEstimatedValue);
 
-                xlWorkBook.SaveAs(excelEstimationOutputFilePath, Excel.XlFileFormat.xlOpenXMLWorkbook,
+                StringBuilder rateFrozen = new StringBuilder();
+                if(orderDetails.isRateFreeze)
+                {
+                    rateFrozen.AppendLine("Rate Frozen: Yes | Frozen Date: " + Convert.ToString(orderDetails.rateFreezeDate)+ " | Customer Signature: ");
+                }
+                else
+                {
+                    rateFrozen.AppendLine(Convert.ToString("Rate Frozen: No | Frozen Date: Nil | Customer Signature: Nil"));
+                }
+                xlWorkSheet.Range["A7"].Value2 = rateFrozen.ToString();
+
+                xlWorkSheet.Range["A6"].Value2 = "Standard Gold Rate: 22 Karat (91.6% Purity) – Rs. 4,885/- | Gold Rate: (85% Purity) – Rs. 4,530/- Gold";
+
+                xlWorkBook.SaveAs(estimationReportPath, Excel.XlFileFormat.xlOpenXMLWorkbook,
                     Missing.Value, Missing.Value, Missing.Value, Missing.Value, Excel.XlSaveAsAccessMode.xlNoChange,
                     Excel.XlSaveConflictResolution.xlLocalSessionChanges, Missing.Value, Missing.Value,
                     Missing.Value, Missing.Value);
-                GenerateToPDF(orderDetails.orderRefNo + ".pdf", excelEstimationOutputFilePath, 0);
+                reportStatus.status = true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.LogError(ex.ToString());
+                reportStatus.status = false;
+                reportStatus.errorInfo = ex.ToString();
             }
             finally
             {
                 ReleaseExcelComObject(xlApp, xlWorkBook, xlWorkSheet);
             }
-            return true;
+
+            if(reportStatus.status)
+            {
+                try
+                {
+                    string estimationPdfPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Estimation", orderDetails.orderRefNo + ".pdf");
+                    Spire.Xls.Workbook workbook1 = new Spire.Xls.Workbook();
+                    workbook1.LoadFromFile(estimationReportPath);
+                    Spire.Xls.Worksheet sheet = workbook1.Worksheets[0];
+                    sheet.SaveToPdf(estimationPdfPath);
+
+                    reportStatus.reportPath = estimationPdfPath;
+                    reportStatus.status = true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex.ToString());
+                    reportStatus.status = false;
+                    reportStatus.errorInfo = ex.ToString();
+                }
+            }
+            return reportStatus;
         }
+
+        //private bool 
 
         public bool GenerateCustomerOrderDeliveryInvoice(ExcelFileArgs excelFileArgs)
         {
@@ -210,8 +251,6 @@
 
             return true;
         }
-
-        
 
         public void GenerateEmployeeOrderInvoice(ExcelFileArgs excelFileArgs)
         {
@@ -307,11 +346,7 @@
 
         private void GenerateToPDF(string fileName, string filePath, int sheetNo)
         {
-            Workbook workbook = new Workbook();
-            workbook.LoadFromFile(filePath);
-            Worksheet sheet = workbook.Worksheets[sheetNo];
-            FileInfo fileInfo = new FileInfo(filePath);
-            sheet.SaveToPdf(Path.Combine(fileInfo.DirectoryName, fileName));
+            
         }
 
         public void GenerateCustomerOrderInvoice(ExcelFileArgs excelFileArgs)

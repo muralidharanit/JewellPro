@@ -10,15 +10,15 @@
         </Style>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
     </UserControl.Resources>
-    <Grid Margin="10" materialDesign:ScrollViewerAssist.CornerRectangleVisibility="Visible">
+    <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="340" />
+            <RowDefinition Height="370" />
             <RowDefinition Height="*" />
             <RowDefinition Height="70" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" >
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="10">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="15,10,15,10">
                 <StackPanel Orientation="Horizontal" Margin="5,5,5,15" >
                     <TextBlock Text="Estimation No :" Style="{StaticResource JPTextBlock}" />
                     <TextBlock Text="{Binding EstimationRefNo, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" 
@@ -50,8 +50,13 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                    <CheckBox VerticalAlignment="Center" Style="{StaticResource JPCheckBox}" 
+                          IsChecked="{Binding Order.isPriorityOrder, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Is this Priority Order :"  />
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                     <CheckBox Name="chbxRateFreeze" VerticalAlignment="Center" Style="{StaticResource JPCheckBox}" 
-                          IsChecked="{Binding OrderDetails.isRateFreeze, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Do you need to Freeze Rate :"  />
+                          IsChecked="{Binding Order.isRateFreeze, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Do you need to Freeze Rate :"  />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
@@ -68,7 +73,7 @@
                     <TextBlock Style="{StaticResource JPTextBlock}" >
                         <TextBlock Text="Rate Freeze Date : " /><TextBlock Text="*" Foreground="Red" />
                     </TextBlock>
-                    <DatePicker Text="{Binding OrderDetails.rateFreezeDate, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                    <DatePicker Text="{Binding Order.rateFreezeDate, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                     Style="{StaticResource JPDatePicker}" />
                 </StackPanel>
 
@@ -84,10 +89,10 @@
                         </Style>
                     </StackPanel.Style>
                     <TextBlock Style="{StaticResource JPTextBlock}"  >
-                        <TextBlock Text="Freeze Rate : (24K)" /><TextBlock Text="*" Foreground="Red" />
+                        <TextBlock Text="Freeze Rate : (24K) " /><TextBlock Text="*" Foreground="Red" />
                     </TextBlock>
 
-                    <TextBox Style="{StaticResource JPTextBox}" Text="{Binding OrderDetails.freezeRate, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}"  FontWeight="Bold"/>
+                    <TextBox Style="{StaticResource JPTextBox}" Text="{Binding Order.freezeRate, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}"  FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
@@ -101,6 +106,10 @@
                     </ComboBox>
                 </StackPanel>
 
+                
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center"  Margin="15,10,15,10" >
                 <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                     <TextBlock Style="{StaticResource JPTextBlock}">
                     <TextBlock Text="Net Weight : " /><TextBlock Text="*" Foreground="Red" />
@@ -109,19 +118,13 @@
                             Style="{StaticResource JPTextBox}" />
                 </StackPanel>
 
+
                 <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                     <TextBlock Style="{StaticResource JPTextBlock}">
                     <TextBlock Text="Jewel Purity : " /><TextBlock Text="*" Foreground="Red" />
                 </TextBlock>
                     <TextBox Text="{Binding OrderDetails.jewelPurity, UpdateSourceTrigger=PropertyChanged}" 
                             Style="{StaticResource JPTextBox}" />
-                </StackPanel>
-            </StackPanel>
-
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Center"  Margin="10" >
-                <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
-                    <CheckBox VerticalAlignment="Center" Style="{StaticResource JPCheckBox}" 
-                          IsChecked="{Binding OrderDetails.isPriorityOrder, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Is this Priority Order :"  />
                 </StackPanel>
                 
                 <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
@@ -156,6 +159,13 @@
                                     Style="{StaticResource JPTextBox}" />
                 </StackPanel>
 
+                <StackPanel Orientation="Horizontal" Margin="-2,15,5,5" >
+                    <TextBlock Text="" Style="{StaticResource JPTextBlock}" />
+                    <Button Content="Add Charges" Style="{StaticResource TabButtons}" Width="140" Command="{Binding ShowDetectionWindowCommand}" />
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center"  Margin="15,10,15,10">
                 <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                     <TextBlock Style="{StaticResource JPTextBlock}">
                     <TextBlock Text="Size / Length : " />
@@ -163,14 +173,7 @@
                     <TextBox Text="{Binding OrderDetails.size, UpdateSourceTrigger=PropertyChanged}" 
                             Style="{StaticResource JPTextBox}" />
                 </StackPanel>
-
-                <StackPanel Orientation="Horizontal" Margin="-2,15,5,5" >
-                    <TextBlock Text="" Style="{StaticResource JPTextBlock}" />
-                    <Button Content="Add Charges" Style="{StaticResource TabButtons}" Width="140" Command="{Binding ShowDetectionWindowCommand}" />
-                </StackPanel>
-            </StackPanel>
-
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Center"  Margin="10">
+                
                 <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                     <TextBlock Style="{StaticResource JPTextBlock}" Text="Description : " />
                     <toolkit:RichTextBox BorderBrush="Gray" Height="120" Width="200" AcceptsReturn="True" Block.LineHeight="5" ToolTip="{Binding OrderDetails.description}"
@@ -249,7 +252,7 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <DockPanel Grid.Row="2" VerticalAlignment="Top">
+        <DockPanel Grid.Row="2" VerticalAlignment="Bottom">
             <Button Content="Clear" DockPanel.Dock="Right" Style="{StaticResource ActionButtons}" Command="{Binding ClearCommand}" />
             <Button Content="Generate Estimation Order" DockPanel.Dock="Right"  Style="{StaticResource ActionButtons}" Command="{Binding GenerateInvoiceCommand}" />
         </DockPanel>

@@ -273,7 +273,7 @@ namespace JewellPro
             helper = new Helper();
             EmployeeDetails = helper.GetAllEmployeeDetails();
             JewelTypes = helper.GetAllLoadJewelTypes();
-            OrderRefNo = helper.GetNextOrderRefNo(OrderType.Employee);
+            OrderRefNo = helper.GetNextOrderRefNo();
             AdvanceTypesCollection = helper.GetAllAdvanceTypes();
 
             TotalGoldWeight = string.Empty;

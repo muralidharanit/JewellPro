@@ -28,7 +28,7 @@ namespace JewellPro
         }
         public enum UserControlState { Add, Update, Delete };
 
-        public enum OrderType { Customer, Employee, Estimation };
+        public enum OrderType { Dummy, Estimation, Customer, Employee }; //To avoid zero in dummy added
 
         public enum EstimationReportKeys { Date, Name, Address, Phone, TotalItems, TotalWeight, TotalAmount };
     }

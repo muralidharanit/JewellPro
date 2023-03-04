@@ -708,27 +708,10 @@ namespace JewellPro
             return temp;
         }
 
-        public string GetNextOrderRefNo(OrderType orderType)
+        public string GetNextOrderRefNo()
         {
-            string sqlQuery = string.Empty;
-            string OrderRefNo = string.Empty;
-            long temp = 0;
-
-            if (orderType == OrderType.Customer)
-            {
-                sqlQuery = "select max(id) as Id from customer_order";
-                OrderRefNo = "ORD_APS";
-            }
-            else if (orderType == OrderType.Employee)
-            {
-                sqlQuery = "select max(id) as Id from employee_order";
-                OrderRefNo = "EMP_ORD_";
-            }
-            else if (orderType == OrderType.Estimation)
-            {
-                sqlQuery = "select max(id) as Id from estimation_order";
-                OrderRefNo = "EST_APS_";
-            }
+            long orderRefNo = 1;
+            string sqlQuery = "select max(id) as Id from orders";
 
             NpgsqlDataReader dataReader = GetTableData(sqlQuery);
             try
@@ -737,19 +720,19 @@ namespace JewellPro
                 {
                     while (dataReader.Read())
                     {
-                        if (!(dataReader["Id"] is DBNull))
+                        if (!(dataReader["id"] is DBNull))
                         {
-                            temp = Convert.ToInt64(dataReader["Id"]);
+                            orderRefNo = Convert.ToInt64(dataReader["Id"]);
+                            orderRefNo = orderRefNo + 1;
                         }
                     }
                 }
-                OrderRefNo = string.Concat(OrderRefNo, temp + 1);
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex.Message);
+                Logger.LogError(ex);
             }
-            return OrderRefNo;
+            return Convert.ToString(orderRefNo);
         }
 
         public OrderDetails CloneOrderDetails(OrderDetails orderDetails)
@@ -856,7 +839,7 @@ namespace JewellPro
             return mbInfo;
         }       
 
-        public bool SendEmail(CommonUserInfo userInfo, MailInfo mailInfo)
+        public bool SendEmail(User userInfo, MailInfo mailInfo)
         {
             try
             {
@@ -1049,9 +1032,7 @@ namespace JewellPro
             OrderDetails OrderDetails = new OrderDetails();
             OrderDetails.orderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
             OrderDetails.subOrderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
-            OrderDetails.rateFreezeDate = DateTime.Now.ToString();
             OrderDetails.orderDate = DateTime.Now.ToString();
-            OrderDetails.freezeRate = Configuration.PureGoldRate;
             OrderDetails.detectionDetails = Helper.GetAllDetectionControls();
             OrderDetails.chargesDetails = Helper.GetAllChargesControls();
             return OrderDetails;

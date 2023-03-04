@@ -105,13 +105,6 @@ namespace JewellPro
             set { _SelectedJewelType = value; RaisePropertyChanged("SelectedJewelType"); }
         }
 
-        private string _TotalGoldWeight;
-        public string TotalGoldWeight
-        {
-            get { return _TotalGoldWeight; }
-            set { _TotalGoldWeight = value; RaisePropertyChanged("TotalGoldWeight"); }
-        }
-
         private GenerateEstimationGridColumns _GridColumnsVisibility;
         public GenerateEstimationGridColumns GridColumnsVisibility
         {
@@ -219,18 +212,22 @@ namespace JewellPro
 
         void OnLoad()
         {
-            CustomerDetails = helper.GetAllCustomerDetails();
-            JewelTypes = helper.GetAllLoadJewelTypes();
-            //Puritys = helper.GetAllPurityDetails();
-            EstimationRefNo = helper.GetNextOrderRefNo(OrderType.Estimation);
-            OrderButtonLabel = Convert.ToString(UserControlState.Add);
-            GridColumnsVisibility = new GenerateEstimationGridColumns { attachement = false, description = true, dueDate = false, jewelPurity = true, jewelType = true, netWeight = true, seal = true, size = true };
-            OrderDetails = new OrderDetails();
-            OrderDetails.orderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
-            OrderDetails.orderDate = DateTime.Now.ToString();
-            OrderDetailsCollection = new ObservableCollection<OrderDetails>();
-
-            TotalGoldWeight = string.Empty;
+            try
+            {
+                CustomerDetails = helper.GetAllCustomerDetails();
+                JewelTypes = helper.GetAllLoadJewelTypes();
+                //EstimationRefNo = "ESTM_APS_" + helper.GetNextOrderRefNo();
+                OrderButtonLabel = Convert.ToString(UserControlState.Add);
+                GridColumnsVisibility = new GenerateEstimationGridColumns { attachement = false, description = true, dueDate = false, jewelPurity = true, jewelType = true, netWeight = true, seal = true, size = true };
+                OrderDetails = new OrderDetails();
+                OrderDetails.orderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
+                OrderDetails.orderDate = DateTime.Now.ToString();
+                OrderDetailsCollection = new ObservableCollection<OrderDetails>();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+            }
         }
 
         void OnCustomerNameSelectionChangeCommand()
@@ -544,10 +541,10 @@ namespace JewellPro
         {
             try
             {
-                OrderDetails orderDetails = new OrderDetails { orderDate = DateTime.Now.ToString("dd-MM-yyyy"), orderRefNo = EstimationRefNo };
-                ExcelFileArgs excelFileArgs = new ExcelFileArgs { orderDetails = OrderDetailsCollection, selectedCustomer = SelectedCustomer, selectedCustomerOrder = orderDetails };
-                ExcelGenerator excelGenerator = new ExcelGenerator();
-                excelGenerator.GenerateCustomerEstimationInvoice(orderDetails);
+                ////OrderDetails orderDetails = new OrderDetails { orderDate = DateTime.Now.ToString("dd-MM-yyyy"), orderRefNo = EstimationRefNo };
+                //ExcelFileArgs excelFileArgs = new ExcelFileArgs { orderDetails = OrderDetailsCollection, selectedCustomer = SelectedCustomer, selectedCustomerOrder = orderDetails };
+                //ExcelGenerator excelGenerator = new ExcelGenerator();
+                //excelGenerator.GenerateCustomerEstimationInvoice(orderDetails);
             }
             catch (Exception ex)
             {
