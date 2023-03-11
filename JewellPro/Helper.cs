@@ -1,6 +1,5 @@
 ﻿using CommonLayer;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using JewellPro;
 using Npgsql;
 using System;
 using System.Collections.ObjectModel;
@@ -12,8 +11,8 @@ using System.Globalization;
 //using System.Drawing.Drawing2D;
 //using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Management;
-using System.Net.Mail;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -21,8 +20,6 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using static JewellPro.EnumInfo;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace JewellPro
 {
@@ -143,17 +140,6 @@ namespace JewellPro
             return contentPanel;
         }
 
-        public static bool IsValidDecialValue(string txtbxValue)
-        {
-            String strpattern = @"^\d+([.]\d+){0,1}$";
-            Regex regex = new Regex(strpattern);
-            if (regex.Match(txtbxValue).Success)
-            {
-                return true;
-            }
-            return false;
-        }
-
         public string CalculateWastage()
         {
             string wastage = string.Empty;
@@ -177,12 +163,6 @@ namespace JewellPro
                 return Convert.ToString(charges);
 
             return string.Empty;
-        }
-
-        public static bool IsTextNumeric(string str)
-        {
-            System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex(@"^\d+([.]\d+){0,2}$");
-            return reg.IsMatch(str);
         }
 
         public static string TextFromRichTextBox(RichTextBox rtb)
@@ -282,21 +262,6 @@ namespace JewellPro
             }
             return Convert.ToString(Math.Round(total, 3));
         }        
-
-        public static int GetColumnIndex(DataGrid dataGrid, string colHeader)
-        {
-            int colIndex = -1;
-
-            foreach(DataGridColumn column in dataGrid.Columns)
-            {
-                colIndex = colIndex + 1;
-                if (column.Header.ToString() == colHeader)
-                {
-                    return colIndex;
-                }
-            }
-            return colIndex;
-        }
 
         public ObservableCollection<DetectionControl> GetDetectionControls(string entity = "", int orderId = 0)
         {
@@ -452,41 +417,9 @@ namespace JewellPro
             return CustomerDetails;
         }
 
-        public ObservableCollection<Purity> GetAllPurityDetails(string metal = "Gold")
+        public ObservableCollection<Employee> GetAllEmployeeDetails(string isDeleted = "False")
         {
-            string sqlQuery = string.Format("SELECT * FROM purity where metal = '{0}' Order by purity", metal);
-            NpgsqlDataReader dataReader = GetTableData(sqlQuery);
-            ObservableCollection<Purity> puritys = null;
-            try
-            {
-                if (dataReader != null)
-                {
-                    puritys = new ObservableCollection<Purity>();
-                    while (dataReader.Read())
-                    {
-                        Purity purity  = new Purity
-                        {
-                            id = Convert.ToInt32(dataReader["id"]),
-                            metalType = Convert.ToString(dataReader["metal"]),
-                            description = Convert.ToString(dataReader["description"]),
-                            purity = Convert.ToString(dataReader["purity"]),
-                            karat = Convert.ToString(dataReader["karat"]),
-                            displayText = Convert.ToString(dataReader["display_text"]),
-                        };
-                        puritys.Add(purity);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message);
-            }
-            return puritys;
-        }
-
-        public ObservableCollection<Employee> GetAllEmployeeDetails()
-        {
-            string sqlQuery = "SELECT * FROM employee where isDeleted = False Order by Name";
+            string sqlQuery = string.Format("SELECT * FROM employee where isDeleted = {0} Order by Name", isDeleted);
             NpgsqlDataReader dataReader = GetTableData(sqlQuery);
             ObservableCollection<Employee> employees = null;
             try
@@ -683,31 +616,6 @@ namespace JewellPro
             return detectionControls;
         }        
 
-        public long GetNextSerialValue(string tableNameForSerialNo)
-        {
-            string sqlQuery = "select max(id) as Id from " + tableNameForSerialNo;
-            NpgsqlDataReader dataReader = GetTableData(sqlQuery);
-            long temp = 0;
-            try
-            {
-                if (dataReader != null)
-                {
-                    while (dataReader.Read())
-                    {
-                        if (!(dataReader["Id"] is DBNull))
-                        {
-                            temp = Convert.ToInt64(dataReader["Id"]);
-                        }
-                    }
-                }                
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message);
-            }
-            return temp;
-        }
-
         public string GetNextOrderRefNo()
         {
             long orderRefNo = 1;
@@ -733,39 +641,7 @@ namespace JewellPro
                 Logger.LogError(ex);
             }
             return Convert.ToString(orderRefNo);
-        }
-
-        public OrderDetails CloneOrderDetails(OrderDetails orderDetails)
-        {
-            OrderDetails order = new OrderDetails();
-            order.seal = !string.IsNullOrEmpty(orderDetails.seal) ? orderDetails.seal : string.Empty;
-            order.quantity = !string.IsNullOrEmpty(orderDetails.quantity) ? orderDetails.quantity : string.Empty;
-            order.size = !string.IsNullOrEmpty(orderDetails.size) ? orderDetails.size : string.Empty;
-            order.wastage = !string.IsNullOrEmpty(orderDetails.wastage) ? orderDetails.wastage : string.Empty;
-            order.wastagePercentage = !string.IsNullOrEmpty(orderDetails.wastagePercentage) ? orderDetails.wastagePercentage : string.Empty;
-            order.jewelPurity = !string.IsNullOrEmpty(orderDetails.jewelPurity) ? orderDetails.jewelPurity : string.Empty;
-            order.attachement = !string.IsNullOrEmpty(orderDetails.attachement) ? orderDetails.attachement : string.Empty;
-            order.description = !string.IsNullOrEmpty(orderDetails.description) ? orderDetails.description : string.Empty;
-            order.detection = !string.IsNullOrEmpty(orderDetails.detection) ? orderDetails.detection : string.Empty;
-            order.dueDate = !string.IsNullOrEmpty(orderDetails.dueDate) ? orderDetails.dueDate : string.Empty;
-            order.orderDate = !string.IsNullOrEmpty(orderDetails.orderDate) ? orderDetails.orderDate : string.Empty;
-            order.jewellRecivedWeight = !string.IsNullOrEmpty(orderDetails.jewellRecivedWeight)  ? orderDetails.jewellRecivedWeight : string.Empty;
-            order.netWeight = !string.IsNullOrEmpty(orderDetails.netWeight) ? orderDetails.netWeight : string.Empty;
-            order.subOrderNo = !string.IsNullOrEmpty(orderDetails.subOrderNo) ? orderDetails.subOrderNo : string.Empty;
-            return order;
-        }
-
-        public AdvanceDetails CloneAdvanceDetails(AdvanceDetails advanceDetails)
-        {
-            AdvanceDetails advance = new AdvanceDetails();
-            advance.advanceDate = !string.IsNullOrEmpty(advanceDetails.advanceDate) ? advanceDetails.advanceDate : string.Empty;
-            advance.description = !string.IsNullOrEmpty(advanceDetails.description) ? advanceDetails.description : string.Empty;
-            advance.goldPurity = advanceDetails.goldPurity > 0 ? advanceDetails.goldPurity : 0;
-            advance.goldWeight = advanceDetails.goldWeight > 0 ? advanceDetails.goldWeight : 0;
-            advance.id = advanceDetails.id > 0 ? advanceDetails.id : 0;
-            return advance;
-        }
-
+        }        
         
         public static string Truncate(string value)
         {
@@ -839,36 +715,6 @@ namespace JewellPro
             return mbInfo;
         }       
 
-        public bool SendEmail(User userInfo, MailInfo mailInfo)
-        {
-            try
-            {
-                MailMessage mail = new MailMessage();
-                SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
-                mail.From = new MailAddress(SenderEmail);
-                mail.To.Add("to_address");
-                mail.Subject = "Test Mail - 1";
-                mail.Body = "mail with attachment";
-
-                System.Net.Mail.Attachment attachment;
-                attachment = new System.Net.Mail.Attachment("your attachment file");
-                mail.Attachments.Add(attachment);
-
-                SmtpServer.Port = 587;
-                SmtpServer.Credentials = new System.Net.NetworkCredential(SenderEmail, SenderPassword);
-                SmtpServer.EnableSsl = true;
-
-                SmtpServer.Send(mail);
-                MessageBox.Show("mail Send");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex);
-                return true;
-            }
-            return true;
-        }
-
         public static ObservableCollection<Rate> GetRates()
         {
             string sqlQuery = "SELECT * FROM Rate Order by Id";
@@ -907,26 +753,32 @@ namespace JewellPro
             return Rates;
         }
 
-        public static Rate GetBaseRateByName(string name)
+        public static ObservableCollection<Rate> GetStandardMetalRates()
         {
-            var TempRates = GetRates();
-            if (TempRates != null)
+            ObservableCollection<Rate> StandardRates = new ObservableCollection<Rate>();
+            ObservableCollection<Rate> rates = Helper.GetRates();
+
+            int pureGoldRate = rates.First(x => x.name.ToLower() == "gold").rate;
+            int silverRate = rates.First(x => x.name.ToLower() == "silver").rate;
+
+            StandardRates.Add(new Rate { name = "24 K", rate = pureGoldRate, purity = 24, description = "24 K Gold :", id = 1 });
+            StandardRates.Add(new Rate { name = "22 K", rate = (int)(pureGoldRate / 100 * 92), purity = 22, description = "22 K Gold :", id = 2 });
+            StandardRates.Add(new Rate { name = "20 K", rate = (int)(pureGoldRate / 100 * 85), purity = 20, description = "20 K Gold :", id = 3 });
+            StandardRates.Add(new Rate { name = "18 K", rate = (int)(pureGoldRate / 100 * 78), purity = 18, description = "18 K Gold :", id = 4 });
+            StandardRates.Add(new Rate { name = "Silver", rate = silverRate, purity = 100, description = "Silver :", id = 5 });
+
+            foreach (var obj in CommanDetails.user.userPreference.Rates)
             {
-                foreach (var obj in TempRates)
+                foreach (var rate in StandardRates)
                 {
-                    if (obj.name.ToLower() == name.ToLower())
+                    if (obj.name == rate.name && obj.isChecked)
                     {
-                        return new Rate { isChecked = false, name = obj.name, isEnabled = true, description = obj.description + Convert.ToDecimal(obj.rate).ToString("F"), rate = obj.rate };
+                        rate.isChecked= true;
+                        break;
                     }
                 }
             }
-            return null;
-        }
-
-        public static ObservableCollection<Rate> GetStandardRates()
-        {
-            var rates = new ObservableCollection<Rate>();
-            return rates;
+            return StandardRates;
         }
 
         public static bool IsValidEmail(string value)
@@ -1007,26 +859,6 @@ namespace JewellPro
             return formattedPrice;
         }
         
-        public static void GetUserPreference()
-        {
-            //UserPreference userPreferenceInfo = CommanDetails.user.userPreference;
-            //if (userPreferenceInfo.Rates != null)
-            //{
-            //    foreach (var userPref in userPreferenceInfo.Rates)
-            //    {
-            //        foreach (var uiRates in Rates)
-            //        {
-            //            if (userPref.isChecked && uiRates.name == userPref.name)
-            //            {
-            //                ShowRates.Add(userPref);
-            //                uiRates.isChecked = true;
-            //                break;
-            //            }
-            //        }
-            //    }
-            //}
-        }
-
         public static OrderDetails GenerateNewOrderDetailsInstance()
         {
             OrderDetails OrderDetails = new OrderDetails();
@@ -1060,34 +892,39 @@ namespace JewellPro
         {
         }
     }
-
-    public sealed class AppSharedContext
-    {
-        AppSharedContext() { }
-        private static readonly object _lock = new object();
-        private static AppSharedContext instance = null;
-        public static AppSharedContext Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (_lock)
-                        {
-                            if (instance == null)
-                            {
-                                instance = new AppSharedContext();
-                            }
-                        }
-                }
-                return instance;
-            }
-        }
-    }
-
 }
 
-
+//public ObservableCollection<Purity> GetAllPurityDetails(string metal = "Gold")
+//{
+//    string sqlQuery = string.Format("SELECT * FROM purity where metal = '{0}' Order by purity", metal);
+//    NpgsqlDataReader dataReader = GetTableData(sqlQuery);
+//    ObservableCollection<Purity> puritys = null;
+//    try
+//    {
+//        if (dataReader != null)
+//        {
+//            puritys = new ObservableCollection<Purity>();
+//            while (dataReader.Read())
+//            {
+//                Purity purity = new Purity
+//                {
+//                    id = Convert.ToInt32(dataReader["id"]),
+//                    metalType = Convert.ToString(dataReader["metal"]),
+//                    description = Convert.ToString(dataReader["description"]),
+//                    purity = Convert.ToString(dataReader["purity"]),
+//                    karat = Convert.ToString(dataReader["karat"]),
+//                    displayText = Convert.ToString(dataReader["display_text"]),
+//                };
+//                puritys.Add(purity);
+//            }
+//        }
+//    }
+//    catch (Exception ex)
+//    {
+//        Logger.LogError(ex.Message);
+//    }
+//    return puritys;
+//}
 
 //public ICollection<T> getSortedData(ICollection<T> collection, string property, string direction)
 //{
@@ -1111,6 +948,30 @@ namespace JewellPro
 //}
 
 
+//public sealed class AppSharedContext
+//{
+//    AppSharedContext() { }
+//    private static readonly object _lock = new object();
+//    private static AppSharedContext instance = null;
+//    public static AppSharedContext Instance
+//    {
+//        get
+//        {
+//            if (instance == null)
+//            {
+//                lock (_lock)
+//                    {
+//                        if (instance == null)
+//                        {
+//                            instance = new AppSharedContext();
+//                        }
+//                    }
+//            }
+//            return instance;
+//        }
+//    }
+//}
+
 
 
 //chargesControls.Add(new ChargesControl { id = 1, name = "HallMarking", description = "Hall Marking", controlType = "TextBox", value = 0.0M });
@@ -1121,3 +982,35 @@ namespace JewellPro
 //chargesControls.Add(new ChargesControl { id = 6, name = "Making", description = "Making", controlType = "TextBox", value = 0.0M });
 //chargesControls.Add(new ChargesControl { id = 7, name = "StoneCost", description = "Stone Cost", controlType = "TextBox", value = 0.0M });
 //chargesControls.Add(new ChargesControl { id = 8, name = "Others", description = "Others", controlType = "TextBox", value = 0.0M });
+
+
+//public OrderDetails CloneOrderDetails(OrderDetails orderDetails)
+//{
+//    OrderDetails order = new OrderDetails();
+//    order.seal = !string.IsNullOrEmpty(orderDetails.seal) ? orderDetails.seal : string.Empty;
+//    order.quantity = !string.IsNullOrEmpty(orderDetails.quantity) ? orderDetails.quantity : string.Empty;
+//    order.size = !string.IsNullOrEmpty(orderDetails.size) ? orderDetails.size : string.Empty;
+//    order.wastage = !string.IsNullOrEmpty(orderDetails.wastage) ? orderDetails.wastage : string.Empty;
+//    order.wastagePercentage = !string.IsNullOrEmpty(orderDetails.wastagePercentage) ? orderDetails.wastagePercentage : string.Empty;
+//    order.jewelPurity = !string.IsNullOrEmpty(orderDetails.jewelPurity) ? orderDetails.jewelPurity : string.Empty;
+//    order.attachement = !string.IsNullOrEmpty(orderDetails.attachement) ? orderDetails.attachement : string.Empty;
+//    order.description = !string.IsNullOrEmpty(orderDetails.description) ? orderDetails.description : string.Empty;
+//    order.detection = !string.IsNullOrEmpty(orderDetails.detection) ? orderDetails.detection : string.Empty;
+//    order.dueDate = !string.IsNullOrEmpty(orderDetails.dueDate) ? orderDetails.dueDate : string.Empty;
+//    order.orderDate = !string.IsNullOrEmpty(orderDetails.orderDate) ? orderDetails.orderDate : string.Empty;
+//    order.jewellRecivedWeight = !string.IsNullOrEmpty(orderDetails.jewellRecivedWeight)  ? orderDetails.jewellRecivedWeight : string.Empty;
+//    order.netWeight = !string.IsNullOrEmpty(orderDetails.netWeight) ? orderDetails.netWeight : string.Empty;
+//    order.subOrderNo = !string.IsNullOrEmpty(orderDetails.subOrderNo) ? orderDetails.subOrderNo : string.Empty;
+//    return order;
+//}
+
+//public AdvanceDetails CloneAdvanceDetails(AdvanceDetails advanceDetails)
+//{
+//    AdvanceDetails advance = new AdvanceDetails();
+//    advance.advanceDate = !string.IsNullOrEmpty(advanceDetails.advanceDate) ? advanceDetails.advanceDate : string.Empty;
+//    advance.description = !string.IsNullOrEmpty(advanceDetails.description) ? advanceDetails.description : string.Empty;
+//    advance.goldPurity = advanceDetails.goldPurity > 0 ? advanceDetails.goldPurity : 0;
+//    advance.goldWeight = advanceDetails.goldWeight > 0 ? advanceDetails.goldWeight : 0;
+//    advance.id = advanceDetails.id > 0 ? advanceDetails.id : 0;
+//    return advance;
+//}

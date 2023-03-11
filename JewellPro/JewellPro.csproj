@@ -241,6 +241,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="MetalRateDetailsDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainWindowViewModel.cs" />
@@ -248,6 +252,9 @@
       <DependentUpon>ManageEstimation.xaml</DependentUpon>
     </Compile>
     <Compile Include="ManageEstimationViewModel.cs" />
+    <Compile Include="MetalRateDetailsDialog.xaml.cs">
+      <DependentUpon>MetalRateDetailsDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Model.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

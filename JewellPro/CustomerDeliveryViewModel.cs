@@ -370,7 +370,7 @@ namespace JewellPro
 
         void LoadNextOrderRefNo()
         {
-            OrderRefNo = string.Concat("CUS_DEL_", helper.GetNextSerialValue("customer_delivery") + 1);
+            OrderRefNo = string.Concat("CUS_DEL_", "");
         }
 
         void LoadCustomerDetails()

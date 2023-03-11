@@ -596,7 +596,7 @@ namespace JewellPro
         {
             AdvanceButtonLabel = Convert.ToString(UserControlState.Update);
             SelectedAdvanceType = (advanceDetails as AdvanceDetails).advanceType;
-            AdvanceDetail = helper.CloneAdvanceDetails((advanceDetails as AdvanceDetails));
+            AdvanceDetail = CloneObject.DeepClone<AdvanceDetails>(advanceDetails as AdvanceDetails);
         }
 
         void OnAdvanceDetailsDeleteCommand(object advanceDetails)

@@ -367,7 +367,7 @@ namespace JewellPro
             OrderButtonLabel = Convert.ToString(UserControlState.Update);
             SelectedEmployee = (orderDetail as OrderDetails).employee;
             SelectedJewelType = (orderDetail as OrderDetails).jewelType;
-            OrderDetails = helper.CloneOrderDetails(orderDetail as OrderDetails);
+            OrderDetails = CloneObject.DeepClone<OrderDetails>(orderDetail as OrderDetails);//helper.CloneOrderDetails(orderDetail as OrderDetails);
         }
 
         void OnOrderDetailsDeleteCommand(object orderDetail)
@@ -438,7 +438,7 @@ namespace JewellPro
         {
             AdvanceButtonLabel = Convert.ToString(UserControlState.Update);
             SelectedAdvanceType = (advanceDetails as AdvanceDetails).advanceType;
-            AdvanceDetail = helper.CloneAdvanceDetails((advanceDetails as AdvanceDetails));
+            AdvanceDetail = CloneObject.DeepClone<AdvanceDetails>(advanceDetails as AdvanceDetails);
         }
 
         void OnAdvanceDetailsDeleteCommand(object advanceDetails)

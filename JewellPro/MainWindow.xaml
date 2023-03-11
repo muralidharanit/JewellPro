@@ -83,23 +83,11 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="300" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="50" />
-                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="40" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Name="txtblkAppHeader" HorizontalAlignment="Left" TextDecorations="Underline" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="10,0,0,0" />
 
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal"  Visibility="{Binding SaveButtonVisibility}" >
-                        <TextBlock Text="24 Kt Gold : " HorizontalAlignment="Right" FontSize="20" FontWeight="Bold" Margin="10,0,5,0" />
-                        <TextBox Style="{StaticResource JPRateTextBox}" Text="{Binding PureGoldRate, UpdateSourceTrigger=PropertyChanged}" />
-
-                        <TextBlock Text="Silver : " HorizontalAlignment="Right" FontSize="20" FontWeight="Bold" Margin="10,0,5,0"/>
-                        <TextBox Style="{StaticResource JPRateTextBox}" Text="{Binding SilverRate, UpdateSourceTrigger=PropertyChanged}" />
-
-                        <Button Content="Save" Style="{StaticResource RateButtons}" Command="{Binding SaveCommand}" ToolTip="Save Gold/Siver Rate" />
-                    </StackPanel>
-
-
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Visibility="{Binding EditButtonVisibility}" >
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" >
                         <ListBox ScrollViewer.VerticalScrollBarVisibility="Disabled" ItemsSource="{Binding ShowRates}" >
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -113,7 +101,11 @@
                             </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding description}" Style="{StaticResource JPRateTextBlock}"  />
+                                    <TextBlock Style="{StaticResource JPTextBlock}" Margin="0" Width="135" FontWeight="Bold" 
+                                               Foreground="White" FontSize="17" TextAlignment="Center" >
+                                        <TextBlock Text="{Binding description}" />
+                                        <TextBlock Text="{Binding rate}" />
+                                    </TextBlock>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -121,30 +113,13 @@
                         <Button Content="Edit" Style="{StaticResource RateButtons}" Command="{Binding EditCommand}" ToolTip="Set Gold/Siver Rate"  />
                     </StackPanel>
 
-                    <Button Grid.Column="2" HorizontalAlignment="Left" Command="{Binding SaveUserPreferenceCommand}" ToolTip="Save User Preferences" Height="25" Margin="-2,0,0,0">
+                    <!--<Button Grid.Column="2" HorizontalAlignment="Left" Command="{Binding SaveUserPreferenceCommand}" ToolTip="Save User Preferences" Height="25" Margin="-2,0,0,0">
                         <materialDesign:PackIcon Kind="ContentSaveSettings"  Foreground="#ffffff" />
-                    </Button>
+                    </Button>-->
 
-                    <StackPanel Grid.Column="3" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <StackPanel Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal">
                         <materialDesign:PopupBox Grid.Column="2" PlacementMode="BottomAndAlignRightEdges" Cursor="Hand" PopupMode="Click" StaysOpen="True" >
                             <StackPanel>
-                                <ListBox ItemsSource="{Binding CommanDetails.user.userPreference.Rates}" Width="150" >
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <CheckBox Content="{Binding name}" Margin="5" IsChecked="{Binding isChecked, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding isEnabled, UpdateSourceTrigger=PropertyChanged}"  >
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="Checked">
-                                                        <command:EventToCommand Command="{Binding RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}, Path=DataContext.RateSelectionChangeCommand }" />
-                                                    </i:EventTrigger>
-                                                    <i:EventTrigger EventName="Unchecked">
-                                                        <command:EventToCommand Command="{Binding RelativeSource={RelativeSource AncestorType=Window, Mode=FindAncestor}, Path=DataContext.RateSelectionChangeCommand }" />
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                            </CheckBox>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                                <Separator/>
                                 <Button  Content="Logout" Command="{Binding LogoutCommand}"  Click="MenuPopupButton_OnClick"/>
                             </StackPanel>
                         </materialDesign:PopupBox>

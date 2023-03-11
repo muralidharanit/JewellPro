@@ -471,7 +471,7 @@ namespace JewellPro
             OrderButtonLabel = Convert.ToString(UserControlState.Update);
             SelectedCustomer = (orderDetail as OrderDetails).customer;
             SelectedJewelType = (orderDetail as OrderDetails).jewelType;
-            OrderDetails = helper.CloneOrderDetails(orderDetail as OrderDetails);
+            OrderDetails = CloneObject.DeepClone<OrderDetails>(orderDetail as OrderDetails);
         }
 
         void OnOrderDetailsDeleteCommand(object orderDetail)
