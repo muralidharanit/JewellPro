@@ -1,6 +1,7 @@
 ﻿<UserControl x:Class="JewellPro.CustomerDetails"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
          <DataTemplate x:Key="EditDateTemplate">
@@ -44,14 +45,21 @@
                         <TextBlock Style="{StaticResource JPTextBlock}">
                                 <TextBlock Text="Address : " /><TextBlock Text="*" Foreground="Red" />
                             </TextBlock>
-                        <RichTextBox Style="{StaticResource JPRichTextBox}" Height="80" >
+                        <!--<RichTextBox Style="{StaticResource JPRichTextBox}" Height="80" >
                             <FlowDocument >
                                 <Paragraph>
                                     <Run Text="{Binding CustomerDetail.address, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" />
                                 </Paragraph>
                             </FlowDocument>
-                        </RichTextBox>
-                    </StackPanel>
+                        </RichTextBox>-->
+                        <toolkit:RichTextBox BorderBrush="Gray" Style="{StaticResource JPRichTextBox}" Height="120" Width="200" AcceptsReturn="True" Block.LineHeight="5" ToolTip="{Binding OrderDetails.description}"
+                                    Text="{Binding CustomerDetail.address, UpdateSourceTrigger=PropertyChanged, Mode =TwoWay}" 
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto" >
+                            <toolkit:RichTextBox.TextFormatter>
+                                <toolkit:PlainTextFormatter />
+                            </toolkit:RichTextBox.TextFormatter>
+                        </toolkit:RichTextBox>
+                </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
                         <TextBlock Style="{StaticResource JPTextBlock}">

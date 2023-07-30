@@ -205,7 +205,7 @@ namespace JewellPro
         public ObservableCollection<OrderDetails> OrderDetails
         {
             get { return _OrderDetails; }
-            set { _OrderDetails = value; RaisePropertyChanged("OrderDetails"); }
+            set { _OrderDetails = value; RaisePropertyChanged("SelectedOrderDetails"); }
         }
 
         private ObservableCollection<JewelType> _jewelTypes;
@@ -441,8 +441,8 @@ namespace JewellPro
                                 jewelPurity = Convert.ToString(dataReader["ornament_purity"]),
                                 jewellRecivedWeight = Convert.ToString(dataReader["recived_weight"]),
                                 wastagePercentage = Convert.ToString(dataReader["wastage"]),
-                                detectionDetails = helper.GetDetectionControls("", Convert.ToInt32(dataReader["id"])),
-                                chargesDetails = helper.GetChargesControls("", Convert.ToInt32(dataReader["id"])),
+                                detectionDetails = Helper.GetDetectionControls("", Convert.ToInt32(dataReader["id"])),
+                                chargesDetails = Helper.GetChargesControls("", Convert.ToInt32(dataReader["id"])),
                                 jewelType = JewelTypes.FirstOrDefault(o => o.id == Convert.ToInt64(dataReader["fk_ornament_type_id"]))
                             };
                             //Dont change the order

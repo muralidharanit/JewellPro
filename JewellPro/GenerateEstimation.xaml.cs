@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using GalaSoft.MvvmLight;
+using System.Windows.Controls;
 
 namespace JewellPro
 {
@@ -7,13 +8,12 @@ namespace JewellPro
     /// </summary>
     public partial class GenerateEstimation : UserControl
     {
-        public GenerateEstimation(double ucHeight)
+        public GenerateEstimation(double ucHeight, ViewModelBase viewModelBase)
         {
             InitializeComponent();
             this.Height = ucHeight;
-
-            GenerateEstimationViewModel generateEstimationViewModel = new GenerateEstimationViewModel();
-            this.DataContext = generateEstimationViewModel;
+            
+            this.DataContext = viewModelBase;
         }        
     }
 }

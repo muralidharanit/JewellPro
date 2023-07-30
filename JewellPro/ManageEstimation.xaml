@@ -1,68 +1,83 @@
 ﻿<UserControl x:Class="JewellPro.ManageEstimation"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:JewellPro"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:editors="http://wpfcontrols.com/"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity">
+
     <Grid HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="370" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="40" />
+            <RowDefinition Height="70" />
         </Grid.RowDefinitions>
 
-        <TabControl Name="empOrderTab" Grid.Row="0" Grid.Column="0" Margin="10" SelectedIndex="{Binding SelectedTabIndex}"  >
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="SelectionChanged">
-                    <i:InvokeCommandAction Command="{Binding TabItemSelectionChangeCommand}" CommandParameter="{Binding }" />
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-            <TabItem Header="Estimation Details" Style="{StaticResource JPTabItem}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="290" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="50" />
-                    </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Left" Margin="10">
+            <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                <TextBlock Style="{StaticResource JPTextBlock}"><TextBlock Text="Select Customer : " /><TextBlock Text="*" Foreground="Red" /></TextBlock>
+                <ComboBox DisplayMemberPath="name" SelectedItem="{Binding Path=SelectedCustomer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerDetails}" Style="{StaticResource JPEditableComboBox}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding CustomerNameSelectionChangeCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </StackPanel>
 
-                    <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Center" Margin="10">
+            <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                <TextBlock Style="{StaticResource JPTextBlock}"><TextBlock Text="Select Order No : " /><TextBlock Text="*" Foreground="Red" /></TextBlock>
+                <ComboBox DisplayMemberPath="orderNo" ItemsSource="{Binding EstimationRefNos}" SelectedItem="{Binding SelectedOrderDetails , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource JPComboBox}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding CustomerEstimationSelectionChangeCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
 
-                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
-                            <TextBlock Style="{StaticResource JPTextBlock}"><TextBlock Text="Select Customer : " /><TextBlock Text="*" Foreground="Red" /></TextBlock>
-                            <ComboBox DisplayMemberPath="name" SelectedItem="{Binding Path=SelectedCustomer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerDetails}" Style="{StaticResource JPEditableComboBox}">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="SelectionChanged">
-                                        <i:InvokeCommandAction Command="{Binding CustomerNameSelectionChangeCommand}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </ComboBox>
-                        </StackPanel>
+        <DataGrid Name="datagrdOrderDetails"  Grid.Row="1" GridLinesVisibility="All" IsReadOnly="True" ItemsSource="{Binding SelectedOrderDetails.orderDetailsList, Mode=TwoWay}"
+                  ColumnWidth="*" Margin="10,5,10,5" AutoGenerateColumns="False" SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Jewel Type" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelType.name}" CellStyle="{StaticResource JPDataGridCell}" Visibility="{Binding Path=GridColumnsVisibility.jewelType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"  />
+                <DataGridTextColumn Header="Jewel Purity" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelPurity}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.jewelPurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                <DataGridTextColumn Header="Size" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="70" Binding="{Binding size}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.size, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                <DataGridTextColumn Header="Net Weight" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="110" Binding="{Binding netWeight}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.netWeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                <DataGridTextColumn Header="Seal" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="70" Binding="{Binding seal}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.seal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                <!--<DataGridTextColumn Header="Description" HeaderStyle="{StaticResource JPGridHeaderStyle}" Binding="{Binding description}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>-->
+                <DataGridTemplateColumn Header="Description" Width="*" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Height="25" ToolTip="{Binding description}" Text="{Binding description}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Attachement" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="130" Binding="{Binding attachement}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.attachement, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                <DataGridTextColumn Header="Due Date" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="110" Binding="{Binding dueDate}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.dueDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>
+                <DataGridTemplateColumn Header="Edit" Width="80" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button HorizontalAlignment="Center" Command="{Binding DataContext.OrderDetailsEditCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
+                                <materialDesign:PackIcon Kind="Edit" Foreground="#ffffff" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Delete" Width="80" HeaderStyle="{StaticResource JPGridHeaderStyle}" CellStyle="{StaticResource JPDataGridCell}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button HorizontalAlignment="Center" Command="{Binding DataContext.OrderDetailsDeleteCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}">
+                                <materialDesign:PackIcon Kind="Delete" Foreground="#ffffff" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
 
-                        <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
-                            <TextBlock Style="{StaticResource JPTextBlock}"><TextBlock Text="Select Order No : " /><TextBlock Text="*" Foreground="Red" /></TextBlock>
-                            <ComboBox DisplayMemberPath="orderRefNo" ItemsSource="{Binding EstimationRefNos}" SelectedItem="{Binding SelectedCustomerOrder , Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource JPComboBox}">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="SelectionChanged">
-                                        <i:InvokeCommandAction Command="{Binding CustomerEstimationSelectionChangeCommand}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </ComboBox>
-                        </StackPanel>
-
-                    </StackPanel>
-
-                </Grid>
-            </TabItem>
-        </TabControl>
-
+        <DockPanel Grid.Row="2" VerticalAlignment="Bottom">
+            <Button Content="Clear" DockPanel.Dock="Right" Style="{StaticResource ActionButtons}" Command="{Binding ClearCommand}" />
+            <Button Content="Generate Estimation Order" DockPanel.Dock="Right"  Style="{StaticResource ActionButtons}" Command="{Binding GenerateInvoiceCommand}" />
+        </DockPanel>
     </Grid>
+
 </UserControl>

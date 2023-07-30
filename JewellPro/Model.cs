@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static JewellPro.EnumInfo;
 
 namespace JewellPro
 {
@@ -45,6 +46,13 @@ namespace JewellPro
         {
             get { return _orderNo; }
             set { _orderNo = value; RaisePropertyChanged("orderNo"); }
+        }
+
+        private OrderType _orderType;
+        public OrderType orderType
+        {
+            get { return _orderType; }
+            set { _orderType = value; RaisePropertyChanged("orderType"); }
         }
 
         private string _orderRefNo;
@@ -152,6 +160,12 @@ namespace JewellPro
             set { _isPriorityOrder = value; RaisePropertyChanged("isPriorityOrder"); }
         }
 
+        private bool _isGSTOrder;
+        public bool isGSTOrder
+        {
+            get { return _isGSTOrder; }
+            set { _isGSTOrder = value; RaisePropertyChanged("isGSTOrder"); }
+        }
 
         private string _freezeRate;
         public string freezeRate

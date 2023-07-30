@@ -16,11 +16,16 @@
         </StackPanel>
 
         <StackPanel Orientation="Horizontal">
-            <TextBlock Name="txtReportFileLocation" FontSize="14" FontWeight="Bold" Margin="43,0,0,5" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock FontSize="14" FontWeight="Bold" Margin="43,0,0,5" VerticalAlignment="Center" HorizontalAlignment="Center">
+                Report avilable in following path :
+                <Hyperlink Name="hyperLinkReportFileLocation" RequestNavigate="OpenReport">
+                    <TextBlock Name="txtReportFileLocation" />
+                </Hyperlink>
+            </TextBlock>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Before Proceed to further make sure user Email and Mobile information are correct." FontSize="14" Foreground="red" FontWeight="Bold" Margin="43,0,0,5" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock Text="Before Proceed to further make sure, Email and Mobile information are correct." FontSize="14" Foreground="red" FontWeight="Bold" Margin="43,0,0,5" VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Margin="10" >
@@ -42,10 +47,11 @@
         <StackPanel Orientation="Horizontal" Margin="10" >
             <TextBlock Text="Format :" Style="{StaticResource JPTextBlock}" />
             <CheckBox Content="Image" Style="{StaticResource JPCheckBox}" IsEnabled="False" />
-            <CheckBox Content="Pdf" Style="{StaticResource JPCheckBox}" />
+            <CheckBox Content="Pdf" Style="{StaticResource JPCheckBox}" IsChecked="True" />
         </StackPanel>
 
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal" Margin="10">
+            <Button Name="btnOpenFile"  Content="Open File"  Style="{StaticResource TabButtons}" Click="btnOpenFile_Click" Width="100" />
             <Button Name="btnOk"  Content="Ok"  Style="{StaticResource TabButtons}" Click="btnOk_Click" />
             <Button Name="btnCancel"  Content="Cancel" Style="{StaticResource TabButtons}" Click="btnCancel_Click" />
         </StackPanel>

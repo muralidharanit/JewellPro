@@ -66,18 +66,19 @@ namespace JewellPro
                 if ((trvMenuItem.SelectedItem as SubItem).Id == AppMenus.CustomerEstimation)
                 {
                     usercontrolPane.Children.Clear();
-                    txtblkAppHeader.Text = "Customer Estimation";
-                    var t = this.Height;
-                    GenerateEstimation customerOrder = new GenerateEstimation(this.Height - 70);
-                    usercontrolPane.Children.Add(customerOrder);
+                    txtblkAppHeader.Text = "Create New Estimation";
+                    GenerateEstimationViewModel generateEstimationViewModel = new GenerateEstimationViewModel(UserControlState.Create);
+                    GenerateEstimation customerEstimation = new GenerateEstimation(this.Height - 70, generateEstimationViewModel);
+                    usercontrolPane.Children.Add(customerEstimation);
                 }
 
                 if ((trvMenuItem.SelectedItem as SubItem).Id == AppMenus.ModifyCustomerEstimation)
                 {
                     usercontrolPane.Children.Clear();
-                    txtblkAppHeader.Text = "Manage Estimation";
-                    ManageEstimation manageEstimation = new ManageEstimation(this.Height - 70);
-                    usercontrolPane.Children.Add(manageEstimation);
+                    txtblkAppHeader.Text = "Edit or Delete Estimation";
+                    GenerateEstimationViewModel generateEstimationViewModel = new GenerateEstimationViewModel(UserControlState.Update);
+                    GenerateEstimation modifyCustomerEstimation = new GenerateEstimation(this.Height - 70, generateEstimationViewModel);
+                    usercontrolPane.Children.Add(modifyCustomerEstimation);
                 }
 
                 if ((trvMenuItem.SelectedItem as SubItem).Id == AppMenus.CustomerDelivery)

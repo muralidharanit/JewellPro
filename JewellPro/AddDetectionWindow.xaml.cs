@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -17,7 +16,7 @@ namespace JewellPro
         public AddDetectionWindow(dynamic ViewmodelObj, ObservableCollection<DetectionControl> DetectionControls, ObservableCollection<ChargesControl> ChargesControls, bool isHideDetection = false, bool isHideCharges = false)
         {
             InitializeComponent();
-            empOrderTab.SelectedIndex= 0;
+            empOrderTab.SelectedIndex = 0;
             tabCharges.Visibility = isHideCharges == true ? Visibility.Collapsed : Visibility.Visible;
             tabDetections.Visibility = isHideDetection == true ? Visibility.Collapsed : Visibility.Visible;
             viewmodelObj = ViewmodelObj;
@@ -45,7 +44,7 @@ namespace JewellPro
                 spnlDetection.Children.Add(spnl);
             }
         }
-        
+
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
 
@@ -76,12 +75,6 @@ namespace JewellPro
                     }
                 }
             }
-
-            if (viewmodelObj != null)
-            {
-                viewmodelObj.UpdateDetectionDetails(detectionControls, chargesControls);
-            }
-
             this.Hide();
         }
     }

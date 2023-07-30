@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Mail;
 using System.Windows;
@@ -19,7 +20,8 @@ namespace JewellPro
             this.customer = user;
             txtEmail.Text = user.email;
             txtMobile.Text = user.mobile;
-            txtReportFileLocation.Text = "'Report avilable in following path :' " + reportStatus.reportPath;
+            txtReportFileLocation.Text = reportStatus.reportPath;
+            hyperLinkReportFileLocation.NavigateUri = new Uri(reportStatus.reportPath, UriKind.Absolute);
             if (string.IsNullOrWhiteSpace(user.email) && string.IsNullOrWhiteSpace(user.mobile))
             {
                 btnOk.IsEnabled= false;
@@ -82,6 +84,19 @@ namespace JewellPro
         private void btnCancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void OpenReport(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            Process.Start(e.Uri.ToString());
+        }
+
+        private void btnOpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            Process proc = new Process();
+            proc.StartInfo.UseShellExecute = true;
+            proc.StartInfo.FileName = this.reportStatus.reportPath;
+            proc.Start();
         }
     }
 }

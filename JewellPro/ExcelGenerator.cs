@@ -85,6 +85,7 @@
                 {
                     xlWorkSheet.Range["A" + rowno.ToString()].Value2 = Convert.ToString(sno);
                     xlWorkSheet.Range["B" + rowno.ToString()].Value2 = Convert.ToString(order.jewelType.name);
+                    order.quantity = string.IsNullOrWhiteSpace(order.quantity) ? Convert.ToString("1") : order.quantity;
                     xlWorkSheet.Range["C" + rowno.ToString()].Value2 = Convert.ToString(order.quantity);
                     totalQuantity = totalQuantity + Convert.ToInt16(order.quantity);
 
@@ -121,7 +122,18 @@
                 }
                 xlWorkSheet.Range["A7"].Value2 = rateFrozen.ToString();
 
-                xlWorkSheet.Range["A6"].Value2 = "Standard Gold Rate: 22 Karat (91.6% Purity) – Rs. 4,885/- | Gold Rate: (85% Purity) – Rs. 4,530/- Gold";
+                StringBuilder rateDescription = new StringBuilder();
+                rateDescription.Append("Standard Gold Rate: ");
+                foreach (Rate rate in Helper.GetStandardMetalRates())
+                {
+                    if (rate.isChecked)
+                    {
+                        rateDescription.Append(rate.description + " – Rs. " +rate.rate.ToString().Trim() + "/- | ");
+                    }
+                }
+                
+                xlWorkSheet.Range["A6"].Value2 = rateDescription.ToString().TrimEnd('|', ' '); 
+                //"Standard Gold Rate: 22 Karat (91.6% Purity) – Rs. 4,885/- | Gold Rate: (85% Purity) – Rs. 4,530/- Gold";
 
                 xlWorkBook.SaveAs(estimationReportPath, Excel.XlFileFormat.xlOpenXMLWorkbook,
                     Missing.Value, Missing.Value, Missing.Value, Missing.Value, Excel.XlSaveAsAccessMode.xlNoChange,
@@ -162,8 +174,6 @@
             }
             return reportStatus;
         }
-
-        //private bool 
 
         public bool GenerateCustomerOrderDeliveryInvoice(ExcelFileArgs excelFileArgs)
         {

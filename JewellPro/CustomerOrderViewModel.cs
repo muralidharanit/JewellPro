@@ -84,7 +84,7 @@ namespace JewellPro
         public OrderDetails OrderDetails
         {
             get { return _OrderDetails; }
-            set { _OrderDetails = value; RaisePropertyChanged("OrderDetails"); }
+            set { _OrderDetails = value; RaisePropertyChanged("SelectedOrderDetails"); }
         }
 
         private JewelType _SelectedJewelType;
@@ -467,7 +467,7 @@ namespace JewellPro
         {
             if (OrderDetailsCollection == null || OrderDetailsCollection.Count == 0)
             {
-                MessageBox.Show("OrderDetails should not be empty", "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("SelectedOrderDetails should not be empty", "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -477,7 +477,7 @@ namespace JewellPro
             {
                 if (customerId != order.customer.id)
                 {
-                    MessageBox.Show("OrderDetails should not be created, different customer not allowed", "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("SelectedOrderDetails should not be created, different customer not allowed", "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
             }

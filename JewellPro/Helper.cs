@@ -4,6 +4,7 @@ using Npgsql;
 using System;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Data.Common;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -14,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -263,7 +265,7 @@ namespace JewellPro
             return Convert.ToString(Math.Round(total, 3));
         }        
 
-        public ObservableCollection<DetectionControl> GetDetectionControls(string entity = "", int orderId = 0)
+        public static ObservableCollection<DetectionControl> GetDetectionControls(string entity = "", int orderId = 0)
         {
             ObservableCollection<DetectionControl> detectionControls = GetAllDetectionControls();
 
@@ -321,13 +323,13 @@ namespace JewellPro
             return detectionControls;
         }
 
-        public ObservableCollection<ChargesControl> GetChargesControls(string entity = "", int orderId = 0)
+        public static ObservableCollection<ChargesControl> GetChargesControls(string entity = "", int orderId = 0)
         {
             ObservableCollection<ChargesControl> chargesControls = GetAllChargesControls();
 
             if(orderId > 0)
             {
-                string order_charges_details = "SELECT * FROM customer_order_charges_details where fk_customer_order_details_id = " + orderId;
+                string order_charges_details = "SELECT * FROM customer_order_charges_details where fk_order_details_id = " + orderId;
                 ObservableCollection<ChargesControl> chargesDetails = null;
                 try
                 {
@@ -653,7 +655,7 @@ namespace JewellPro
             var image = System.Drawing.Image.FromFile(srcPath);
             var imageEncoders = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders();
             EncoderParameters encoderParameters = new EncoderParameters(1);
-            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, 100L);
+            encoderParameters.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L);
             var canvasWidth = maximumWidth;
             var canvasHeight = maximumHeight;
             var newImageWidth = maximumWidth;
@@ -759,7 +761,9 @@ namespace JewellPro
             ObservableCollection<Rate> rates = Helper.GetRates();
 
             int pureGoldRate = rates.First(x => x.name.ToLower() == "gold").rate;
+            Configuration.PureGoldRate = Convert.ToString(pureGoldRate);
             int silverRate = rates.First(x => x.name.ToLower() == "silver").rate;
+            Configuration.SilverRate = Convert.ToString(silverRate);
 
             StandardRates.Add(new Rate { name = "24 K", rate = pureGoldRate, purity = 24, description = "24 K Gold :", id = 1 });
             StandardRates.Add(new Rate { name = "22 K", rate = (int)(pureGoldRate / 100 * 92), purity = 22, description = "22 K Gold :", id = 2 });
@@ -862,12 +866,22 @@ namespace JewellPro
         public static OrderDetails GenerateNewOrderDetailsInstance()
         {
             OrderDetails OrderDetails = new OrderDetails();
-            OrderDetails.orderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
-            OrderDetails.subOrderNo = DateTime.Now.ToString("yyyyMMddHHmmss");
+            OrderDetails.id = 0;
+            OrderDetails.subOrderNo = GetGuid();
+            OrderDetails.rateFreezeDate = DateTime.Now.ToString();
+            OrderDetails.freezeRate = Configuration.PureGoldRate;
             OrderDetails.orderDate = DateTime.Now.ToString();
-            OrderDetails.detectionDetails = Helper.GetAllDetectionControls();
-            OrderDetails.chargesDetails = Helper.GetAllChargesControls();
+            OrderDetails.detectionDetails = GetAllDetectionControls();
+            OrderDetails.chargesDetails = GetAllChargesControls();
             return OrderDetails;
+        }
+
+        public static string GetGuid()
+        {
+            Guid guid = Guid.NewGuid();
+            string uuid = guid.ToString().Substring(1,6);
+            uuid += DateTime.Now.ToString("yyyyMMddHHmmss");
+            return uuid;
         }
     }
 
@@ -984,9 +998,9 @@ namespace JewellPro
 //chargesControls.Add(new ChargesControl { id = 8, name = "Others", description = "Others", controlType = "TextBox", value = 0.0M });
 
 
-//public OrderDetails CloneOrderDetails(OrderDetails orderDetails)
+//public SelectedOrderDetails CloneOrderDetails(SelectedOrderDetails orderDetails)
 //{
-//    OrderDetails order = new OrderDetails();
+//    SelectedOrderDetails order = new SelectedOrderDetails();
 //    order.seal = !string.IsNullOrEmpty(orderDetails.seal) ? orderDetails.seal : string.Empty;
 //    order.quantity = !string.IsNullOrEmpty(orderDetails.quantity) ? orderDetails.quantity : string.Empty;
 //    order.size = !string.IsNullOrEmpty(orderDetails.size) ? orderDetails.size : string.Empty;

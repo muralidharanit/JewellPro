@@ -74,7 +74,7 @@ namespace JewellPro
         public OrderDetails OrderDetails
         {
             get { return _OrderDetails; }
-            set { _OrderDetails = value; RaisePropertyChanged("OrderDetails"); }
+            set { _OrderDetails = value; RaisePropertyChanged("SelectedOrderDetails"); }
         }
 
         private JewelType _SelectedJewelType;
@@ -367,7 +367,7 @@ namespace JewellPro
             OrderButtonLabel = Convert.ToString(UserControlState.Update);
             SelectedEmployee = (orderDetail as OrderDetails).employee;
             SelectedJewelType = (orderDetail as OrderDetails).jewelType;
-            OrderDetails = CloneObject.DeepClone<OrderDetails>(orderDetail as OrderDetails);//helper.CloneOrderDetails(orderDetail as OrderDetails);
+            OrderDetails = CloneObject.DeepClone<OrderDetails>(orderDetail as OrderDetails);//helper.CloneOrderDetails(orderDetail as SelectedOrderDetails);
         }
 
         void OnOrderDetailsDeleteCommand(object orderDetail)
@@ -569,7 +569,7 @@ namespace JewellPro
         {
             if (OrderDetailsCollection == null || OrderDetailsCollection.Count == 0)
             {
-                MessageBox.Show("OrderDetails should not be empty", "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("SelectedOrderDetails should not be empty", "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
 
@@ -579,7 +579,7 @@ namespace JewellPro
             {
                 if (EmployeeId != order.employee.id)
                 {
-                    MessageBox.Show("OrderDetails should not be created, different Employee not allowed", "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("SelectedOrderDetails should not be created, different Employee not allowed", "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
             }
