@@ -1,0 +1,2738 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.3.25
+-- Dumped by pg_dump version 9.3.25
+-- Started on 2023-11-18 16:13:01
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TOC entry 1 (class 3079 OID 11750)
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- TOC entry 2284 (class 0 OID 0)
+-- Dependencies: 1
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 171 (class 1259 OID 16394)
+-- Name: advance_type; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.advance_type (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    description text,
+    is_active boolean DEFAULT true
+);
+
+
+ALTER TABLE public.advance_type OWNER TO postgres;
+
+--
+-- TOC entry 172 (class 1259 OID 16401)
+-- Name: advance_type_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.advance_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.advance_type_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2285 (class 0 OID 0)
+-- Dependencies: 172
+-- Name: advance_type_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.advance_type_id_seq OWNED BY public.advance_type.id;
+
+
+--
+-- TOC entry 173 (class 1259 OID 16403)
+-- Name: charges_type; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.charges_type (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    description text
+);
+
+
+ALTER TABLE public.charges_type OWNER TO postgres;
+
+--
+-- TOC entry 174 (class 1259 OID 16409)
+-- Name: charges_type_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.charges_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.charges_type_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2286 (class 0 OID 0)
+-- Dependencies: 174
+-- Name: charges_type_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.charges_type_id_seq OWNED BY public.charges_type.id;
+
+
+--
+-- TOC entry 175 (class 1259 OID 16411)
+-- Name: customer; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.customer (
+    id integer NOT NULL,
+    name text NOT NULL,
+    description text,
+    address text,
+    email text,
+    pan text,
+    aadhaar text,
+    gst text,
+    mobile text,
+    phone text,
+    gender text,
+    isdeleted boolean DEFAULT false,
+    anniversary text,
+    dob text
+);
+
+
+ALTER TABLE public.customer OWNER TO postgres;
+
+--
+-- TOC entry 176 (class 1259 OID 16418)
+-- Name: customer_credit_debit_details; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.customer_credit_debit_details (
+    id integer NOT NULL,
+    gold_weight text,
+    description text,
+    fk_customer_order_id integer,
+    fk_customer_id integer
+);
+
+
+ALTER TABLE public.customer_credit_debit_details OWNER TO postgres;
+
+--
+-- TOC entry 177 (class 1259 OID 16424)
+-- Name: customer_credit_debit_details_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customer_credit_debit_details_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.customer_credit_debit_details_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2287 (class 0 OID 0)
+-- Dependencies: 177
+-- Name: customer_credit_debit_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customer_credit_debit_details_id_seq OWNED BY public.customer_credit_debit_details.id;
+
+
+--
+-- TOC entry 178 (class 1259 OID 16426)
+-- Name: customer_delivery; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.customer_delivery (
+    id integer NOT NULL,
+    order_no text NOT NULL,
+    order_ref_no text NOT NULL,
+    fk_customer_id integer,
+    is_completed boolean DEFAULT false NOT NULL,
+    is_assigned boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE public.customer_delivery OWNER TO postgres;
+
+--
+-- TOC entry 179 (class 1259 OID 16434)
+-- Name: customer_order_charges_details; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.customer_order_charges_details (
+    id integer NOT NULL,
+    fk_charges_id integer NOT NULL,
+    charge text NOT NULL,
+    fk_order_details_id integer NOT NULL
+);
+
+
+ALTER TABLE public.customer_order_charges_details OWNER TO postgres;
+
+--
+-- TOC entry 180 (class 1259 OID 16440)
+-- Name: customer_delivery_charges_details_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customer_delivery_charges_details_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.customer_delivery_charges_details_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2288 (class 0 OID 0)
+-- Dependencies: 180
+-- Name: customer_delivery_charges_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customer_delivery_charges_details_id_seq OWNED BY public.customer_order_charges_details.id;
+
+
+--
+-- TOC entry 181 (class 1259 OID 16442)
+-- Name: customer_order_detection_details; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.customer_order_detection_details (
+    id integer NOT NULL,
+    fk_detection_id integer NOT NULL,
+    detection text NOT NULL,
+    fk_customer_order_details_id integer NOT NULL
+);
+
+
+ALTER TABLE public.customer_order_detection_details OWNER TO postgres;
+
+--
+-- TOC entry 182 (class 1259 OID 16448)
+-- Name: customer_delivery_detection_details_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customer_delivery_detection_details_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.customer_delivery_detection_details_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2289 (class 0 OID 0)
+-- Dependencies: 182
+-- Name: customer_delivery_detection_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customer_delivery_detection_details_id_seq OWNED BY public.customer_order_detection_details.id;
+
+
+--
+-- TOC entry 183 (class 1259 OID 16450)
+-- Name: customer_delivery_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customer_delivery_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.customer_delivery_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2290 (class 0 OID 0)
+-- Dependencies: 183
+-- Name: customer_delivery_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customer_delivery_id_seq OWNED BY public.customer_delivery.id;
+
+
+--
+-- TOC entry 184 (class 1259 OID 16452)
+-- Name: customer_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customer_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.customer_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2291 (class 0 OID 0)
+-- Dependencies: 184
+-- Name: customer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customer_id_seq OWNED BY public.customer.id;
+
+
+--
+-- TOC entry 185 (class 1259 OID 16454)
+-- Name: customer_order; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.customer_order (
+    id integer NOT NULL,
+    order_no text NOT NULL,
+    order_ref_no text NOT NULL,
+    fk_customer_id integer,
+    is_completed boolean DEFAULT false NOT NULL,
+    is_assigned boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE public.customer_order OWNER TO postgres;
+
+--
+-- TOC entry 186 (class 1259 OID 16462)
+-- Name: customer_order_advance_details; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.customer_order_advance_details (
+    advance_date text NOT NULL,
+    gold_weight text,
+    gold_purity text,
+    gold_melting_loss text,
+    bank_name text,
+    transfer_ref_no text,
+    description text,
+    fk_advance_type_id integer NOT NULL,
+    id integer NOT NULL,
+    fk_customer_order_id integer,
+    gold_rate text,
+    amount text
+);
+
+
+ALTER TABLE public.customer_order_advance_details OWNER TO postgres;
+
+--
+-- TOC entry 187 (class 1259 OID 16468)
+-- Name: customer_order_advance_details_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customer_order_advance_details_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.customer_order_advance_details_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2292 (class 0 OID 0)
+-- Dependencies: 187
+-- Name: customer_order_advance_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customer_order_advance_details_id_seq OWNED BY public.customer_order_advance_details.id;
+
+
+--
+-- TOC entry 188 (class 1259 OID 16470)
+-- Name: customer_order_details; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.customer_order_details (
+    id integer NOT NULL,
+    design text,
+    size text,
+    net_weight text NOT NULL,
+    seal text NOT NULL,
+    description text,
+    attachement text,
+    order_date text NOT NULL,
+    due_date text NOT NULL,
+    ornament_purity text,
+    is_completed boolean DEFAULT false,
+    is_assigned boolean DEFAULT true,
+    fk_ornament_type_id integer,
+    fk_customer_order_id integer,
+    wastage text,
+    recived_weight text,
+    "makingCharges" text,
+    rate_frozen_date text
+);
+
+
+ALTER TABLE public.customer_order_details OWNER TO postgres;
+
+--
+-- TOC entry 189 (class 1259 OID 16478)
+-- Name: customer_order_details_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customer_order_details_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.customer_order_details_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2293 (class 0 OID 0)
+-- Dependencies: 189
+-- Name: customer_order_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customer_order_details_id_seq OWNED BY public.customer_order_details.id;
+
+
+--
+-- TOC entry 190 (class 1259 OID 16480)
+-- Name: customer_order_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.customer_order_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.customer_order_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2294 (class 0 OID 0)
+-- Dependencies: 190
+-- Name: customer_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.customer_order_id_seq OWNED BY public.customer_order.id;
+
+
+--
+-- TOC entry 191 (class 1259 OID 16482)
+-- Name: detection_type; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.detection_type (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    description text
+);
+
+
+ALTER TABLE public.detection_type OWNER TO postgres;
+
+--
+-- TOC entry 192 (class 1259 OID 16488)
+-- Name: detection_type_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.detection_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.detection_type_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2295 (class 0 OID 0)
+-- Dependencies: 192
+-- Name: detection_type_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.detection_type_id_seq OWNED BY public.detection_type.id;
+
+
+--
+-- TOC entry 193 (class 1259 OID 16490)
+-- Name: emp_gold_detail; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.emp_gold_detail (
+    id integer NOT NULL,
+    fk_order_id integer NOT NULL,
+    is_pure_gold boolean DEFAULT false,
+    pure_gold_purity text,
+    jewellery_purity text,
+    gold_weight text NOT NULL
+);
+
+
+ALTER TABLE public.emp_gold_detail OWNER TO postgres;
+
+--
+-- TOC entry 194 (class 1259 OID 16497)
+-- Name: emp_gold_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.emp_gold_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.emp_gold_detail_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2296 (class 0 OID 0)
+-- Dependencies: 194
+-- Name: emp_gold_detail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.emp_gold_detail_id_seq OWNED BY public.emp_gold_detail.id;
+
+
+--
+-- TOC entry 195 (class 1259 OID 16499)
+-- Name: emp_order_delivery_detail; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.emp_order_delivery_detail (
+    id integer NOT NULL,
+    fk_emp_id integer NOT NULL,
+    fk_order_id integer NOT NULL,
+    delivery_ref_no text NOT NULL,
+    jewellery_weight text NOT NULL,
+    order_delivery_date text NOT NULL,
+    jewellery_wastage text NOT NULL,
+    is_completed boolean DEFAULT true,
+    raw_gold_weight text
+);
+
+
+ALTER TABLE public.emp_order_delivery_detail OWNER TO postgres;
+
+--
+-- TOC entry 196 (class 1259 OID 16506)
+-- Name: emp_order_delivery_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.emp_order_delivery_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.emp_order_delivery_detail_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2297 (class 0 OID 0)
+-- Dependencies: 196
+-- Name: emp_order_delivery_detail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.emp_order_delivery_detail_id_seq OWNED BY public.emp_order_delivery_detail.id;
+
+
+--
+-- TOC entry 197 (class 1259 OID 16508)
+-- Name: emp_order_delivery_detection_detail; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.emp_order_delivery_detection_detail (
+    id integer NOT NULL,
+    fk_order_delivery_id integer NOT NULL,
+    fk_detection_id integer NOT NULL,
+    detection_weight text NOT NULL
+);
+
+
+ALTER TABLE public.emp_order_delivery_detection_detail OWNER TO postgres;
+
+--
+-- TOC entry 198 (class 1259 OID 16514)
+-- Name: emp_order_delivery_detection_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.emp_order_delivery_detection_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.emp_order_delivery_detection_detail_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2298 (class 0 OID 0)
+-- Dependencies: 198
+-- Name: emp_order_delivery_detection_detail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.emp_order_delivery_detection_detail_id_seq OWNED BY public.emp_order_delivery_detection_detail.id;
+
+
+--
+-- TOC entry 199 (class 1259 OID 16516)
+-- Name: employee_order_detail; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.employee_order_detail (
+    id integer NOT NULL,
+    fk_emp_id integer,
+    order_ref_no text,
+    is_assigned boolean DEFAULT true,
+    is_completed boolean DEFAULT false,
+    design text,
+    size text,
+    net_weight text,
+    seal text,
+    description text,
+    attachement text,
+    order_date text,
+    due_date text,
+    ornament_purity text,
+    fk_ornament_type_id integer,
+    fk_employee_order_id integer,
+    wastage text,
+    recived_weight text
+);
+
+
+ALTER TABLE public.employee_order_detail OWNER TO postgres;
+
+--
+-- TOC entry 200 (class 1259 OID 16524)
+-- Name: emp_order_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.emp_order_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.emp_order_detail_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2299 (class 0 OID 0)
+-- Dependencies: 200
+-- Name: emp_order_detail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.emp_order_detail_id_seq OWNED BY public.employee_order_detail.id;
+
+
+--
+-- TOC entry 201 (class 1259 OID 16526)
+-- Name: emp_order_item_detail; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.emp_order_item_detail (
+    id integer NOT NULL,
+    fk_order_id integer NOT NULL,
+    ornament_type character varying NOT NULL,
+    design character varying,
+    item_net_weight character varying NOT NULL,
+    seal character varying NOT NULL,
+    description text,
+    attachement text,
+    order_date text NOT NULL,
+    due_date text NOT NULL,
+    jewellery_purity text
+);
+
+
+ALTER TABLE public.emp_order_item_detail OWNER TO postgres;
+
+--
+-- TOC entry 202 (class 1259 OID 16532)
+-- Name: employee; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.employee (
+    id integer NOT NULL,
+    name text NOT NULL,
+    description text,
+    address text,
+    email text,
+    pan text,
+    aadhaar text,
+    bloodgroup text,
+    mobile text,
+    dob text,
+    phone text,
+    gender text,
+    isdeleted boolean DEFAULT false
+);
+
+
+ALTER TABLE public.employee OWNER TO postgres;
+
+--
+-- TOC entry 203 (class 1259 OID 16539)
+-- Name: employee_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.employee_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.employee_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2300 (class 0 OID 0)
+-- Dependencies: 203
+-- Name: employee_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.employee_id_seq OWNED BY public.employee.id;
+
+
+--
+-- TOC entry 204 (class 1259 OID 16541)
+-- Name: employee_order; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.employee_order (
+    id integer NOT NULL,
+    order_no text NOT NULL,
+    order_ref_no text NOT NULL,
+    fk_employee_id integer,
+    is_completed boolean DEFAULT false NOT NULL,
+    is_assigned boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE public.employee_order OWNER TO postgres;
+
+--
+-- TOC entry 205 (class 1259 OID 16549)
+-- Name: employee_order_advance_details; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.employee_order_advance_details (
+    id integer NOT NULL,
+    advance_date text NOT NULL,
+    gold_weight text,
+    gold_purity text,
+    gold_melting_loss text,
+    bank_name text,
+    transfer_ref_no text,
+    description text,
+    fk_advance_type_id integer NOT NULL,
+    fk_employee_order_id integer
+);
+
+
+ALTER TABLE public.employee_order_advance_details OWNER TO postgres;
+
+--
+-- TOC entry 206 (class 1259 OID 16555)
+-- Name: employee_order_advance_details_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.employee_order_advance_details_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.employee_order_advance_details_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2301 (class 0 OID 0)
+-- Dependencies: 206
+-- Name: employee_order_advance_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.employee_order_advance_details_id_seq OWNED BY public.employee_order_advance_details.id;
+
+
+--
+-- TOC entry 207 (class 1259 OID 16557)
+-- Name: employee_order_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.employee_order_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.employee_order_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2302 (class 0 OID 0)
+-- Dependencies: 207
+-- Name: employee_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.employee_order_id_seq OWNED BY public.employee_order.id;
+
+
+--
+-- TOC entry 208 (class 1259 OID 16559)
+-- Name: estimation_order; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.estimation_order (
+    id integer NOT NULL,
+    order_no text NOT NULL,
+    order_ref_no text NOT NULL,
+    fk_customer_id integer,
+    is_completed boolean DEFAULT false NOT NULL,
+    is_assigned boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public.estimation_order OWNER TO postgres;
+
+--
+-- TOC entry 209 (class 1259 OID 16567)
+-- Name: estimation_order_details; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.estimation_order_details (
+    id integer NOT NULL,
+    design text,
+    size text,
+    net_weight text NOT NULL,
+    seal text NOT NULL,
+    description text,
+    attachement text,
+    order_date text NOT NULL,
+    due_date text NOT NULL,
+    ornament_purity text,
+    is_completed boolean DEFAULT false,
+    is_assigned boolean DEFAULT false,
+    fk_ornament_type_id integer,
+    fk_customer_order_id integer,
+    wastage text,
+    recived_weight text
+);
+
+
+ALTER TABLE public.estimation_order_details OWNER TO postgres;
+
+--
+-- TOC entry 210 (class 1259 OID 16575)
+-- Name: estimation_order_details_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.estimation_order_details_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.estimation_order_details_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2303 (class 0 OID 0)
+-- Dependencies: 210
+-- Name: estimation_order_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.estimation_order_details_id_seq OWNED BY public.estimation_order_details.id;
+
+
+--
+-- TOC entry 211 (class 1259 OID 16577)
+-- Name: estimation_order_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.estimation_order_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.estimation_order_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2304 (class 0 OID 0)
+-- Dependencies: 211
+-- Name: estimation_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.estimation_order_id_seq OWNED BY public.estimation_order.id;
+
+
+--
+-- TOC entry 212 (class 1259 OID 16579)
+-- Name: gender; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.gender (
+    id integer NOT NULL,
+    gender text NOT NULL
+);
+
+
+ALTER TABLE public.gender OWNER TO postgres;
+
+--
+-- TOC entry 213 (class 1259 OID 16585)
+-- Name: gender_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.gender_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.gender_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2305 (class 0 OID 0)
+-- Dependencies: 213
+-- Name: gender_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.gender_id_seq OWNED BY public.gender.id;
+
+
+--
+-- TOC entry 214 (class 1259 OID 16587)
+-- Name: itemdetails_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.itemdetails_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.itemdetails_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2306 (class 0 OID 0)
+-- Dependencies: 214
+-- Name: itemdetails_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.itemdetails_id_seq OWNED BY public.emp_order_item_detail.id;
+
+
+--
+-- TOC entry 215 (class 1259 OID 16589)
+-- Name: login; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.login (
+    id integer NOT NULL,
+    username text NOT NULL,
+    password text NOT NULL,
+    usertype integer NOT NULL,
+    last_logged_in text,
+    preference text
+);
+
+
+ALTER TABLE public.login OWNER TO postgres;
+
+--
+-- TOC entry 216 (class 1259 OID 16595)
+-- Name: order_details; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.order_details (
+    id integer NOT NULL,
+    fk_order_id integer,
+    fk_ornament_type_id integer,
+    net_weight text NOT NULL,
+    ornament_purity text,
+    size text,
+    quantity text,
+    seal text NOT NULL,
+    wastage text,
+    making_charges text,
+    description text,
+    attachement text,
+    order_date text NOT NULL,
+    due_date text,
+    recived_weight text,
+    is_completed boolean DEFAULT false,
+    is_assigned boolean DEFAULT true
+);
+
+
+ALTER TABLE public.order_details OWNER TO postgres;
+
+--
+-- TOC entry 217 (class 1259 OID 16604)
+-- Name: order_details_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.order_details_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.order_details_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2307 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: order_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.order_details_id_seq OWNED BY public.order_details.id;
+
+
+--
+-- TOC entry 218 (class 1259 OID 16606)
+-- Name: orders; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.orders (
+    id integer NOT NULL,
+    order_no text NOT NULL,
+    order_date text,
+    fk_order_type integer,
+    is_completed boolean DEFAULT false NOT NULL,
+    is_assigned boolean DEFAULT false NOT NULL,
+    fk_employee_id integer,
+    fk_customer_id integer,
+    is_rate_freeze boolean DEFAULT false,
+    freeze_date text,
+    freeze_amount text,
+    is_priority_order boolean DEFAULT false NOT NULL,
+    is_gst_order boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public.orders OWNER TO postgres;
+
+--
+-- TOC entry 219 (class 1259 OID 16615)
+-- Name: orders_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.orders_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.orders_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2308 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: orders_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.orders_id_seq OWNED BY public.orders.id;
+
+
+--
+-- TOC entry 220 (class 1259 OID 16617)
+-- Name: ornament_type; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.ornament_type (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    description text
+);
+
+
+ALTER TABLE public.ornament_type OWNER TO postgres;
+
+--
+-- TOC entry 221 (class 1259 OID 16623)
+-- Name: ornament_type_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.ornament_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.ornament_type_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2309 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: ornament_type_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.ornament_type_id_seq OWNED BY public.ornament_type.id;
+
+
+--
+-- TOC entry 222 (class 1259 OID 16625)
+-- Name: purity; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.purity (
+    id integer NOT NULL,
+    metal text NOT NULL,
+    description text,
+    purity text NOT NULL,
+    display_text text,
+    karat text
+);
+
+
+ALTER TABLE public.purity OWNER TO postgres;
+
+--
+-- TOC entry 223 (class 1259 OID 16631)
+-- Name: purity_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.purity_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.purity_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2310 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: purity_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.purity_id_seq OWNED BY public.purity.id;
+
+
+--
+-- TOC entry 224 (class 1259 OID 16633)
+-- Name: rate; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE public.rate (
+    id integer NOT NULL,
+    name text NOT NULL,
+    description text,
+    rate text
+);
+
+
+ALTER TABLE public.rate OWNER TO postgres;
+
+--
+-- TOC entry 225 (class 1259 OID 16639)
+-- Name: rate_Id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."rate_Id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."rate_Id_seq" OWNER TO postgres;
+
+--
+-- TOC entry 2311 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: rate_Id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."rate_Id_seq" OWNED BY public.rate.id;
+
+
+--
+-- TOC entry 2012 (class 2604 OID 16641)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.advance_type ALTER COLUMN id SET DEFAULT nextval('public.advance_type_id_seq'::regclass);
+
+
+--
+-- TOC entry 2013 (class 2604 OID 16642)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.charges_type ALTER COLUMN id SET DEFAULT nextval('public.charges_type_id_seq'::regclass);
+
+
+--
+-- TOC entry 2015 (class 2604 OID 16643)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer ALTER COLUMN id SET DEFAULT nextval('public.customer_id_seq'::regclass);
+
+
+--
+-- TOC entry 2016 (class 2604 OID 16644)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer_credit_debit_details ALTER COLUMN id SET DEFAULT nextval('public.customer_credit_debit_details_id_seq'::regclass);
+
+
+--
+-- TOC entry 2019 (class 2604 OID 16645)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer_delivery ALTER COLUMN id SET DEFAULT nextval('public.customer_delivery_id_seq'::regclass);
+
+
+--
+-- TOC entry 2024 (class 2604 OID 16646)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer_order ALTER COLUMN id SET DEFAULT nextval('public.customer_order_id_seq'::regclass);
+
+
+--
+-- TOC entry 2025 (class 2604 OID 16647)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer_order_advance_details ALTER COLUMN id SET DEFAULT nextval('public.customer_order_advance_details_id_seq'::regclass);
+
+
+--
+-- TOC entry 2020 (class 2604 OID 16648)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer_order_charges_details ALTER COLUMN id SET DEFAULT nextval('public.customer_delivery_charges_details_id_seq'::regclass);
+
+
+--
+-- TOC entry 2028 (class 2604 OID 16649)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer_order_details ALTER COLUMN id SET DEFAULT nextval('public.customer_order_details_id_seq'::regclass);
+
+
+--
+-- TOC entry 2021 (class 2604 OID 16650)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.customer_order_detection_details ALTER COLUMN id SET DEFAULT nextval('public.customer_delivery_detection_details_id_seq'::regclass);
+
+
+--
+-- TOC entry 2029 (class 2604 OID 16651)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.detection_type ALTER COLUMN id SET DEFAULT nextval('public.detection_type_id_seq'::regclass);
+
+
+--
+-- TOC entry 2031 (class 2604 OID 16652)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.emp_gold_detail ALTER COLUMN id SET DEFAULT nextval('public.emp_gold_detail_id_seq'::regclass);
+
+
+--
+-- TOC entry 2033 (class 2604 OID 16653)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.emp_order_delivery_detail ALTER COLUMN id SET DEFAULT nextval('public.emp_order_delivery_detail_id_seq'::regclass);
+
+
+--
+-- TOC entry 2034 (class 2604 OID 16654)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.emp_order_delivery_detection_detail ALTER COLUMN id SET DEFAULT nextval('public.emp_order_delivery_detection_detail_id_seq'::regclass);
+
+
+--
+-- TOC entry 2038 (class 2604 OID 16655)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.emp_order_item_detail ALTER COLUMN id SET DEFAULT nextval('public.itemdetails_id_seq'::regclass);
+
+
+--
+-- TOC entry 2040 (class 2604 OID 16656)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.employee ALTER COLUMN id SET DEFAULT nextval('public.employee_id_seq'::regclass);
+
+
+--
+-- TOC entry 2043 (class 2604 OID 16657)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.employee_order ALTER COLUMN id SET DEFAULT nextval('public.employee_order_id_seq'::regclass);
+
+
+--
+-- TOC entry 2044 (class 2604 OID 16658)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.employee_order_advance_details ALTER COLUMN id SET DEFAULT nextval('public.employee_order_advance_details_id_seq'::regclass);
+
+
+--
+-- TOC entry 2037 (class 2604 OID 16659)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.employee_order_detail ALTER COLUMN id SET DEFAULT nextval('public.emp_order_detail_id_seq'::regclass);
+
+
+--
+-- TOC entry 2047 (class 2604 OID 16660)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.estimation_order ALTER COLUMN id SET DEFAULT nextval('public.estimation_order_id_seq'::regclass);
+
+
+--
+-- TOC entry 2050 (class 2604 OID 16661)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.estimation_order_details ALTER COLUMN id SET DEFAULT nextval('public.estimation_order_details_id_seq'::regclass);
+
+
+--
+-- TOC entry 2051 (class 2604 OID 16662)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.gender ALTER COLUMN id SET DEFAULT nextval('public.gender_id_seq'::regclass);
+
+
+--
+-- TOC entry 2054 (class 2604 OID 16663)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.order_details ALTER COLUMN id SET DEFAULT nextval('public.order_details_id_seq'::regclass);
+
+
+--
+-- TOC entry 2058 (class 2604 OID 16664)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.orders ALTER COLUMN id SET DEFAULT nextval('public.orders_id_seq'::regclass);
+
+
+--
+-- TOC entry 2061 (class 2604 OID 16665)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.ornament_type ALTER COLUMN id SET DEFAULT nextval('public.ornament_type_id_seq'::regclass);
+
+
+--
+-- TOC entry 2062 (class 2604 OID 16666)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.purity ALTER COLUMN id SET DEFAULT nextval('public.purity_id_seq'::regclass);
+
+
+--
+-- TOC entry 2063 (class 2604 OID 16667)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rate ALTER COLUMN id SET DEFAULT nextval('public."rate_Id_seq"'::regclass);
+
+
+--
+-- TOC entry 2221 (class 0 OID 16394)
+-- Dependencies: 171
+-- Data for Name: advance_type; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.advance_type (id, name, description, is_active) FROM stdin;
+2	Gold		t
+11	None		t
+1	Cash		t
+9	Others		t
+5	PayTm		f
+4	Bank Transfer		f
+3	Old Gold (Jewellery)		f
+6	GooglePay		f
+7	PhonePe		f
+8	Cheque		f
+\.
+
+
+--
+-- TOC entry 2312 (class 0 OID 0)
+-- Dependencies: 172
+-- Name: advance_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.advance_type_id_seq', 11, true);
+
+
+--
+-- TOC entry 2223 (class 0 OID 16403)
+-- Dependencies: 173
+-- Data for Name: charges_type; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.charges_type (id, name, description) FROM stdin;
+1	HallMarking	Hall Marking
+2	Enamal	Enamal
+3	Polish	Polish
+4	StoneCost	Stone Cost
+6	StoneFitting	Stone Fitting
+7	Melting	Melting
+16	Others	Others
+5	Photo Testing	Photo Testing
+\.
+
+
+--
+-- TOC entry 2313 (class 0 OID 0)
+-- Dependencies: 174
+-- Name: charges_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.charges_type_id_seq', 16, true);
+
+
+--
+-- TOC entry 2225 (class 0 OID 16411)
+-- Dependencies: 175
+-- Data for Name: customer; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer (id, name, description, address, email, pan, aadhaar, gst, mobile, phone, gender, isdeleted, anniversary, dob) FROM stdin;
+1	GRT		grt					1234567890	\N	Male	f	\N	\N
+5	VK Kiran		RS Puram					000000789	\N	Male	f	\N	\N
+4	Welcome	Test 123	Test address	welcome@gmail.com	APRPM7933S	123456789101	1234	97152867570000	\N	Male	t	\N	\N
+6	Hello Test	HELLO TEST DESCRIPTION	Hello Test123	helloTest@gmail.com	456	789	123	9715286757	\N	Female	f	\N	\N
+9	Sivakumar (Irugur)		Irugur 					1234567890	\N	Male	f	\N	\N
+7	ADSFSADF	ADSFASDF	ASDFASDF	ASDFASDF	ASDF	ADFS	ASDF	797798798798	\N	Female	t	\N	\N
+8	ASDFSDFSD	ASDFASDFASDF	ASDFSDFAS	ASDFASDFASF	ASDFASDF	ASDFASDF	ADFSASDFAS	ASDFASDF	\N	Male	t	\N	\N
+11	asdfasdf	asdfdsa	asdfsadf	asdfsadf@gmail.com	asdfsda	1233	sadfasdfa	123	\N	Male	f		
+2	Kalyan	666666666666	Kalyan	Kalyan@gmail.com	33333333333	55555555555	222222222	11111	\N	Male	f		
+12	asdf	1234	asdfsadf	asdfsadf@gmail.com	1234	1234	asdf	1234	\N	Male	t		
+10	test12	1234	asdfasdf	murali.ash@gmail.com	1234	1234	1234	12342134	\N	Female	f	02-01-2023	01-07-2022
+13	Shyamala		Selvapuram	shyamala.rajapa@gmail.com				9994603182	\N	Female	f	27-08-2015	17-10-1991
+3	Miruthla	888888888888	Perur Main Road\r\nSKM Appartment \r\nPerur\r\nCoimbatore -641005\r\nTamilnadu\r\n	Miruthla@gmail.com	6666666666	777777777	55555555555	9715286756	\N	Female	f	28-07-2023	06-09-2023
+\.
+
+
+--
+-- TOC entry 2226 (class 0 OID 16418)
+-- Dependencies: 176
+-- Data for Name: customer_credit_debit_details; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer_credit_debit_details (id, gold_weight, description, fk_customer_order_id, fk_customer_id) FROM stdin;
+1	0.550	Hello Text	6	5
+1	0.0		7	4
+3	-4.879		8	4
+4	-17.204		9	4
+5	1.000	Hello Text	6	4
+6	2.718		5	4
+7	-0.915		4	4
+8	0.0		14	4
+9	-3.058		15	4
+10	0.0		17	4
+11	-1.858		21	4
+12	0.0		20	4
+13	0.0		20	4
+14	-1.000		19	4
+15	20.754		18	4
+16	0.0		13	4
+17	0.0		32	4
+18	-2.131		31	4
+19	0.0		30	4
+20	0.0		29	4
+21	-2.198		28	4
+22	8.194		26	4
+23	1.308		25	4
+24	0.0		24	4
+25	0.0		22	4
+26	0.0		34	5
+27	0.0		35	4
+28	-4.021		38	5
+29	0.0		39	5
+30	0.0		41	5
+31	-0.800		33	1
+\.
+
+
+--
+-- TOC entry 2314 (class 0 OID 0)
+-- Dependencies: 177
+-- Name: customer_credit_debit_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customer_credit_debit_details_id_seq', 31, true);
+
+
+--
+-- TOC entry 2228 (class 0 OID 16426)
+-- Dependencies: 178
+-- Data for Name: customer_delivery; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer_delivery (id, order_no, order_ref_no, fk_customer_id, is_completed, is_assigned) FROM stdin;
+1	20210904193533	CUS_DEL_1	4	f	t
+\.
+
+
+--
+-- TOC entry 2315 (class 0 OID 0)
+-- Dependencies: 180
+-- Name: customer_delivery_charges_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customer_delivery_charges_details_id_seq', 131, true);
+
+
+--
+-- TOC entry 2316 (class 0 OID 0)
+-- Dependencies: 182
+-- Name: customer_delivery_detection_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customer_delivery_detection_details_id_seq', 30, true);
+
+
+--
+-- TOC entry 2317 (class 0 OID 0)
+-- Dependencies: 183
+-- Name: customer_delivery_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customer_delivery_id_seq', 1, true);
+
+
+--
+-- TOC entry 2318 (class 0 OID 0)
+-- Dependencies: 184
+-- Name: customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customer_id_seq', 13, true);
+
+
+--
+-- TOC entry 2235 (class 0 OID 16454)
+-- Dependencies: 185
+-- Data for Name: customer_order; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer_order (id, order_no, order_ref_no, fk_customer_id, is_completed, is_assigned) FROM stdin;
+1	20210902193533	CUS_ORD_1	4	f	t
+7	20211006182849	CUS_ORD_7	4	t	t
+8	20211007204516	CUS_ORD_8	4	t	t
+9	20211009130157	CUS_ORD_9	4	t	t
+6	20210925135717	CUS_ORD_6	4	t	t
+5	20210905125122	CUS_ORD_5	4	t	t
+10	20211011172121	CUS_ORD_10	4	f	t
+4	20210902234046	CUS_ORD_2	4	t	t
+11	20211011194939	CUS_ORD_11	5	f	t
+12	20211011195018	CUS_ORD_11	5	f	t
+16	20211011201654	CUS_ORD_14	4	f	t
+14	20211011201635	CUS_ORD_14	4	t	t
+15	20211011201646	CUS_ORD_14	4	t	t
+17	20211028001424	CUS_ORD_17	4	t	t
+21	20211028164826	CUS_ORD_21	4	t	t
+20	20211028011347	CUS_ORD_20	4	t	t
+19	20211028004543	CUS_ORD_19	4	t	t
+18	20211028002033	CUS_ORD_18	4	t	t
+13	20211011195401	CUS_ORD_13	4	t	t
+32	20211209203453	CUS_ORD_32	4	t	t
+31	20211203135259	CUS_ORD_31	4	t	t
+30	20211123005304	CUS_ORD_30	4	t	t
+29	20211123004519	CUS_ORD_29	4	t	t
+28	20211122184453	CUS_ORD_27	4	t	t
+26	20211119233700	CUS_ORD_26	4	t	t
+25	20211119225145	CUS_ORD_25	4	t	t
+24	20211119224421	CUS_ORD_23	4	t	t
+22	20211119192606	CUS_ORD_22	4	t	t
+34	20211210194628	CUS_ORD_34	5	t	t
+35	20211211214105	CUS_ORD_35	4	t	t
+36	20211212090308	CUS_ORD_36	4	f	t
+37	20211214134122	CUS_ORD_37	4	f	t
+38	20211225183307	CUS_ORD_38	5	t	t
+39	20211225184949	CUS_ORD_39	5	t	t
+40	20220525225044	CUS_ORD_40	1	f	t
+41	20220526232548	CUS_ORD_41	5	t	t
+33	20211210192433	CUS_ORD_33	1	t	t
+42	20220717110643	CUS_ORD_42	9	f	t
+43	20220717112101	CUS_ORD_43	9	f	t
+\.
+
+
+--
+-- TOC entry 2236 (class 0 OID 16462)
+-- Dependencies: 186
+-- Data for Name: customer_order_advance_details; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer_order_advance_details (advance_date, gold_weight, gold_purity, gold_melting_loss, bank_name, transfer_ref_no, description, fk_advance_type_id, id, fk_customer_order_id, gold_rate, amount) FROM stdin;
+9/2/2021	30.000	91.60	\N	\N	\N	Hello	2	10	4	\N	\N
+9/2/2021 11:40:01 PM	34.450	91.70	\N	\N	\N		2	11	4	\N	\N
+9/5/2021	23.050	99.75	\N	\N	\N		2	12	5	\N	\N
+9/25/2021	19.00	99.95	\N	\N	\N		2	13	6	\N	\N
+10/6/2021	26.570	99.90	\N	\N	\N		2	14	7	\N	\N
+10/7/2021	104.540	99.50	\N	\N	\N		2	15	8	\N	\N
+10/9/2021	99.560	91.70	\N	\N	\N		2	16	9	\N	\N
+10/11/2021	80.450	99.50	\N	\N	\N		2	17	10	\N	\N
+10/11/2021	20.500	99.95	\N	\N	\N		2	18	11	\N	\N
+10/11/2021	20.500	99.95	\N	\N	\N		2	19	12	\N	\N
+10/11/2021	35.000	99.99	\N	\N	\N		2	20	13	\N	\N
+10/11/2021	30.000	99.95	\N	\N	\N		2	21	14	\N	\N
+10/11/2021 8:10:57 PM	35.000	99.99	\N	\N	\N		2	22	14	\N	\N
+10/11/2021	30.000	99.95	\N	\N	\N		2	23	15	\N	\N
+10/11/2021 8:10:57 PM	35.000	99.99	\N	\N	\N		2	24	15	\N	\N
+10/11/2021	30.000	99.95	\N	\N	\N		2	25	16	\N	\N
+10/11/2021 8:10:57 PM	35.000	99.99	\N	\N	\N		2	26	16	\N	\N
+10/28/2021	25.560	99.50	\N	\N	\N		2	27	17	\N	\N
+10/28/2021	35.560	99.50	\N	\N	\N		2	28	18	\N	\N
+10/28/2021	35.660	99.90	\N	\N	\N		2	29	19	\N	\N
+10/28/2021	34.540	99.90	\N	\N	\N		2	30	20	\N	\N
+10/28/2021 12:47:57 AM	22.490	91.70	\N	\N	\N		2	31	20	\N	\N
+10/28/2021	32.000	99.90	\N	\N	\N	test	2	32	21	\N	\N
+11/19/2021	40.540	99.50	\N	\N	\N		2	33	22	\N	\N
+11/19/2021	32.000	91.60	\N	\N	\N		2	34	24	\N	\N
+11/19/2021	30.000	99.90	\N	\N	\N	Test info	2	35	25	\N	\N
+11/19/2021	33.000	99.50	\N	\N	\N		2	36	26	\N	\N
+11/22/2021	34.000	91.60	\N	\N	\N	Test 123	2	38	28	\N	\N
+11/23/2021	32.000	99.00	\N	\N	\N	asdf	2	39	29	\N	\N
+11/23/2021	35.000	99.00	\N	\N	\N	asdfasdf	2	40	30	\N	\N
+12/3/2021	28.650	99.50	\N	\N	\N		2	41	31	\N	\N
+12/9/2021	26.00	99.8	\N	\N	\N		2	42	32	\N	\N
+12/10/2021	30.000	99.90	\N	\N	\N		2	43	33	\N	\N
+12/11/2021	35.000	99.50	\N	\N	\N		2	44	35	\N	\N
+12/14/2021	48.000	99.60	\N	\N	\N		2	45	37	\N	\N
+12/25/2021	30.000	99.50	\N	\N	\N		2	46	38	\N	\N
+12/25/2021	85.430	91.70	\N	\N	\N		2	47	39	\N	\N
+5/25/2022	92.000	99.99	\N	\N	\N		1	48	40	\N	\N
+5/26/2022	91.540	91.80	\N	\N	\N	Old gold	1	49	41	\N	\N
+17-07-2022	8.000	91.50	\N	\N	\N		2	50	42	\N	\N
+17-07-2022	8.000	91.50	\N	\N	\N	Gold coin	2	51	43	\N	\N
+\.
+
+
+--
+-- TOC entry 2319 (class 0 OID 0)
+-- Dependencies: 187
+-- Name: customer_order_advance_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customer_order_advance_details_id_seq', 51, true);
+
+
+--
+-- TOC entry 2229 (class 0 OID 16434)
+-- Dependencies: 179
+-- Data for Name: customer_order_charges_details; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer_order_charges_details (id, fk_charges_id, charge, fk_order_details_id) FROM stdin;
+10	2	200.0	53
+13	4	500.0	53
+11	1	100.0	54
+12	2	200.0	54
+14	1	100.0	55
+15	4	250.0	55
+17	6	500.0	62
+18	1	100	63
+19	1	300	76
+28	1	200	28
+29	5	200	28
+31	2	1300	31
+32	4	2000	31
+33	5	200	31
+42	1	100	33
+43	2	200	33
+45	4	400	33
+46	5	500	33
+47	6	600	33
+48	7	700	33
+59	7	4000	30
+61	1	200	30
+62	2	300	30
+63	3	400	30
+64	4	1000	30
+65	5	2000	30
+66	6	3000	30
+67	7	4000	30
+68	16	5000	30
+71	1	200	36
+72	2	500	36
+73	4	3000	36
+74	5	200	36
+75	1	200	36
+76	2	500	36
+77	4	3000	36
+78	5	200	36
+79	1	200	37
+80	5	100	37
+81	1	300	42
+82	2	300	42
+83	1	300	44
+84	2	300	44
+85	1	300	44
+86	2	300	44
+87	1	300	44
+88	2	300	44
+89	1	300	46
+90	2	200	46
+91	4	1500	46
+92	5	200	46
+93	1	500	49
+94	2	200	49
+95	4	300	49
+96	1	500	49
+97	2	200	49
+98	4	300	49
+99	1	200	50
+100	2	200	50
+101	1	200	50
+102	2	500	50
+103	1	200	50
+104	2	500	50
+105	1	100	51
+106	5	100	51
+107	1	100	51
+108	3	150	51
+109	5	100	51
+110	1	230	56
+111	1	300	57
+112	2	200	57
+113	1	300	58
+114	1	200	59
+115	2	300	59
+116	1	100	60
+117	2	200	60
+118	3	300	60
+119	4	400	60
+120	5	500	60
+121	6	600	60
+122	7	700	60
+123	16	800	60
+124	1	100	60
+125	2	200	60
+126	3	300	60
+127	4	400	60
+128	5	500	60
+129	6	600	60
+130	7	700	60
+131	16	800	60
+\.
+
+
+--
+-- TOC entry 2238 (class 0 OID 16470)
+-- Dependencies: 188
+-- Data for Name: customer_order_details; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer_order_details (id, design, size, net_weight, seal, description, attachement, order_date, due_date, ornament_purity, is_completed, is_assigned, fk_ornament_type_id, fk_customer_order_id, wastage, recived_weight, "makingCharges", rate_frozen_date) FROM stdin;
+71	\N	3 cm	54.000	VSJ	hello 234		10/28/2021	10/30/2021	91.600	f	t	1	20	\N	\N	\N	\N
+48	\N	10.00	34.00	VSJ	Cutting Bangle	VSJ 1	9/2/2021	9/9/2021	91.700	f	f	1	4	4.0	35.4500	\N	\N
+68	\N	23	24.000	VSJ	Hello 1	1.jpg	10/28/2021	10/31/2021	91.700	f	t	1	17	4.0	25.5600	\N	\N
+49	\N	11.00	35.00	VSJ	Hello 123	Hello 123	9/2/2021	9/9/2021	91.800	f	f	1	4	4.50	34.2800	\N	\N
+50	\N	15.00	28.00	VSJ	Without enmal		9/5/2021	9/13/2021	91.700	f	t	1	5	4.5	29.5600	\N	\N
+51	\N	2.7500	21.00	APS	Good Finishing		9/25/2021	9/30/2021	91.700	f	t	1	6	3.50	21.0700	\N	\N
+72	\N	12	34.000	VSJ		1.jpg	10/28/2021	10/30/2021	91.700	f	t	1	21	4.50	35.5600	\N	\N
+88	\N	2.3 Inch	32.000	VSJ	Red color stone and 		12/14/2021	12/21/2021	91.800	f	t	1	37	5.0	33.4560	\N	\N
+70	\N	2 cm	32.000	VSJ	hello	1.jpg	10/28/2021	10/30/2021	91.700	f	t	1	19	4.0	33.5400	\N	\N
+52	\N	2.3 Inch	24.000	VSJ	Test 1	12.jpg	10/6/2021	10/13/2021	91.700	f	t	1	7	4.0	23.7900	\N	\N
+69	\N	2.cm	32.5000	VSJ	Hello World	1.jpg	10/28/2021	10/31/2021	91.700	f	t	1	18	4.0	34.5400	\N	\N
+75	\N	5.00	64.00	VSJ	Test 123		11/19/2021	11/25/2021	91.6	f	t	1	24	\N	\N	\N	\N
+77	\N	5.00	32.00	VSJ	VSJ	1.jpg	11/19/2021	11/26/2021	91.600	f	t	1	26	\N	\N	\N	\N
+53	\N	2.3 Inch	32.000	VSJ	Hello Test	1.jpg	10/7/2021	10/21/2021	91.700	f	t	1	8	4.0	32.4560	\N	\N
+54	\N	2.5 Len	64.000	VSJ	Hello Test	2.jpg	10/15/2021	10/22/2021	91.700	f	t	1	8	4.0	64.4560	\N	\N
+55	\N	4 Inch	32.000	VSJ	VSJ Test 2	1.jpg	10/9/2021	10/14/2021	91.800	f	t	1	9	4.0	33.2300	\N	\N
+56	\N	3 Inch	32.000	VSJ 2	VSJ Test 2	2.jpg	10/9/2021	10/22/2021	91.700	f	t	1	9	12.0	32.450	\N	\N
+59	\N	4	32.000	vsj	stone color red		10/11/2021	10/16/2021	92.00	f	t	1	11	\N	\N	\N	\N
+60	\N	4	32.000	vsj	stone color red		10/11/2021	10/16/2021	92.00	f	t	1	12	\N	\N	\N	\N
+61	\N	8	40.000	vsj			10/11/2021	10/16/2021	91.600	f	t	3	13	\N	\N	\N	\N
+62	\N	5	32.000	vsj	stone color green		10/11/2021	10/16/2021	92.6000	f	t	1	14	3.0	32.2500	\N	\N
+63	\N	6	40.000	sv	enamel color red		10/11/2021 8:10:22 PM	10/17/2021	91.6000	f	t	1	14	4.0	40.3000	\N	\N
+64	\N	5	32.000	vsj	stone color green		10/11/2021	10/16/2021	92.6000	f	t	1	15	4.0	34.5200	\N	\N
+65	\N	6	40.000	sv	enamel color red		10/11/2021 8:10:22 PM	10/17/2021	91.6000	f	t	1	15	4.0	40.2300	\N	\N
+89	\N	2.5	24.000	VSJ	Stone Red color		12/25/2021	12/30/2021	91.700	f	t	1	38	\N	\N	\N	\N
+80	\N	345	32.00	VSJ	asdf	1.jpg	11/23/2021	11/24/2021	91.600	f	t	1	29	\N	\N	\N	\N
+82	\N	2.5 cm	24.00	vsj	asdf		12/3/2021	12/8/2021	91.800	f	t	1	31	\N	\N	\N	\N
+83	\N		24.000	VSJ	asdf		12/9/2021	12/23/2021	91.700	f	t	1	32	4.0	24.9600	\N	\N
+81	\N	23	34.00	VSJ	SJ23	1.jpg	11/23/2021	11/30/2021	92.00	f	t	1	30	4.0	24.5600	\N	\N
+79	\N	2.3 Inch	32.00	VSJ	Hello 	1.jpg	11/22/2021	11/30/2021	92.00	f	t	1	28	6.0	34.5600	\N	\N
+76	\N	6	32.00	VSJ	VSJ 		11/19/2021	11/26/2021	91.600	f	t	1	25	5.0	33.4500	\N	\N
+73	\N	7.00	32.00	VSJ	VSJ Des		11/19/2021	11/26/2021	91.600	f	t	1	22	4.0	35.000	\N	\N
+85	\N	6	24.000	bh	enamel red		12/10/2021	12/18/2021	92.00	f	t	1	34	4.0	24.36	\N	\N
+86	\N	7	32.000	VSJ	adsfasdfasdf		12/11/2021	12/15/2021	91.600	f	t	1	35	\N	\N	\N	\N
+87	\N	5	33.4560	vsj		1.jpg	12/12/2021	12/27/2021	91.600	f	t	1	36	5.0	33.0500	\N	\N
+57	\N	4 Inch	48.000	VSJ	Test 		10/11/2021	10/19/2021	91.700	f	t	1	10	4.0	49.3300	\N	\N
+58	\N	5 inch 3 Cm	24.000	VSJ	Hello Test 2	1.jpg	10/11/2021	10/20/2021	91.70	f	t	1	10	5.0	25.2300	\N	\N
+90	\N		48.000				12/25/2021	12/28/2021	91.700	f	t	1	39	3.30	48.3000	\N	\N
+91	\N		64.000				12/25/2021 6:47:08 PM		91.700	f	t	1	39	3.30	64.3000	\N	\N
+92	\N	23 Inch	22	VSJ	Red color stone		5/25/2022	5/27/2022	91.00	f	t	1	40	\N	\N	\N	\N
+66	\N	5	32.000	vsj	stone color green		10/11/2021	10/16/2021	92.6000	f	t	1	16	4.0	32.4500	\N	\N
+67	\N	6	40.000	sv	enamel color red		10/11/2021 8:10:22 PM	10/17/2021	91.6000	f	t	1	16	5.0	41.3700	\N	\N
+93	\N	23 Inch	24.00	VSJ	Test Desc	1.jpg	5/26/2022	5/31/2022	91.60	f	t	1	41	7	25.00	\N	\N
+84	\N	24	32.000	vsj			12/10/2021	12/18/2021	92.00	f	t	3	33	4.0	32.3000	\N	\N
+94	\N	24 Inch	24.00	VSJ	Hand Made Chain	2.png	17-07-2022	22-07-2022	91.60	f	t	3	42	\N	\N	\N	\N
+95	\N	24 Inch	32.00	VSJ	Handmade Chanin		17-07-2022	23-07-2022	22Kt (91.70)	f	t	3	43	\N	\N	\N	\N
+\.
+
+
+--
+-- TOC entry 2320 (class 0 OID 0)
+-- Dependencies: 189
+-- Name: customer_order_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customer_order_details_id_seq', 95, true);
+
+
+--
+-- TOC entry 2231 (class 0 OID 16442)
+-- Dependencies: 181
+-- Data for Name: customer_order_detection_details; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.customer_order_detection_details (id, fk_detection_id, detection, fk_customer_order_details_id) FROM stdin;
+3	1	2.30	48
+4	2	1.20	48
+5	3	2.230	49
+6	1	2.300	50
+7	2	0.050	50
+12	1	2.340	52
+17	2	2.456	53
+16	1	1.234	54
+18	1	1.340	55
+19	1	2.000	62
+20	2	1.000	63
+21	1	1.230	72
+22	1	0.300	83
+23	1	0.370	79
+24	1	0.530	76
+25	1	0.560	73
+26	1	0.560	66
+27	2	1.320	66
+28	1	0.560	88
+29	1	2.300	93
+30	1	2.340	84
+\.
+
+
+--
+-- TOC entry 2321 (class 0 OID 0)
+-- Dependencies: 190
+-- Name: customer_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.customer_order_id_seq', 43, true);
+
+
+--
+-- TOC entry 2241 (class 0 OID 16482)
+-- Dependencies: 191
+-- Data for Name: detection_type; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.detection_type (id, name, description) FROM stdin;
+1	Stone	Stone
+2	Enamal	Enamal
+3	Others	Others
+\.
+
+
+--
+-- TOC entry 2322 (class 0 OID 0)
+-- Dependencies: 192
+-- Name: detection_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.detection_type_id_seq', 2, true);
+
+
+--
+-- TOC entry 2243 (class 0 OID 16490)
+-- Dependencies: 193
+-- Data for Name: emp_gold_detail; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.emp_gold_detail (id, fk_order_id, is_pure_gold, pure_gold_purity, jewellery_purity, gold_weight) FROM stdin;
+1	4	t	99.50	91.70	48.83
+2	7	f			
+3	8	f			
+4	9	t	99.50	91.75	110.62
+5	10	t	99.90	91.70	34.86
+6	12	t	99.95	92	43.45
+7	14	t	99.50	70	113.71
+9	16	t	99.50	91.70	79.310
+8	16	t	99.50	91.70	45.00
+\.
+
+
+--
+-- TOC entry 2323 (class 0 OID 0)
+-- Dependencies: 194
+-- Name: emp_gold_detail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.emp_gold_detail_id_seq', 9, true);
+
+
+--
+-- TOC entry 2245 (class 0 OID 16499)
+-- Dependencies: 195
+-- Data for Name: emp_order_delivery_detail; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.emp_order_delivery_detail (id, fk_emp_id, fk_order_id, delivery_ref_no, jewellery_weight, order_delivery_date, jewellery_wastage, is_completed, raw_gold_weight) FROM stdin;
+\.
+
+
+--
+-- TOC entry 2324 (class 0 OID 0)
+-- Dependencies: 196
+-- Name: emp_order_delivery_detail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.emp_order_delivery_detail_id_seq', 1, false);
+
+
+--
+-- TOC entry 2247 (class 0 OID 16508)
+-- Dependencies: 197
+-- Data for Name: emp_order_delivery_detection_detail; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.emp_order_delivery_detection_detail (id, fk_order_delivery_id, fk_detection_id, detection_weight) FROM stdin;
+\.
+
+
+--
+-- TOC entry 2325 (class 0 OID 0)
+-- Dependencies: 198
+-- Name: emp_order_delivery_detection_detail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.emp_order_delivery_detection_detail_id_seq', 1, false);
+
+
+--
+-- TOC entry 2326 (class 0 OID 0)
+-- Dependencies: 200
+-- Name: emp_order_detail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.emp_order_detail_id_seq', 33, true);
+
+
+--
+-- TOC entry 2251 (class 0 OID 16526)
+-- Dependencies: 201
+-- Data for Name: emp_order_item_detail; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.emp_order_item_detail (id, fk_order_id, ornament_type, design, item_net_weight, seal, description, attachement, order_date, due_date, jewellery_purity) FROM stdin;
+1	4	Bangle	Kurki	50.000	VSJ	Test 123 Description	Test 123 attachement	4/11/2021 12:00:00 AM	4/20/2021 12:00:00 AM	\N
+2	7	Bangle	Kurki	23	vsj	test decp	1.jpg	1/1/0001 12:00:00 AM	4/12/2021 12:00:00 AM	\N
+3	7	Bangle	Fancy	34	vsj	vsj	2.jpg	1/1/0001 12:00:00 AM	4/12/2021 12:00:00 AM	\N
+4	8	Bangle	Kurki	23	vsj	test decp	1.jpg	1/1/0001 12:00:00 AM	4/12/2021 12:00:00 AM	\N
+5	8	Bangle	Fancy	34	vsj	vsj	2.jpg	1/1/0001 12:00:00 AM	4/12/2021 12:00:00 AM	\N
+6	9	Bangle	Kurki	32	VSJ	Bangle		4/24/2021	4/30/2021	\N
+7	9	Bangle	Cutting	32	VSJ	test123		4/24/2021	4/28/2021	\N
+8	10	Bangle	Fancy	24	VSJ	Test	1.jpg	5/23/2021	5/31/2021	\N
+12	16	Bangle	Cutting	40	adf	asefd	1.jpg	7/7/2021	7/21/2021	\N
+13	16	Bangle	Cutting	24	adsf	asf	2.jpg	7/7/2021	7/14/2021	\N
+14	16	Bangle	asdf	20	adf	asfddsaf	3.jpg	7/7/2021	7/14/2021	\N
+11	16	Bangle	Kurki	40	VSJ	Test work order		6/13/2021	6/23/2021	\N
+10	16	Bangle	Fancy	90	VSJ	Test	1.jpg	6/12/2021	6/17/2021	\N
+9	16	Haram	Fancy	48	VSJ			5/23/2021	5/31/2021	\N
+\.
+
+
+--
+-- TOC entry 2252 (class 0 OID 16532)
+-- Dependencies: 202
+-- Data for Name: employee; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.employee (id, name, description, address, email, pan, aadhaar, bloodgroup, mobile, dob, phone, gender, isdeleted) FROM stdin;
+1	Ganesn	test	address test	ganesh@gmail.com	\N	1234 5678 9012	O+	1234567890	4/10/2021		Male	f
+4	Ramesh	Bangle	Test 123	murali.ash@gmail.com	\N	2222 3333 4444	O+	9715286757	3/10/2021		Male	t
+6	ertwertewrt		sadfasdf		\N			asdfasdfsadf	4/2/2021		Female	f
+7	asdfasdfsadfsadfsadf	asdf	asdfasdfsadfsadf		\N			asdf	4/3/2021		Female	f
+5	qwer		asdfasdf		\N			asdfsadfsadf	4/1/2021		Male	t
+9	aaaaaa	sssssss	asdf		\N			asdfsadf	4/5/2021		Male	t
+8	Test 123	Test success	test 4	asdf@gmail.com	\N	4444 4444 4444	O+	test 5	4/1/2021		Female	f
+2	Rajesh	test rajesh	test address	rajesh.gmail.com	\N	1111 1111 1111	O+	9715286757	4/1/2021		Male	t
+11	qwerwqerwqer		sader		\N			aa	4/7/2021		Male	t
+10	bbbbbbbbbbb		asdfasdf	asdfasdf	\N			asdfasdf	4/6/2021		Male	t
+12	VKKiran		Test		\N		A+	0000000000	7/14/2021		Male	f
+\.
+
+
+--
+-- TOC entry 2327 (class 0 OID 0)
+-- Dependencies: 203
+-- Name: employee_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.employee_id_seq', 12, true);
+
+
+--
+-- TOC entry 2254 (class 0 OID 16541)
+-- Dependencies: 204
+-- Data for Name: employee_order; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.employee_order (id, order_no, order_ref_no, fk_employee_id, is_completed, is_assigned) FROM stdin;
+6	20211224021307	EMP_ORD_1	8	f	t
+7	20211224022139	EMP_ORD_7	8	f	t
+8	20211224225506	EMP_ORD_8	8	f	t
+9	20211224230750	EMP_ORD_9	8	f	t
+10	20211224231146	EMP_ORD_10	8	f	t
+11	20211224231622	EMP_ORD_11	8	f	t
+12	20211225132205	EMP_ORD_12	8	f	t
+13	20211225170927	EMP_ORD_13	8	f	t
+14	20211225171132	EMP_ORD_14	8	f	t
+16	20211225172144	EMP_ORD_15	8	f	t
+17	20211225180618	EMP_ORD_17	8	f	t
+\.
+
+
+--
+-- TOC entry 2255 (class 0 OID 16549)
+-- Dependencies: 205
+-- Data for Name: employee_order_advance_details; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.employee_order_advance_details (id, advance_date, gold_weight, gold_purity, gold_melting_loss, bank_name, transfer_ref_no, description, fk_advance_type_id, fk_employee_order_id) FROM stdin;
+1	12/24/2021	33.000	99.50	\N	\N	\N		2	6
+2	12/24/2021	33.000	99.50	\N	\N	\N		2	7
+3	12/24/2021	33.000	99.90	\N	\N	\N	test 123	2	8
+4	12/24/2021	32.000	99.50	\N	\N	\N		2	9
+5	12/24/2021	32.300	91.60	\N	\N	\N		2	10
+6	12/24/2021 11:11:16 PM	30.000	99.90	\N	\N	\N		2	10
+7	12/24/2021	32.000	91.60	\N	\N	\N		2	11
+8	12/25/2021	33.000	99.50	\N	\N	\N	adsf	2	12
+9	12/25/2021	36.350	99.40	\N	\N	\N		2	13
+10	12/25/2021	33.000	99.00	\N	\N	\N		2	14
+11	12/25/2021 5:30:01 PM	0.000	0.00	\N	\N	\N	asdf	11	16
+12	12/25/2021 6:06:25 PM	0.000	0.00	\N	\N	\N		11	8
+\.
+
+
+--
+-- TOC entry 2328 (class 0 OID 0)
+-- Dependencies: 206
+-- Name: employee_order_advance_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.employee_order_advance_details_id_seq', 12, true);
+
+
+--
+-- TOC entry 2249 (class 0 OID 16516)
+-- Dependencies: 199
+-- Data for Name: employee_order_detail; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.employee_order_detail (id, fk_emp_id, order_ref_no, is_assigned, is_completed, design, size, net_weight, seal, description, attachement, order_date, due_date, ornament_purity, fk_ornament_type_id, fk_employee_order_id, wastage, recived_weight) FROM stdin;
+1	1	20210411130157	t	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+4	8	20210411134227	t	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+7	8	20210412011327	t	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+8	8	20210412011327	t	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+9	1	20210424135258	t	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+10	1	20210523001218	t	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+12	8	20210523002337	t	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+14	1	20210612172820	t	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+15	8	20210613162411	t	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+16	12	20210707125228	t	f	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+21	\N	\N	t	f	\N	32	92.000	vsj	asdfasdfsadf	7.jpg	12/24/2021 2:08:43 AM	12/30/2021	92.00	1	6	\N	\N
+22	\N	\N	t	f	\N	5	32.000	VSJ	Hello	1.jpg	12/24/2021 2:20:30 AM	12/31/2021	92.00	1	7	\N	\N
+23	\N	\N	t	f	\N	23	32.000	VSJ	Hello Test		12/24/2021 10:54:00 PM	12/29/2021	92.600	1	8	\N	\N
+24	\N	\N	t	f	\N	asdfdsaf	32.000	VSJ	asdfsadf		12/24/2021 11:06:37 PM	12/28/2021	32.00	1	9	\N	\N
+25	\N	\N	t	f	\N	23	34.000	VSJ	asdfdsaf		12/24/2021 11:09:26 PM	12/29/2021	91.600	1	10	\N	\N
+26	\N	\N	t	f	\N	3 inch	32.000	vsj	asdfsadf		12/24/2021 11:10:10 PM	12/31/2021	91.800	1	10	\N	\N
+27	\N	\N	t	f	\N	23	32.000	VSJ	adsfdsaf		12/24/2021 11:15:15 PM	12/29/2021	91.600	1	11	\N	\N
+28	\N	\N	t	f	\N	23	32.000	vsj	Hello World	1.jpg	12/25/2021 1:19:57 PM	12/31/2021	91.600	1	12	\N	\N
+29	\N	\N	t	f	\N	23	32.000	VSJ	asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsadfasdfasdfsadf	1.jpg	12/25/2021 5:08:08 PM	12/30/2021	91.600	1	13	\N	\N
+30	\N	\N	t	f	\N	asdf	32.000	VSJ	asdfasdfdasf	1.jpg	12/25/2021 5:10:49 PM	12/31/2021	91.600	1	14	\N	\N
+32	\N	\N	t	f	\N	234	32.5000	vsj	asdfsadf	1.jpg	12/25/2021 5:14:52 PM	12/30/2021	91.600	1	16	\N	\N
+33	\N	\N	t	f	\N	asdfsadf	32.000	VSJ	asdfasdfasdfasdfasdfadsfadsfsdafasdfasdfasdfasdfasdf	1.jpg	12/25/2021 6:05:19 PM	12/29/2021	91.600	1	17	\N	\N
+\.
+
+
+--
+-- TOC entry 2329 (class 0 OID 0)
+-- Dependencies: 207
+-- Name: employee_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.employee_order_id_seq', 17, true);
+
+
+--
+-- TOC entry 2258 (class 0 OID 16559)
+-- Dependencies: 208
+-- Data for Name: estimation_order; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.estimation_order (id, order_no, order_ref_no, fk_customer_id, is_completed, is_assigned) FROM stdin;
+1	20220625234054	EST_ORD_1	3	f	f
+2	20220625235106	EST_ORD_2	2	f	f
+3	20220626000416	EST_ORD_3	3	f	f
+4	20220626000456	EST_ORD_4	3	f	f
+5	20221204183035	EST_ORD_5	1	f	f
+6	20221204190102	EST_ORD_6	3	f	f
+7	20221204221633	EST_ORD_7	3	f	f
+8	20221204222349	EST_ORD_8	3	f	f
+9	20221204223225	EST_ORD_9	3	f	f
+10	20221204223643	EST_ORD_10	5	f	f
+11	20221205210857	EST_ORD_11	2	f	f
+12	20221205211038	EST_ORD_12	9	f	f
+13	20221209221424	EST_ORD_13	5	f	f
+14	20221215172820	EST_ORD_14	3	f	f
+15	20221229131421	EST_ORD_15	3	f	f
+16	20221229154734	EST_ORD_16	3	f	f
+17	20221229213431	EST_ORD_17	3	f	f
+18	20221230191539	EST_ORD_18	3	f	f
+22	20221231111241	EST_ORD_19	3	f	f
+23	20221231120548	EST_ORD_23	3	f	f
+24	20221231211105	EST_ORD_24	3	f	f
+25	20230102131023	EST_ORD_25	3	f	f
+26	20230102185746	EST_ORD_26	3	f	f
+27	20230106180637	EST_ORD_27	3	f	f
+28	20230106215856	EST_APS_28	13	f	f
+\.
+
+
+--
+-- TOC entry 2259 (class 0 OID 16567)
+-- Dependencies: 209
+-- Data for Name: estimation_order_details; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.estimation_order_details (id, design, size, net_weight, seal, description, attachement, order_date, due_date, ornament_purity, is_completed, is_assigned, fk_ornament_type_id, fk_customer_order_id, wastage, recived_weight) FROM stdin;
+1	\N	23.00	42.00		hello Test	1.png	04-12-2022	10-12-2022	80	f	t	1	6	\N	\N
+2	\N	18 Cm	24.00		asdfasdfasdf	2.jpg	04-12-2022 PM 7:00:05	24-12-2022	22Kt (91.60)	f	t	3	6	\N	\N
+3	\N	2.58 cm	32.00		Hello Test		04-12-2022	29-12-2022	22Kt (91.60)	f	f	1	7	\N	\N
+4	\N	2.85cm	32.00		asdfasdf		04-12-2022	11-12-2022	22Kt (91.60)	f	f	1	8	\N	\N
+5	\N	2.35 cm	32.00		asdfasdf		04-12-2022	11-12-2022	22Kt (91.60)	f	f	1	9	\N	\N
+6	\N	24	32		asdfasdf		04-12-2022	10-12-2022	22Kt (91.60)	f	f	3	10	\N	\N
+7	\N	2.3	32.00		asdfasdfasdf		05-12-2022	14-12-2022	22Kt (91.60)	f	f	3	11	\N	\N
+8	\N	20	32.00		asdffas		05-12-2022 PM 9:09:45		22Kt (91.60)	f	f	5	12	\N	\N
+9	\N	12	asdfasdf		asdfasdf		09-12-2022	15-12-2022	22Kt (91.60)	f	f	3	13	\N	\N
+10	\N	23	32.000		adsfsadfadsf		15-12-2022	22-12-2022	22Kt (91.60)	f	f	1	14	\N	\N
+11	\N		40.00	vsj	asdf		29-12-2022	31-12-2022	91.60	f	f	6	15	\N	\N
+12	\N		80	VSJ	Gold coins		29-12-2022	31-12-2022	91.60	f	f	6	16	\N	\N
+13	\N	2.3 Cm	24.00	VSJ	Hallo Chain		29-12-2022 15:46:27	01-01-2023	91.60	f	f	3	16	\N	\N
+14	\N		32.00	vsj	asdfasdf		29-12-2022	06-01-2023	91.6	f	f	2	17	\N	\N
+15	\N		16				29-12-2022 21:33:43		91.6	f	f	6	17	\N	\N
+16	\N	8	160		Pure		30-12-2022	07-01-2023	91.60	f	f	6	18	\N	\N
+17	\N	18 Inch	32.00	VSJ	Robe Chain		30-12-2022 19:14:29	27-01-2023	85.00	f	f	3	18	\N	\N
+18	\N	32	32.00	VSJ	Hollow Chain	1.png	31-12-2022		91.60	f	f	1	22	8.5	\N
+19	\N	24 Inch	32.00	VSJ	Handmade chain	2.png	31-12-2022 11:11:19		91.60	f	f	3	22	8	\N
+20	\N	24	32.00	VSJ	Red stone		31-12-2022	01-01-2023	91.60	f	f	2	23	8	\N
+21	\N	24 Inch	24.00	VSJ	Handmade chain	1.png	31-12-2022	07-01-2023	91.60	f	f	3	24	8	\N
+22	\N		16	VSJ	2 8gram coin		31-12-2022 21:07:47	28-01-2023	91.60	f	f	6	24		\N
+23	\N	32	64.00	VSJ	Test		02-01-2023	28-01-2023	91.60	f	f	2	25	8	\N
+24	\N		23	VSJ	{\\rtf1\\ansi\\ansicpg1252\\uc1\\htmautsp\\deff2{\\fonttbl{\\f0\\fcharset0 Times New Roman;}{\\f2\\fcharset0 pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto;}}{\\colortbl\\red0\\green0\\blue0;\\red255\\green255\\blue255;}\\loch\\hich\\dbch\\pard\\plain\\ltrpar\\itap0{\\lang1033\\fs30\\f2\\cf0 \\cf0\\ql{\\f2 {\\ltrch asdfdfsfasf}\\li0\\ri0\\sa0\\sb0\\fi0\\ql\\par}\r\n{\\f2 {\\ltrch asdfasdfasdf}\\li0\\ri0\\sa0\\sb0\\fi0\\ql\\par}\r\n}\r\n}		02-01-2023	25-01-2023	91.60	f	f	6	26		\N
+25	\N	32 Inch	32.00				06-01-2023		91.60	f	f	3	27	8	\N
+26	\N		16				06-01-2023	07-01-2023	91.6	f	f	6	28	2	\N
+\.
+
+
+--
+-- TOC entry 2330 (class 0 OID 0)
+-- Dependencies: 210
+-- Name: estimation_order_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.estimation_order_details_id_seq', 26, true);
+
+
+--
+-- TOC entry 2331 (class 0 OID 0)
+-- Dependencies: 211
+-- Name: estimation_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.estimation_order_id_seq', 28, true);
+
+
+--
+-- TOC entry 2262 (class 0 OID 16579)
+-- Dependencies: 212
+-- Data for Name: gender; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.gender (id, gender) FROM stdin;
+1	Male
+2	Female
+\.
+
+
+--
+-- TOC entry 2332 (class 0 OID 0)
+-- Dependencies: 213
+-- Name: gender_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.gender_id_seq', 2, true);
+
+
+--
+-- TOC entry 2333 (class 0 OID 0)
+-- Dependencies: 214
+-- Name: itemdetails_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.itemdetails_id_seq', 14, true);
+
+
+--
+-- TOC entry 2265 (class 0 OID 16589)
+-- Dependencies: 215
+-- Data for Name: login; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.login (id, username, password, usertype, last_logged_in, preference) FROM stdin;
+2	Bharathi	b	2	4/8/2021 12:27:53 PM	\N
+1	Murali	m	1	4/8/2021 12:27:53 PM	{"pageId":null,"Rates":[{"id":1,"name":"24 K","rate":6150,"purity":24,"description":"24 K Gold :","isChecked":true,"isEnabled":false},{"id":2,"name":"22 K","rate":5612,"purity":22,"description":"22 K Gold :","isChecked":true,"isEnabled":false},{"id":3,"name":"20 K","rate":5185,"purity":20,"description":"20 K Gold :","isChecked":false,"isEnabled":false},{"id":4,"name":"18 K","rate":4758,"purity":18,"description":"18 K Gold :","isChecked":false,"isEnabled":false},{"id":5,"name":"Silver","rate":86,"purity":100,"description":"Silver :","isChecked":true,"isEnabled":false}]}
+\.
+
+
+--
+-- TOC entry 2266 (class 0 OID 16595)
+-- Dependencies: 216
+-- Data for Name: order_details; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.order_details (id, fk_order_id, fk_ornament_type_id, net_weight, ornament_purity, size, quantity, seal, wastage, making_charges, description, attachement, order_date, due_date, recived_weight, is_completed, is_assigned) FROM stdin;
+31	28	2	32.00	91.60	32		VSJ	8	\N		2.jpeg	16-04-2023	24-04-2023	\N	f	t
+33	32	6	8	91.6	32	1	VSJ	8	\N	Happy Home\r\n\r\n	1.jpeg	23-04-2023 01:33:46	25-04-2023	\N	f	t
+51	45	6	8	91.60		5	vsj	.50	150	Gold coin\r\n	1.jpg	07-10-2023 20:59:03	20-10-2023	\N	f	t
+52	46	2	12	95		1					1.jpg	07-10-2023 22:43:19	13-10-2023	\N	f	t
+53	47	6	24	90								08-10-2023 01:34:51		\N	f	t
+30	27	3	16	91.6	22		VSJ	8	\N	hand made chain\r\n	2.jpeg	09-04-2023 12:16:17	18-04-2023	\N	f	t
+36	33	3	32	91.6			VSJ		\N			29-04-2023 20:35:49	01-05-2023	\N	f	t
+37	34	5	32	91.6	32	1	VSJ	9	600	Hello Test\r\n	1.jpeg	29-04-2023 20:53:05	30-04-2023	\N	f	t
+42	36	3	32	91.6		1	VSJ	8				21-05-2023 17:23:35		\N	f	t
+43	37	6	50	91.60		50	VSJ		50			20-07-2023 22:35:06	21-07-2023	\N	f	t
+44	38	6	8	91.6	25		VSJ	3	500	Hello World\r\naaaaaaaaaaaaaaaaaaaaaa\r\naaaaaaaaaaaaa\r\naaaaaaaaaaaaaaaaaa\r\n	1.jpeg	31-07-2023 00:48:26	10-08-2023	\N	f	t
+45	40	6	8.00	91								07-10-2023 00:56:19		\N	f	t
+46	41	6	8.00	91.60		3	vsj	.50	500			07-10-2023 13:06:33		\N	f	t
+54	48	6	9	90.6								08-10-2023 13:24:09		\N	f	t
+48	42	7	40	5	12	2	vsj	6	500	Hello Test\r\n	2.jpeg	07-10-2023 19:55:00	13-10-2023	\N	f	t
+49	43	2	48.00	91.70	12 Inch	12	vsj	7	500	Red color stone\r\n		07-10-2023 20:41:00		\N	f	t
+50	44	2	55	90	12	1	vsj	7	100	test 123\r\n		07-10-2023 20:48:02	07-10-2023	\N	f	t
+55	49	1	8	91.70								08-10-2023 13:28:14		\N	f	t
+56	50	4	42	91.60								08-10-2023 20:23:24		\N	f	t
+57	51	2	40	91.60		1	vsj					14-10-2023 14:59:11		\N	f	t
+60	54	5	45.800	99.100	23	5	bsj	5	400	test\r\n	1.jpeg	29-10-2023 23:09:27	31-10-2023	\N	f	t
+61	54	3	23.00	99.00								29-10-2023 23:22:43		\N	f	t
+62	54	5	20.00	91.00		2						29-10-2023 23:23:04		\N	f	t
+63	54	6	3	91.60		2						29-10-2023 23:23:41		\N	f	t
+64	54	6	3	91.60								29-10-2023 23:24:12		\N	f	t
+65	54	6	4	91.70		3	vsj					29-10-2023 23:24:27		\N	f	t
+66	54	4	32	91.60		2						29-10-2023 23:25:01		\N	f	t
+67	54	3	32	90		2						29-10-2023 23:25:37		\N	f	t
+68	54	3	32	90								29-10-2023 23:25:50		\N	f	t
+69	54	5	34	90								29-10-2023 23:26:13		\N	f	t
+\.
+
+
+--
+-- TOC entry 2334 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: order_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.order_details_id_seq', 69, true);
+
+
+--
+-- TOC entry 2268 (class 0 OID 16606)
+-- Dependencies: 218
+-- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.orders (id, order_no, order_date, fk_order_type, is_completed, is_assigned, fk_employee_id, fk_customer_id, is_rate_freeze, freeze_date, freeze_amount, is_priority_order, is_gst_order) FROM stdin;
+27	20230409121941	09-04-2023	1	f	f	\N	3	t	09-04-2023	5900	t	t
+28	20230416003634	22-04-2023	1	f	f	\N	3	t	17-04-2023	5900	t	t
+29	20230423004823	23-04-2023	1	f	f	\N	13	t	23-04-2023 00:47:23	6150	t	t
+31	20230423011852	23-04-2023	1	f	f	\N	3	t	23-04-2023 01:18:30	5900	t	t
+32	20230423013401	23-04-2023	1	f	f	\N	3	t	23-04-2023	5900	t	f
+33	20230429203607	29-04-2023	1	f	f	\N	3	t	29-04-2023	5900	t	t
+34	20230429210750	29-04-2023	1	f	f	\N	3	t	29-04-2023 21:03:24	5900	f	t
+35	20230429230612	29-04-2023	1	f	f	\N	3	f			f	f
+36	20230521172350	21-05-2023	1	f	f	\N	3	f			f	f
+37	20230720223533	20-07-2023	1	f	f	\N	13	t	20-07-2023	6150	t	t
+38	20230731004903	31-07-2023	1	f	f	\N	13	t	31-07-2023	6150	t	t
+39	20230801013103	01-08-2023	1	f	f	\N	3	t	01-08-2023	6300	t	t
+40	20231007005720	07-10-2023	1	f	f	\N	3	t	07-10-2023	5400	t	t
+41	20231007130811	07-10-2023	1	f	f	\N	3	t	07-10-2023	6300	t	t
+42	20231007195309	07-10-2023	1	f	f	\N	3	t	07-10-2023	6300	f	t
+43	20231007204111	07-10-2023	1	f	f	\N	3	f			f	f
+44	20231007204809	07-10-2023	1	f	f	\N	3	f			f	f
+45	20231007205912	07-10-2023	1	f	f	\N	3	f			f	t
+46	20231007224325	07-10-2023	1	f	f	\N	3	f			f	f
+47	20231008013459	08-10-2023	1	f	f	\N	3	f			f	f
+48	20231008132417	08-10-2023	1	f	f	\N	3	f			f	f
+49	20231008132821	08-10-2023	1	f	f	\N	3	f			f	f
+50	20231008202329	08-10-2023	1	f	f	\N	9	f			f	f
+51	20231014145921	14-10-2023	1	f	f	\N	3	f			f	f
+53	20231021001025	23-10-2023	1	f	f	\N	13	t	26-10-2023	5460	t	t
+52	20231021000704	28-10-2023	1	f	f	\N	3	t	28-10-2023 19:24:40	5900	t	t
+54	20231029230946	29-10-2023	1	f	f	\N	3	t	29-10-2023	6300	t	t
+\.
+
+
+--
+-- TOC entry 2335 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.orders_id_seq', 54, true);
+
+
+--
+-- TOC entry 2270 (class 0 OID 16617)
+-- Dependencies: 220
+-- Data for Name: ornament_type; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.ornament_type (id, name, description) FROM stdin;
+1	Bangle	Bangle
+2	Haram	Haram
+3	Chain	Chain
+4	Ring	Ring
+5	Earing	Earing
+6	Coin	Coins
+7	Others	Others
+\.
+
+
+--
+-- TOC entry 2336 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: ornament_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.ornament_type_id_seq', 7, true);
+
+
+--
+-- TOC entry 2272 (class 0 OID 16625)
+-- Dependencies: 222
+-- Data for Name: purity; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.purity (id, metal, description, purity, display_text, karat) FROM stdin;
+4	Gold	18K	75.00	18K (75.00)	18
+3	Gold	20K	83.33	20K (83.33)	20
+2	Gold	22K	91.67	22K (91.60)	22
+1	Gold	24K	99.99	24K (99.99)	24
+\.
+
+
+--
+-- TOC entry 2337 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: purity_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.purity_id_seq', 4, true);
+
+
+--
+-- TOC entry 2274 (class 0 OID 16633)
+-- Dependencies: 224
+-- Data for Name: rate; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.rate (id, name, description, rate) FROM stdin;
+1	Gold	24 K	6300
+2	Silver	Silver	86
+\.
+
+
+--
+-- TOC entry 2338 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: rate_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."rate_Id_seq"', 1, false);
+
+
+--
+-- TOC entry 2065 (class 2606 OID 16669)
+-- Name: advance_type_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.advance_type
+    ADD CONSTRAINT advance_type_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2067 (class 2606 OID 16671)
+-- Name: charges_type_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.charges_type
+    ADD CONSTRAINT charges_type_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2073 (class 2606 OID 16673)
+-- Name: customer_delivery_charges_detail; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.customer_order_charges_details
+    ADD CONSTRAINT customer_delivery_charges_detail PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2075 (class 2606 OID 16675)
+-- Name: customer_delivery_detection_detail; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.customer_order_detection_details
+    ADD CONSTRAINT customer_delivery_detection_detail PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2071 (class 2606 OID 16677)
+-- Name: customer_delivery_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.customer_delivery
+    ADD CONSTRAINT customer_delivery_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2079 (class 2606 OID 16679)
+-- Name: customer_order_details_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.customer_order_details
+    ADD CONSTRAINT customer_order_details_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2077 (class 2606 OID 16681)
+-- Name: customer_order_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.customer_order
+    ADD CONSTRAINT customer_order_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2069 (class 2606 OID 16683)
+-- Name: customer_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.customer
+    ADD CONSTRAINT customer_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2081 (class 2606 OID 16685)
+-- Name: detection_type_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.detection_type
+    ADD CONSTRAINT detection_type_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2083 (class 2606 OID 16687)
+-- Name: emp_gold_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.emp_gold_detail
+    ADD CONSTRAINT emp_gold_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2087 (class 2606 OID 16689)
+-- Name: emp_order_delivery_detection_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.emp_order_delivery_detection_detail
+    ADD CONSTRAINT emp_order_delivery_detection_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2085 (class 2606 OID 16691)
+-- Name: emp_order_delivery_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.emp_order_delivery_detail
+    ADD CONSTRAINT emp_order_delivery_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2089 (class 2606 OID 16693)
+-- Name: emp_order_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.employee_order_detail
+    ADD CONSTRAINT emp_order_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2095 (class 2606 OID 16695)
+-- Name: employee_order_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.employee_order
+    ADD CONSTRAINT employee_order_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2093 (class 2606 OID 16697)
+-- Name: employee_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.employee
+    ADD CONSTRAINT employee_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2099 (class 2606 OID 16699)
+-- Name: estimation_order_details_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.estimation_order_details
+    ADD CONSTRAINT estimation_order_details_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2097 (class 2606 OID 16701)
+-- Name: estimation_order_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.estimation_order
+    ADD CONSTRAINT estimation_order_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2091 (class 2606 OID 16703)
+-- Name: itemdetails_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.emp_order_item_detail
+    ADD CONSTRAINT itemdetails_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2101 (class 2606 OID 16705)
+-- Name: login_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.login
+    ADD CONSTRAINT login_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2103 (class 2606 OID 16707)
+-- Name: order_details_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.order_details
+    ADD CONSTRAINT order_details_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2105 (class 2606 OID 16709)
+-- Name: orders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.orders
+    ADD CONSTRAINT orders_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2107 (class 2606 OID 16711)
+-- Name: ornament_type_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY public.ornament_type
+    ADD CONSTRAINT ornament_type_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2113 (class 2606 OID 16712)
+-- Name: employee_order_advance_details_fk_advance_type_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.employee_order_advance_details
+    ADD CONSTRAINT employee_order_advance_details_fk_advance_type_id_fkey FOREIGN KEY (fk_advance_type_id) REFERENCES public.advance_type(id);
+
+
+--
+-- TOC entry 2110 (class 2606 OID 16717)
+-- Name: fk_detection_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.emp_order_delivery_detection_detail
+    ADD CONSTRAINT fk_detection_id FOREIGN KEY (fk_detection_id) REFERENCES public.detection_type(id);
+
+
+--
+-- TOC entry 2108 (class 2606 OID 16722)
+-- Name: fk_emp_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.emp_order_delivery_detail
+    ADD CONSTRAINT fk_emp_id FOREIGN KEY (fk_emp_id) REFERENCES public.employee(id);
+
+
+--
+-- TOC entry 2111 (class 2606 OID 16727)
+-- Name: fk_order_delivery_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.emp_order_delivery_detection_detail
+    ADD CONSTRAINT fk_order_delivery_id FOREIGN KEY (fk_order_delivery_id) REFERENCES public.emp_order_delivery_detail(id);
+
+
+--
+-- TOC entry 2109 (class 2606 OID 16732)
+-- Name: fk_order_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.emp_order_delivery_detail
+    ADD CONSTRAINT fk_order_id FOREIGN KEY (fk_order_id) REFERENCES public.employee_order_detail(id);
+
+
+--
+-- TOC entry 2112 (class 2606 OID 16737)
+-- Name: fk_ornament_type; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.employee_order_detail
+    ADD CONSTRAINT fk_ornament_type FOREIGN KEY (fk_ornament_type_id) REFERENCES public.ornament_type(id);
+
+
+--
+-- TOC entry 2283 (class 0 OID 0)
+-- Dependencies: 7
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+-- Completed on 2023-11-18 16:13:01
+
+--
+-- PostgreSQL database dump complete
+--
+
