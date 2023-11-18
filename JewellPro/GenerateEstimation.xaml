@@ -52,24 +52,34 @@
                             <StackPanel Orientation="Horizontal" Margin="5">
                                 <TextBlock Style="{StaticResource JPTextBlock}" Text="Order Date : " />
                                 <DatePicker Text="{Binding Order.orderDate, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                    Style="{StaticResource JPDatePicker}" />
+                                            Style="{StaticResource JPDatePicker}" />
                             </StackPanel>
                         </StackPanel>
 
                         <StackPanel Orientation="Vertical" Margin="10" >
                             <StackPanel Orientation="Horizontal" Margin="5">
                                 <CheckBox VerticalAlignment="Center" Style="{StaticResource JPCheckBox}" 
-                            IsChecked="{Binding Order.isGSTOrder, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Add GST for this Order "  />
+                                          IsChecked="{Binding Order.isGSTOrder, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Add GST for this Order "  />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Margin="5">
                                 <CheckBox VerticalAlignment="Center" Style="{StaticResource JPCheckBox}" 
-                          IsChecked="{Binding Order.isPriorityOrder, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Is this Priority Order "  />
+                                          IsChecked="{Binding Order.isPriorityOrder, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Is this Priority Order "  />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Margin="5">
                                 <CheckBox Name="chbxRateFreeze" VerticalAlignment="Center" Style="{StaticResource JPCheckBox}" 
-                            IsChecked="{Binding Order.isRateFreeze, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Do you need to Freeze Rate "  />
+                                          IsChecked="{Binding Order.isRateFreeze, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                          Content="Do you need to Freeze Rate "  >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Unchecked">
+                                            <i:InvokeCommandAction Command="{Binding CheckRateFreezeCommand}"/>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Checked">
+                                            <i:InvokeCommandAction Command="{Binding CheckRateFreezeCommand}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </CheckBox>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Margin="5">
@@ -87,7 +97,7 @@
                                 <TextBlock Text="Rate Freeze Date : " />
                             </TextBlock>
                                 <DatePicker Text="{Binding Order.rateFreezeDate, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                    Style="{StaticResource JPDatePicker}" />
+                                            Style="{StaticResource JPDatePicker}" />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Margin="5">
@@ -102,20 +112,35 @@
                                     </Style>
                                 </StackPanel.Style>
                                 <TextBlock Style="{StaticResource JPTextBlock}"  >
-                                <TextBlock Text="Freeze Rate : (24K) " />
-                            </TextBlock>
+                                    <TextBlock Text="Freeze Rate : (24K) " />
+                                </TextBlock>
                                 <TextBox Style="{StaticResource JPTextBox}" Text="{Binding Order.freezeRate, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}"  FontWeight="Bold"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
                     <TextBlock HorizontalAlignment="Left" Margin="10" >
                         <TextBlock Text="*" Foreground="Red" FontSize="14" FontWeight="Bold"/>
-                        <TextBlock Text="Jewel details tab will be accessable once you create an order" FontSize="16" />
+                        <TextBlock Text="Jewel details tab will be accessable once you create an order"                                   
+                                   FontWeight="Bold" FontSize="16" />                            
+                          <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility"  Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ElementName=btnCreateOrder, Path=Content}" Value="Update">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>        
+                        </TextBlock.Style>
                     </TextBlock>
+
                     <StackPanel Orientation="Horizontal" Margin="10" >
                         <TextBlock Text="" Style="{StaticResource JPTextBlock}" />
-                        <Button Content="{Binding OrderButtonLabel}" Style="{StaticResource TabButtons}" Command="{Binding CreateOrderCommand}" />
-                        <Button Content="Reset" Style="{StaticResource TabButtons}" Command="{Binding ResetOrderCommand}" />
+                        <Button Content="{Binding OrderButtonLabel}" Name="btnCreateOrder"
+                                Style="{StaticResource TabButtons}" 
+                                Command="{Binding CreateOrderCommand}" />
+                        <Button Content="Reset" Style="{StaticResource TabButtons}" 
+                                Command="{Binding ResetOrderCommand}" />
                     </StackPanel>
                 </StackPanel>
             </TabItem>
@@ -130,8 +155,8 @@
                                 </TextBlock>
 
                                 <ComboBox DisplayMemberPath="name" 
-                                SelectedItem="{Binding Path=SelectedJewelType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                ItemsSource="{Binding JewelTypes}" Style="{StaticResource JPEditableComboBox}">
+                                          SelectedItem="{Binding Path=SelectedJewelType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          ItemsSource="{Binding JewelTypes}" Style="{StaticResource JPEditableComboBox}">
                                 </ComboBox>
                             </StackPanel>
 
@@ -147,8 +172,8 @@
                                 <TextBlock Style="{StaticResource JPTextBlock}">
                                 <TextBlock Text="Jewel Purity : " /><TextBlock Text="*" Foreground="Red" />
                                 </TextBlock>
-                                <TextBox Text="{Binding OrderDetails.jewelPurity, UpdateSourceTrigger=PropertyChanged}" 
-                                Style="{StaticResource JPTextBox}" />
+                                <TextBox Text="{Binding OrderDetails.jewelPurity, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource JPTextBox}" />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Margin="5">
@@ -156,7 +181,7 @@
                                 <TextBlock Text="Quantity : " />
                                 </TextBlock>
                                 <TextBox Text="{Binding OrderDetails.quantity, UpdateSourceTrigger=PropertyChanged}" 
-                                Style="{StaticResource JPTextBox}" />
+                                         Style="{StaticResource JPTextBox}" />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Margin="5">
@@ -164,7 +189,7 @@
                                 <TextBlock Text="Seal : " />
                                 </TextBlock>
                                 <TextBox Text="{Binding OrderDetails.seal, UpdateSourceTrigger=PropertyChanged}" 
-                                            Style="{StaticResource JPTextBox}" />
+                                         Style="{StaticResource JPTextBox}" />
                             </StackPanel>
                         </StackPanel>
 
@@ -174,15 +199,15 @@
                                 <TextBlock Text="Making Charges : " />
                                 </TextBlock>
                                 <TextBox Text="{Binding OrderDetails.makingCharge, UpdateSourceTrigger=PropertyChanged}" 
-                                    Style="{StaticResource JPTextBox}" />
+                                         Style="{StaticResource JPTextBox}" />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Margin="5">
                                 <TextBlock Style="{StaticResource JPTextBlock}">
                                     <TextBlock Text="Wastage : " />
                                 </TextBlock>
-                                <TextBox Text="{Binding OrderDetails.wastage, UpdateSourceTrigger=PropertyChanged}" 
-                                    Style="{StaticResource JPTextBox}" />
+                                <TextBox Text="{Binding OrderDetails.wastage, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource JPTextBox}" />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Margin="5">
@@ -190,7 +215,7 @@
                                 <TextBlock Text="Size / Length : " />
                                 </TextBlock>
                                 <TextBox Text="{Binding OrderDetails.size, UpdateSourceTrigger=PropertyChanged}" 
-                                Style="{StaticResource JPTextBox}" />
+                                         Style="{StaticResource JPTextBox}" />
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Margin="-2,15,5,5" >
@@ -230,11 +255,13 @@
                     <StackPanel Orientation="Horizontal" Margin="10" >
                         <TextBlock Text="" Style="{StaticResource JPTextBlock}" />
                         <Button Content="{Binding OrderDetailsButtonLabel}" Style="{StaticResource TabButtons}" Command="{Binding CreateOrderDetailsCommand}" />
-                        <Button Content="Reset" Style="{StaticResource TabButtons}" Command="{Binding ResetOrderDeatailsCommand}" />
+                        <Button Content="Reset" Style="{StaticResource TabButtons}" Command="{Binding ResetOrderDetailsCommand}" />
                     </StackPanel>
                     <Separator Margin="10" />
-                    <DataGrid Name="datagrdOrderDetails"  Grid.Row="1" GridLinesVisibility="All" IsReadOnly="True" ItemsSource="{Binding OrderDetailsCollection, Mode=TwoWay}"
-                        ColumnWidth="*" Margin="10,5,10,5" AutoGenerateColumns="False" SelectionMode="Single">
+                    <DataGrid Name="datagrdOrderDetails"  Grid.Row="1" GridLinesVisibility="All" IsReadOnly="True" 
+                              ItemsSource="{Binding OrderDetailsCollection, Mode=TwoWay}"
+                              ColumnWidth="*" Margin="10,5,10,5" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              AutoGenerateColumns="False" SelectionMode="Single">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Jewel Type" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelType.name}" CellStyle="{StaticResource JPDataGridCell}" Visibility="{Binding Path=GridColumnsVisibility.jewelType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"  />
                             <DataGridTextColumn Header="Jewel Purity" HeaderStyle="{StaticResource JPGridHeaderStyle}" Width="120" Binding="{Binding jewelPurity}" CellStyle="{StaticResource JPDataGridCell}"  Visibility="{Binding Path=GridColumnsVisibility.jewelPurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibility}}"/>

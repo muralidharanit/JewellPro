@@ -2,8 +2,8 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using Npgsql;
-using Spire.Xls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using Twilio.TwiML.Voice;
 using static JewellPro.EnumInfo;
 
 namespace JewellPro
@@ -51,7 +52,6 @@ namespace JewellPro
             get { return _EstimationTabSelectedIndex; }
             set { _EstimationTabSelectedIndex = value; RaisePropertyChanged("EstimationTabSelectedIndex"); }
         }
-
 
         private string _EstimationRefNo;
         public string EstimationRefNo
@@ -106,11 +106,11 @@ namespace JewellPro
         public OrderDetails Order
         {
             get { return _Order; }
-            set 
-            { 
-                _Order = value; 
+            set
+            {
+                _Order = value;
                 RaisePropertyChanged("Order");
-                if(_Order != null && userControlState == UserControlState.Update)
+                if (_Order != null && userControlState == UserControlState.Update)
                     IsEnableOrderDetailsTab = true;
             }
         }
@@ -143,15 +143,7 @@ namespace JewellPro
             this.userControlState = userControlState;
             helper = new Helper();
             OnLoad();
-            OrderDetailsCollection.CollectionChanged += OrderDetailsCollection_CollectionChanged;
         }
-
-        private void OrderDetailsCollection_CollectionChanged(object sender, 
-            System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            MessageBox.Show("");
-        }
-
 
         #region iCommands
 
@@ -165,10 +157,6 @@ namespace JewellPro
                 return _ShowSearchDetailsCommand;
             }
         }
-
-
-
-
 
         RelayCommand<object> _OrderDetailsEditCommand = null;
         public ICommand OrderDetailsEditCommand
@@ -191,8 +179,6 @@ namespace JewellPro
                 return _OrderDetailsDeleteCommand;
             }
         }
-
-
 
         RelayCommand _GenerateInvoiceCommand = null;
         public ICommand GenerateInvoiceCommand
@@ -293,8 +279,18 @@ namespace JewellPro
             }
         }
 
-        #endregion iCommands
+        RelayCommand _CheckRateFreezeCommand = null;
+        public ICommand CheckRateFreezeCommand
+        {
+            get
+            {
+                if (_CheckRateFreezeCommand == null)
+                    _CheckRateFreezeCommand = new RelayCommand(() => OnCheckRateFreezeCommand());
+                return _CheckRateFreezeCommand;
+            }
+        }
 
+        #endregion iCommands
 
         #region Methods
 
@@ -317,27 +313,12 @@ namespace JewellPro
             else if (userControlState == UserControlState.Update)
             {
                 OrderButtonLabel = Convert.ToString(UserControlState.Update);
+                IsEnableOrderDetailsTab = true;
             }
 
-            SelectedJewelType = null;
             OrderDetailsButtonLabel = Convert.ToString(UserControlState.Create);
         }
-
-        void OnUpdateLoad()
-        {
-            OrderDetails = Helper.GenerateNewOrderDetailsInstance();
-            Order = Helper.GenerateNewOrderDetailsInstance(); ;
-
-            SelectedJewelType = null;
-            OrderButtonLabel = Convert.ToString(UserControlState.Add);
-
-            if (OrderDetailsCollection.Count == 0)
-            {
-                OnCustomerNameSelectionChangeCommand();
-            }
-        }
-
-
+       
         #region Orders tab
 
         void OnCreateOrderCommand()
@@ -368,7 +349,23 @@ namespace JewellPro
                 }
                 else if (OrderButtonLabel == Convert.ToString(UserControlState.Update))
                 {
-
+                    using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
+                    {
+                        NpgsqlTransaction trans = connection.BeginTransaction();
+                        try
+                        {
+                            UpdateDataIntoOrdersTable(connection);
+                            trans.Commit();                            
+                            OrderButtonLabel = Convert.ToString(UserControlState.Update);
+                            MessageBox.Show("Estimation Order updated successfully.", "Estimation",
+                                MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        catch (Exception ex)
+                        {
+                            trans.Rollback();
+                            Logger.LogError(ex);
+                        }
+                    }
                 }
             }
         }
@@ -385,7 +382,7 @@ namespace JewellPro
                     "is_rate_freeze, freeze_date, freeze_amount, is_priority_order, is_gst_order) " +
                     "values('{0}', {1}, {2}, '{3}'," +
                     "'{4}','{5}', '{6}','{7}', '{8}') RETURNING id",
-                    DateTime.Now.ToString("yyyyMMddHHmmss"), SelectedCustomer.id, (int)EnumInfo.OrderType.Estimation, DateTime.Now.ToString("dd-MM-yyyy"),
+                    DateTime.Now.ToString("yyyyMMddHHmmss"), SelectedCustomer.id, (int)OrderType.Estimation, DateTime.Now.ToString("dd-MM-yyyy"),
                     Order.isRateFreeze, rateFreezeDate, freezeRate, Order.isPriorityOrder, Order.isGSTOrder);
 
                 using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order, CommandType.Text))
@@ -452,9 +449,282 @@ namespace JewellPro
 
         #endregion Orders tab
 
+        #region Order details tab
 
+        void OnCreateOrderDetailsCommandclick()
+        {
+            if (ValidateOrderDetails())
+            {
+                if (OrderDetailsButtonLabel == Convert.ToString(UserControlState.Create))
+                {
+                    using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
+                    {
+                        NpgsqlTransaction trans = connection.BeginTransaction();
+                        try
+                        {
+                            OrderDetails.id = InsertDataIntoOrderDetailsTable(connection);
 
+                            // Once order details inserted successfully then insert the charges details.
+                            if (OrderDetails.id > 0)
+                            {
+                                InsertDataIntoChargesDetails(connection);
+                                // Once order charges details inserted successfully then commit the changes to the database.
+                                trans.Commit();
+                            }
 
+                            OrderDetails.jewelType = SelectedJewelType;
+                            OrderDetailsCollection.Add(OrderDetails);
+
+                            MessageBox.Show("Record added successfully.", "Estimation",
+                                        MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        catch (Exception ex)
+                        {
+                            trans.Rollback();
+                            Logger.LogError(ex);
+                        }
+                    }
+                }
+                else if (OrderDetailsButtonLabel == Convert.ToString(UserControlState.Update))
+                {
+                    using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
+                    {
+                        NpgsqlTransaction trans = connection.BeginTransaction();
+                        try
+                        {
+                            // Checks the data updated successfully.
+                            UpdateDataIntoOrderDetailsTable(connection);
+                            // Insert new charges details to the database.
+                            InsertDataIntoChargesDetails(connection);
+                            // Checks and delete the existing charges details in the database.
+                            DeleteDataIntoChargesDetails(connection);
+                            trans.Commit();
+
+                            for (int i = OrderDetailsCollection.Count - 1; i >= 0; --i)
+                            {
+                                if (OrderDetailsCollection[i].id == OrderDetails.id)
+                                {
+                                    OrderDetailsCollection.RemoveAt(i);
+                                    OrderDetails.jewelType = SelectedJewelType;
+                                    OrderDetailsCollection.Insert(i, OrderDetails);
+                                    break;
+                                }
+                            }
+
+                            MessageBox.Show("Record updated successfully.", "Estimation",
+                                        MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        catch (Exception ex)
+                        {
+                            trans.Rollback();
+                            Logger.LogError(ex);
+                        }
+                    }
+                }
+
+                OrderDetailsButtonLabel = Convert.ToString(UserControlState.Create);
+                OrderDetails = Helper.GenerateNewOrderDetailsInstance();
+                SelectedJewelType = null;
+            }            
+        }
+
+        bool ValidateOrderDetails()
+        {
+            StringBuilder errorControl = new StringBuilder();
+
+            if (SelectedJewelType == null || SelectedJewelType.name.Trim().Length == 0)
+            {
+                errorControl.AppendLine("Select Ornament Type");
+                errorControl.AppendLine();
+            }
+
+            if (!string.IsNullOrWhiteSpace(OrderDetails.quantity) && !Helper.IsValidInteger(OrderDetails.quantity))
+            {
+                errorControl.AppendLine("Enter Valid jewel Quantity");
+                errorControl.AppendLine();
+            }
+
+            if (string.IsNullOrWhiteSpace(OrderDetails.jewelPurity))
+            {
+                errorControl.AppendLine("Enter Jewel Purity");
+                errorControl.AppendLine();
+            }
+            else
+            {
+                decimal number;
+                Decimal.TryParse(OrderDetails.jewelPurity, out number);
+                if (!Helper.IsValidDecimal(OrderDetails.jewelPurity))
+                {
+                    errorControl.AppendLine("Enter Valid Jewel Purity. Example 88.00");
+                    errorControl.AppendLine();
+                }
+                else if (number < 100 || number <= 0)
+                {
+                    errorControl.AppendLine("Enter Valid Jewel Purity. Value should be 0 to 100");
+                    errorControl.AppendLine();
+                }
+            }
+
+            if (OrderDetails.isRateFreeze)
+            {
+                if (string.IsNullOrWhiteSpace(OrderDetails.rateFreezeDate))
+                {
+                    errorControl.AppendLine("Rate freeze selected please select the freeze date");
+                    errorControl.AppendLine();
+                }
+                else if (string.IsNullOrWhiteSpace(OrderDetails.freezeRate) || !Helper.IsValidInteger(OrderDetails.freezeRate))
+                {
+                    errorControl.AppendLine("Rate freeze selected please enter valid amount");
+                    errorControl.AppendLine();
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(OrderDetails.wastage))
+            {
+                if (!Helper.IsValidDecimal(OrderDetails.wastage))
+                {
+                    errorControl.AppendLine("Enter Valid Jewel Wastage. Example 7.50 or 3");
+                    errorControl.AppendLine();
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(OrderDetails.netWeight))
+            {
+                errorControl.AppendLine("Enter Jewellery Net Weight");
+                errorControl.AppendLine();
+            }
+            else if (!Helper.IsValidDecimal(OrderDetails.netWeight))
+            {
+                errorControl.AppendLine("Enter Valid Weight. Example 48.560");
+                errorControl.AppendLine();
+            }
+
+            if (errorControl.Length != 0)
+            {
+                MessageBox.Show(errorControl.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return false;
+            }
+
+            return true;
+        }
+
+        long InsertDataIntoOrderDetailsTable(NpgsqlConnection connection)
+        {
+            long orderDetailsId = 0;
+
+            string custOrderDetails = string.Format("('{0}','{1}','{2}','{3}','{4}','{5}'," +
+                                                        "'{6}','{7}','{8}','{9}', '{10}', {11},{12})",
+                            OrderDetails.size, OrderDetails.netWeight, OrderDetails.seal,
+                            OrderDetails.description, OrderDetails.attachement, OrderDetails.orderDate,
+                            OrderDetails.dueDate, OrderDetails.jewelPurity, OrderDetails.wastage,
+                            OrderDetails.quantity, OrderDetails.makingCharge, SelectedJewelType.id, Order.id);
+
+            string query_customer_order_details = "Insert into order_details" +
+                "(size, net_weight, seal, description, attachement, order_date, due_date, " +
+                "ornament_purity, wastage, quantity, making_charges, fk_ornament_type_id, fk_order_id) values" +
+                custOrderDetails + " RETURNING id";
+
+            using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order_details, CommandType.Text))
+            {
+                orderDetailsId = Convert.ToInt64(cmd.ExecuteScalar());
+            }
+
+            if (orderDetailsId == 0)
+            {
+                throw new Exception("Order creation failed. close and open the tool.");
+            }
+
+            return orderDetailsId;
+        }
+
+        void InsertDataIntoChargesDetails(NpgsqlConnection connection)
+        {
+            try
+            {
+                List<string> _chargesList = new List<string>();
+                foreach (ChargesControl charges in OrderDetails.chargesDetails)
+                {
+                    if (!string.IsNullOrWhiteSpace(charges.value))
+                    {
+                        _chargesList.Add(string.Format("({0},'{1}',{2})", charges.id, charges.value, OrderDetails.id));
+                    }
+                }
+
+                if (_chargesList.Count > 0)
+                {
+                    string detectLst = string.Join<string>(",", _chargesList);
+                    string query_customer_order_charges_details = "Insert into customer_order_charges_details" +
+                        "(fk_charges_id, charge, fk_order_details_id) values " + detectLst;
+
+                    using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order_charges_details, CommandType.Text))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Order creation failed. close and open the tool." + ex.ToString());
+            }
+        }
+
+        void UpdateDataIntoOrderDetailsTable(NpgsqlConnection connection)
+        {
+            try
+            {
+                string query_update_orderDetails = string.Format("update order_details set " +
+                "size           = '{0}', net_weight         = '{1}', seal       = '{2}', " +
+                "description    = '{3}', attachement        = '{4}', order_date = '{5}', " +
+                "due_date       = '{6}', ornament_purity    = '{7}', wastage    = '{8}', " +
+                "quantity       = '{9}', fk_ornament_type_id=  {10}, making_charges = '{11}' " +
+                "where id   =  {12}  ",
+                OrderDetails.size, OrderDetails.netWeight, OrderDetails.seal,
+                OrderDetails.description, OrderDetails.attachement, OrderDetails.orderDate,
+                OrderDetails.dueDate, OrderDetails.jewelPurity, OrderDetails.wastage,
+                OrderDetails.quantity, SelectedJewelType.id, OrderDetails.makingCharge,
+                OrderDetails.id);
+
+                using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_update_orderDetails, CommandType.Text))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Order creation failed. close and open the tool." + ex.ToString());
+            }
+        }
+
+        void DeleteDataIntoChargesDetails(NpgsqlConnection connection)
+        {
+            try
+            {
+                string query_customer_order_charges_details = string.Format("delete from customer_order_charges_details where id = {0} ", OrderDetails.id);
+                using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order_charges_details, CommandType.Text))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Order creation failed. close and open the tool." + ex.ToString());
+            }
+        }
+
+        #endregion Orders details tab
+
+        void OnCheckRateFreezeCommand()
+        {
+            if(Order.isRateFreeze && string.IsNullOrWhiteSpace(Order.freezeRate))
+            {
+                Order.freezeRate = Configuration.PureGoldRate;
+                Order.rateFreezeDate = DateTime.Now.ToString();
+            }
+            else if(!Order.isRateFreeze)
+            {
+                Order.freezeRate = string.Empty;
+            }
+        }
 
         void OnCustomerNameSelectionChangeCommand()
         {
@@ -566,63 +836,6 @@ namespace JewellPro
             }
         }
 
-        void InsertDataIntoOrderDetailsTable(NpgsqlConnection connection)
-        {
-            if (Order.id > 0)
-            {
-                string custOrderDetails = string.Format("('{0}','{1}','{2}','{3}','{4}','{5}'," +
-                                                        "'{6}','{7}','{8}','{9}', '{10}', {11},{12})",
-                            OrderDetails.size, OrderDetails.netWeight, OrderDetails.seal,
-                            OrderDetails.description, OrderDetails.attachement, OrderDetails.orderDate,
-                            OrderDetails.dueDate, OrderDetails.jewelPurity, OrderDetails.wastage,
-                            OrderDetails.quantity, OrderDetails.makingCharge, SelectedJewelType.id, Order.id);
-
-                string query_customer_order_details = "Insert into order_details" +
-                    "(size, net_weight, seal, description, attachement, order_date, due_date, " +
-                    "ornament_purity, wastage, quantity, making_charges, fk_ornament_type_id, fk_order_id) values" +
-                    custOrderDetails + " RETURNING id";
-
-                using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order_details, CommandType.Text))
-                {
-                    OrderDetails.id = Convert.ToInt32(cmd.ExecuteScalar());
-                }
-
-                if (OrderDetails.id == 0)
-                {
-                    throw new Exception("Order creation failed. close and open the tool.");
-                }
-            }
-        }
-
-        void InsertDataIntoChargesDetails(NpgsqlConnection connection)
-        {
-            if (OrderDetails.id > 0)
-            {
-                List<string> _chargesList = new List<string>();
-                foreach (ChargesControl charges in OrderDetails.chargesDetails)
-                {
-                    if (!string.IsNullOrEmpty(charges.value))
-                    {
-                        _chargesList.Add(string.Format("({0},'{1}',{2})", charges.id, charges.value, OrderDetails.id));
-                    }
-                }
-
-                if (_chargesList.Count > 0)
-                {
-                    string detectLst = string.Join<string>(",", _chargesList);
-                    string query_customer_order_charges_details = "Insert into customer_order_charges_details" +
-                        "(fk_charges_id, charge, fk_order_details_id) values " + detectLst;
-
-                    using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order_charges_details, CommandType.Text))
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-        }
-
-
-
         void OnShowDetectionWindowCommand()
         {
             AddDetectionWindow addDetectionWindow = new AddDetectionWindow(this, OrderDetails.detectionDetails, OrderDetails.chargesDetails, isHideDetection: true);
@@ -663,178 +876,13 @@ namespace JewellPro
             }
         }
 
-        bool ValidateOrderDetails()
-        {
-            StringBuilder errorControl = new StringBuilder();
-
-            if (SelectedJewelType == null || SelectedJewelType.name.Trim().Length == 0)
-            {
-                errorControl.AppendLine("Select Ornament Type");
-                errorControl.AppendLine();
-            }
-
-            if (!string.IsNullOrEmpty(OrderDetails.quantity) && !Helper.IsValidInteger(OrderDetails.quantity))
-            {
-                errorControl.AppendLine("Enter Valid jewel Quantity");
-                errorControl.AppendLine();
-            }
-
-            if (string.IsNullOrEmpty(OrderDetails.jewelPurity))
-            {
-                errorControl.AppendLine("Enter Jewel Purity");
-                errorControl.AppendLine();
-            }
-            else if (!Helper.IsValidDecimal(OrderDetails.jewelPurity))
-            {
-                errorControl.AppendLine("Enter Valid Jewel Purity. Example 88.00");
-                errorControl.AppendLine();
-            }
-
-            if (OrderDetails.isRateFreeze)
-            {
-                if (string.IsNullOrEmpty(OrderDetails.rateFreezeDate))
-                {
-                    errorControl.AppendLine("Rate freeze selected please select the freeze date");
-                    errorControl.AppendLine();
-                }
-                else if (string.IsNullOrEmpty(OrderDetails.freezeRate) || !Helper.IsValidInteger(OrderDetails.freezeRate))
-                {
-                    errorControl.AppendLine("Rate freeze selected please enter valid amount");
-                    errorControl.AppendLine();
-                }
-            }
-
-            if (!string.IsNullOrEmpty(OrderDetails.wastage))
-            {
-                if (!Helper.IsValidDecimal(OrderDetails.wastage))
-                {
-                    errorControl.AppendLine("Enter Valid Jewel Wastage. Example 7.50 or 3");
-                    errorControl.AppendLine();
-                }
-            }
-
-            if (string.IsNullOrEmpty(OrderDetails.netWeight))
-            {
-                errorControl.AppendLine("Enter Jewellery Net Weight");
-                errorControl.AppendLine();
-            }
-            else if (!Helper.IsValidDecimal(OrderDetails.netWeight))
-            {
-                errorControl.AppendLine("Enter Valid Weight. Example 48.560");
-                errorControl.AppendLine();
-            }
-
-            if (errorControl.Length != 0)
-            {
-                MessageBox.Show(errorControl.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                return false;
-            }
-
-            return true;
-        }
-
-        void OnCreateOrderDetailsCommandclick()
-        {
-            if (ValidateOrderDetails())
-            {
-                if (OrderDetailsButtonLabel == Convert.ToString(UserControlState.Create))
-                {
-                    using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
-                    {
-                        NpgsqlTransaction trans = connection.BeginTransaction();
-                        try
-                        {
-                            InsertDataIntoOrderDetailsTable(connection);
-                            InsertDataIntoChargesDetails(connection);
-                            trans.Commit();
-
-                            OrderDetails.jewelType = SelectedJewelType;
-                            OrderDetailsCollection.Add(OrderDetails);
-                            OrderDetails = Helper.GenerateNewOrderDetailsInstance();
-                            SelectedJewelType = null;
-                            MessageBox.Show("Record added successfully.", "Estimation",
-                                        MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                        catch (Exception ex)
-                        {
-                            trans.Rollback();
-                            Logger.LogError(ex);
-                        }
-                    }
-                }
-                else if (OrderDetailsButtonLabel == Convert.ToString(UserControlState.Update))
-                {
-                    using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
-                    {
-                        NpgsqlTransaction trans = connection.BeginTransaction();
-                        try
-                        {
-                            UpdateDataIntoOrderDetailsTable(connection);
-                            DeleteDataIntoChargesDetails(connection);
-                            InsertDataIntoChargesDetails(connection);
-                            trans.Commit();
-
-                            for (int i = OrderDetailsCollection.Count - 1; i >= 0; --i)
-                            {
-                                if (OrderDetailsCollection[i].subOrderNo == OrderDetails.subOrderNo)
-                                {
-                                    OrderDetailsCollection.RemoveAt(i);
-                                    OrderDetailsCollection.Insert(i, OrderDetails);
-                                    break;
-                                }
-                            }
-                            OrderDetails = Helper.GenerateNewOrderDetailsInstance();
-                            OrderDetailsButtonLabel = Convert.ToString(UserControlState.Create);
-                            SelectedJewelType = null;
-                            MessageBox.Show("Record updated successfully.", "Estimation",
-                                        MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                        catch (Exception ex)
-                        {
-                            trans.Rollback();
-                            Logger.LogError(ex);
-                        }
-                    }
-                }
-            }
-        }
-
-        void UpdateDataIntoOrderDetailsTable(NpgsqlConnection connection)
-        {
-            string query_customer_orderDetails = string.Format("update order_details set " +
-                "size           = '{0}', net_weight         = '{1}', seal       = '{2}', " +
-                "description    = '{3}', attachement        = '{4}', order_date = '{5}', " +
-                "due_date       = '{6}', ornament_purity    = '{7}', wastage    = '{8}', " +
-                "quantity       = '{9}', fk_ornament_type_id=  {10}, making_charges =  '{11}'" +
-                " where id   =  {12}  ",
-                OrderDetails.size, OrderDetails.netWeight, OrderDetails.seal,
-                OrderDetails.description, OrderDetails.attachement, OrderDetails.orderDate,
-                OrderDetails.dueDate, OrderDetails.jewelPurity, OrderDetails.wastage,
-                OrderDetails.quantity, OrderDetails.jewelType.id, OrderDetails.makingCharge,
-                OrderDetails.id);
-
-            using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_orderDetails, CommandType.Text))
-            {
-                Convert.ToInt32(cmd.ExecuteScalar());
-            }
-        }
-
-        void DeleteDataIntoChargesDetails(NpgsqlConnection connection)
-        {
-            string query_customer_order_charges_details = string.Format("delete from customer_order_charges_details where id = {0} ", OrderDetails.id);
-
-            using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, query_customer_order_charges_details, CommandType.Text))
-            {
-                Convert.ToInt32(cmd.ExecuteScalar());
-            }
-
-        }
-
         void OnOrderDetailsEditCommand(object orderDetail)
         {
             OrderDetailsButtonLabel = Convert.ToString(UserControlState.Update);
-            SelectedJewelType = (orderDetail as OrderDetails).jewelType;
+
             OrderDetails = CloneObject.DeepClone<OrderDetails>(orderDetail as OrderDetails);
+            OrderDetails.jewelType = SelectedJewelType = JewelTypes
+                .FirstOrDefault(a => a.id == (orderDetail as OrderDetails).jewelType.id);
         }
 
         void OnOrderDetailsDeleteCommand(object orderDetail)
@@ -845,46 +893,43 @@ namespace JewellPro
             {
                 foreach (OrderDetails dgOrder in OrderDetailsCollection)
                 {
-                    if (dgOrder.orderNo == (orderDetail as OrderDetails).orderNo)
-                    {                        
-                        if (userControlState == UserControlState.Update)
+                    if (dgOrder.id == (orderDetail as OrderDetails).id)
+                    {
+                        using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
                         {
-                            using (NpgsqlConnection connection = DBWrapper.GetNpgsqlConnection())
+                            NpgsqlTransaction trans = connection.BeginTransaction();
+                            try
                             {
-                                NpgsqlTransaction trans = connection.BeginTransaction();
-                                try
+                                List<string> deleteOrderChargeDetailIds = new List<string>();
+                                foreach (ChargesControl charges in dgOrder.chargesDetails)
                                 {
-                                    string deleteOrderDetailQuery = string.Format("DELETE FROM order_details WHERE id = {0}", dgOrder.id);
-                                    using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, deleteOrderDetailQuery, CommandType.Text))
-                                    {
-                                        cmd.ExecuteNonQuery();
-                                    }
-
-                                    List<string> deleteOrderChargeDetailIds = new List<string>();
-                                    foreach (ChargesControl charges in dgOrder.chargesDetails)
-                                    {
-                                        deleteOrderChargeDetailIds.Add(Convert.ToString(charges.pkId));
-                                    }
-                                    string detectLst = string.Join<string>(",", deleteOrderChargeDetailIds);
-                                    string deleteOrderChargeDetailQuery = string.Format("DELETE FROM customer_order_charges_details WHERE id IN ({0})", detectLst);
-                                    using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, deleteOrderChargeDetailQuery, CommandType.Text))
-                                    {
-                                        cmd.ExecuteNonQuery();
-                                    }
-
-                                    trans.Commit();
-                                    OrderDetailsButtonLabel = Convert.ToString(UserControlState.Create);
-                                    OrderDetailsCollection.Remove(dgOrder);
-                                    OrderDetails = Helper.GenerateNewOrderDetailsInstance();
-                                    SelectedJewelType = null;
-                                    MessageBox.Show("Record deleted successfully.", "Estimation",
-                                        MessageBoxButton.OK, MessageBoxImage.Information);
+                                    deleteOrderChargeDetailIds.Add(Convert.ToString(charges.id));
                                 }
-                                catch (Exception ex)
+                                string detectLst = string.Join<string>(",", deleteOrderChargeDetailIds);
+                                string deleteOrderChargeDetailQuery = string.Format("DELETE FROM customer_order_charges_details WHERE id IN ({0})", detectLst);
+                                using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, deleteOrderChargeDetailQuery, CommandType.Text))
                                 {
-                                    trans.Rollback();
-                                    Logger.LogError(ex);
+                                    cmd.ExecuteNonQuery();
                                 }
+
+                                string deleteOrderDetailQuery = string.Format("DELETE FROM order_details WHERE id = {0}", dgOrder.id);
+                                using (NpgsqlCommand cmd = DBWrapper.GetNpgsqlCommand(connection, deleteOrderDetailQuery, CommandType.Text))
+                                {
+                                    cmd.ExecuteNonQuery();
+                                }
+
+                                OrderDetailsButtonLabel = Convert.ToString(UserControlState.Create);
+                                OrderDetailsCollection.Remove(dgOrder);
+                                OrderDetails = Helper.GenerateNewOrderDetailsInstance();
+                                SelectedJewelType = null;
+                                trans.Commit();
+                                MessageBox.Show("Record deleted successfully.", "Estimation",
+                                    MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                            catch (Exception ex)
+                            {
+                                trans.Rollback();
+                                Logger.LogError(ex);
                             }
                         }
                         break;
@@ -913,7 +958,7 @@ namespace JewellPro
 
         void OnResetOrderDetailsCommand()
         {
-            OrderButtonLabel = Convert.ToString(UserControlState.Create);
+            OrderDetailsButtonLabel = Convert.ToString(UserControlState.Create);
             SelectedJewelType = null;
             OrderDetails = Helper.GenerateNewOrderDetailsInstance();
         }
@@ -922,7 +967,7 @@ namespace JewellPro
         {
             try
             {
-
+                
 
             }
             catch (Exception ex)

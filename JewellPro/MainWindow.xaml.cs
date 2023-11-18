@@ -44,8 +44,6 @@ namespace JewellPro
             manage.Members.Add(new SubItem() { Header = "Employee", Icon = PackIconKind.CashOnDelivery, Id = AppMenus.ManageEmployee });
             menuItems.Add(manage);
 
-            
-
             ItemMenu report = new ItemMenu() { Header = "Report", Icon = PackIconKind.Report, Id = AppMenus.Report };
             menuItems.Add(report);
             trvMenuItem.ItemsSource = menuItems;
@@ -59,7 +57,8 @@ namespace JewellPro
                 {
                     usercontrolPane.Children.Clear();
                     txtblkAppHeader.Text = "Customer Order";
-                    CustomerOrder customerOrder = new CustomerOrder(this.Height - 70);
+                    CustomerOrderViewModel customerOrderViewModel= new CustomerOrderViewModel();
+                    CustomerOrder customerOrder = new CustomerOrder(this.Height - 70, customerOrderViewModel);
                     usercontrolPane.Children.Add(customerOrder);
                 }
 

@@ -1,14 +1,5 @@
-﻿using Npgsql;
-using System;
-using Microsoft.Win32;
-using System.Collections.Generic;
-using System.IO;
-using System.Windows;
+﻿using GalaSoft.MvvmLight;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Text;
-using CommonLayer;
-using System.Data;
 
 namespace JewellPro
 {
@@ -17,13 +8,12 @@ namespace JewellPro
     /// </summary>
     public partial class CustomerOrder : UserControl
     {
-        public CustomerOrder(double ucHeight)
+        public CustomerOrder(double ucHeight, ViewModelBase viewModelBase)
         {
             InitializeComponent();
             this.Height = ucHeight;
 
-            CustomerOrderViewModel customerOrderViewModel = new CustomerOrderViewModel();
-            this.DataContext = customerOrderViewModel;
+            this.DataContext = viewModelBase;
         }
     }
 }
