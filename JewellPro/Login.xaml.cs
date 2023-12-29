@@ -62,7 +62,7 @@ namespace WpfApp2
 
                                 if (CommanDetails.user == null)
                                 {
-                                    lblWarning.Content = "Invalid Username and Password";
+                                    lblWarning.Content = "Invalid User name and Password";
                                 }
                             }
                         }

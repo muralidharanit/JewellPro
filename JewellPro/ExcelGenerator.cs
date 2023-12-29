@@ -1,6 +1,5 @@
 ﻿namespace JewellPro
 {
-    using Microsoft.Office.Interop.Excel;
     using Spire.Xls;
     using System;
     using System.Collections.Generic;
@@ -8,8 +7,8 @@
     using System.IO;
     using System.Reflection;
     using System.Runtime.InteropServices;
-    using System.Runtime.InteropServices.ComTypes;
     using System.Text;
+    using System.Windows;
     using Excel = Microsoft.Office.Interop.Excel;
 
     public class ExcelGenerator
@@ -43,7 +42,7 @@
                 excelEstimationOutputFilePath = Path.Combine(temDirPath, "Estimation.xlsx");
 
                 excelEstimationSourceFilePath = Path.Combine(currentAppPath, "template", "Estimation.xlsx");
-                
+
                 File.Copy(excelEstimationSourceFilePath, excelEstimationOutputFilePath, true);
                 return excelEstimationOutputFilePath;
             }
@@ -61,7 +60,7 @@
             if (string.IsNullOrWhiteSpace(estimationReportPath))
                 throw new Exception("Estimation Report File not generated");
 
-            ReportStatus reportStatus = new ReportStatus();            
+            ReportStatus reportStatus = new ReportStatus();
 
             Excel.Application xlApp = new Excel.Application();
             Excel.Workbook xlWorkBook = CreateExcelWorkBook(estimationReportPath, xlApp);
@@ -72,7 +71,7 @@
                 xlWorkSheet.Range["H2"].Value2 = Convert.ToString(orderDetails.orderDate);
                 xlWorkSheet.Range["E3"].Value2 = Convert.ToString(orderDetails.customer.name);
                 xlWorkSheet.Range["E4"].Value2 = Convert.ToString(orderDetails.customer.address);
-                xlWorkSheet.Range["E5"].Value2 = "Ph: +91 " +Convert.ToString(orderDetails.customer.mobile);// + "\n" + excelFileArgs.selectedCustomer.mobile);
+                xlWorkSheet.Range["E5"].Value2 = "Ph: +91 " + Convert.ToString(orderDetails.customer.mobile);
 
                 int sno = 1;
                 int rowno = 9;
@@ -90,17 +89,22 @@
                     totalQuantity = totalQuantity + Convert.ToInt16(order.quantity);
 
                     xlWorkSheet.Range["D" + rowno.ToString()].Value2 = Convert.ToString(order.jewelPurity);
-                    xlWorkSheet.Range["E" + rowno.ToString()].Value2 = Convert.ToString(order.netWeight)+"g";
+                    xlWorkSheet.Range["E" + rowno.ToString()].Value2 = Convert.ToString(order.netWeight) + "g";
                     totalGoldWeight = totalGoldWeight + (Convert.ToDecimal(order.quantity) * Convert.ToDecimal(order.netWeight));
-
 
                     decimal goldCharge = Helper.GetGoldCharges(order);
                     totalGoldCharges = totalGoldCharges + goldCharge;
                     xlWorkSheet.Range["F" + rowno.ToString()].Value2 = Helper.FormatRupees(goldCharge);
 
-                    xlWorkSheet.Range["G" + rowno.ToString()].Value2 = Convert.ToString(order.wastage) + "%";
+                    if(!string.IsNullOrWhiteSpace(order.wastage))
+                        xlWorkSheet.Range["G" + rowno.ToString()].Value2 = Convert.ToString(order.wastage) + "%";
+                    else
+                        xlWorkSheet.Range["G" + rowno.ToString()].Value2 = Convert.ToString(order.wastage) + "-";
 
-                    decimal estmateCharge = Helper.GetEstimatedValue(order);
+                    decimal estmateCharge = Helper.GetGoldChargesWithWastage(order);
+
+                    decimal charge = Helper.GetCharges(order);
+
                     totalEstimatedValue = totalEstimatedValue + estmateCharge;
                     xlWorkSheet.Range["H" + rowno.ToString()].Value2 = Helper.FormatRupees(estmateCharge);
 
@@ -112,9 +116,9 @@
                 xlWorkSheet.Range["H16"].Value2 = Helper.FormatRupees(totalEstimatedValue);
 
                 StringBuilder rateFrozen = new StringBuilder();
-                if(orderDetails.isRateFreeze)
+                if (orderDetails.isRateFreeze)
                 {
-                    rateFrozen.AppendLine("Rate Frozen: Yes | Frozen Date: " + Convert.ToString(orderDetails.rateFreezeDate)+ " | Customer Signature: ");
+                    rateFrozen.AppendLine("Rate Frozen: Yes | Frozen Date: " + Convert.ToString(orderDetails.rateFreezeDate) + " | Customer Signature: ");
                 }
                 else
                 {
@@ -128,12 +132,11 @@
                 {
                     if (rate.isChecked)
                     {
-                        rateDescription.Append(rate.description + " – Rs. " +rate.rate.ToString().Trim() + "/- | ");
+                        rateDescription.Append(rate.description + " – Rs. " + rate.rate.ToString().Trim() + "/- | ");
                     }
                 }
-                
-                xlWorkSheet.Range["A6"].Value2 = rateDescription.ToString().TrimEnd('|', ' '); 
-                //"Standard Gold Rate: 22 Karat (91.6% Purity) – Rs. 4,885/- | Gold Rate: (85% Purity) – Rs. 4,530/- Gold";
+
+                xlWorkSheet.Range["A6"].Value2 = rateDescription.ToString().TrimEnd('|', ' ');
 
                 xlWorkBook.SaveAs(estimationReportPath, Excel.XlFileFormat.xlOpenXMLWorkbook,
                     Missing.Value, Missing.Value, Missing.Value, Missing.Value, Excel.XlSaveAsAccessMode.xlNoChange,
@@ -152,11 +155,11 @@
                 ReleaseExcelComObject(xlApp, xlWorkBook, xlWorkSheet);
             }
 
-            if(reportStatus.status)
+            if (reportStatus.status)
             {
                 try
                 {
-                    string estimationPdfPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Estimation", orderDetails.orderRefNo + ".pdf");
+                    string estimationPdfPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Estimation", orderDetails.orderNo + ".pdf");
                     Spire.Xls.Workbook workbook1 = new Spire.Xls.Workbook();
                     workbook1.LoadFromFile(estimationReportPath);
                     Spire.Xls.Worksheet sheet = workbook1.Worksheets[0];
@@ -170,6 +173,12 @@
                     Logger.LogError(ex.ToString());
                     reportStatus.status = false;
                     reportStatus.errorInfo = ex.ToString();
+
+                    if(ex.ToString().Contains("used by another process"))
+                    {
+                        string errorMsg = string.Format("Error occurred please close the already opened file {0}.\n {1}", orderDetails.orderNo + ".pdf", ex.ToString());
+                        MessageBox.Show(errorMsg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
             return reportStatus;
@@ -288,7 +297,7 @@
                 orderVal.AppendLine(Convert.ToString("Jewel Purity : " + order.jewelPurity));
                 orderVal.AppendLine(Convert.ToString("Weight : " + order.netWeight));
                 orderInfoStartIndex += 3;
-                
+
                 if (!string.IsNullOrEmpty(order.seal))
                 {
                     orderVal.AppendLine(Convert.ToString("Seal : " + order.seal));
@@ -309,11 +318,11 @@
                 //Merge Description
                 xlWorkSheet.Range[xlWorkSheet.Cells[orderTempIndex, 2], xlWorkSheet.Cells[orderInfoStartIndex, 4]].Merge();
                 xlWorkSheet.Range[xlWorkSheet.Cells[orderTempIndex, 2], xlWorkSheet.Cells[orderInfoStartIndex, 4]].Value = orderVal.ToString();
-                
+
                 //Merge S.No
                 //Excel.Range SNoRowRange = xlWorkSheet.Range[xlWorkSheet.Cells[orderTempIndex, 1], xlWorkSheet.Cells[orderInfoStartIndex, 1]].Merge(Missing.Value);
 
-                
+
 
                 if (!string.IsNullOrEmpty(order.attachement))
                 {
@@ -321,7 +330,7 @@
                     string destImgPath = Path.Combine(order.attachementPath, "CONV_" + order.attachement);
                     Helper.SaveImageForFixedSize(srcImgPath, destImgPath, 140, 120);
 
-                    
+
                     xlWorkSheet.Range[xlWorkSheet.Cells[orderTempIndex, 5], xlWorkSheet.Cells[orderInfoStartIndex, 7]].Merge(Missing.Value);
                     Excel.Range oRange = xlWorkSheet.Range[xlWorkSheet.Cells[orderTempIndex, 5], xlWorkSheet.Cells[orderInfoStartIndex, 7]];
                     System.Drawing.Image oImage = System.Drawing.Image.FromFile(destImgPath);
@@ -351,12 +360,12 @@
                 Missing.Value, Missing.Value);
 
             ReleaseExcelComObject(xlApp, xlWorkBook, xlWorkSheet);
-            GenerateToPDF(excelFileArgs.orderRefNo +".pdf", excelOutputFilePath, 0);
+            GenerateToPDF(excelFileArgs.orderRefNo + ".pdf", excelOutputFilePath, 0);
         }
 
         private void GenerateToPDF(string fileName, string filePath, int sheetNo)
         {
-            
+
         }
 
         public void GenerateCustomerOrderInvoice(ExcelFileArgs excelFileArgs)
@@ -397,7 +406,7 @@
             customerEstimation.Add("Date", "H2");
             customerEstimation.Add("CustomerAddress", "E4");
             customerEstimation.Add("CustomerPhone", "E5");
-            
+
             customerEstimation.Add("GoldRateInfo", "A6");
             customerEstimation.Add("RateFrozenInfo", "A7");
 

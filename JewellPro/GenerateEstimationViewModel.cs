@@ -318,7 +318,7 @@ namespace JewellPro
 
             OrderDetailsButtonLabel = Convert.ToString(UserControlState.Create);
         }
-       
+
         #region Orders tab
 
         void OnCreateOrderCommand()
@@ -355,7 +355,7 @@ namespace JewellPro
                         try
                         {
                             UpdateDataIntoOrdersTable(connection);
-                            trans.Commit();                            
+                            trans.Commit();
                             OrderButtonLabel = Convert.ToString(UserControlState.Update);
                             MessageBox.Show("Estimation Order updated successfully.", "Estimation",
                                 MessageBoxButton.OK, MessageBoxImage.Information);
@@ -367,6 +367,8 @@ namespace JewellPro
                         }
                     }
                 }
+
+                Order.customer = SelectedCustomer;
             }
         }
 
@@ -525,7 +527,7 @@ namespace JewellPro
                 OrderDetailsButtonLabel = Convert.ToString(UserControlState.Create);
                 OrderDetails = Helper.GenerateNewOrderDetailsInstance();
                 SelectedJewelType = null;
-            }            
+            }
         }
 
         bool ValidateOrderDetails()
@@ -534,35 +536,20 @@ namespace JewellPro
 
             if (SelectedJewelType == null || SelectedJewelType.name.Trim().Length == 0)
             {
-                errorControl.AppendLine("Select Ornament Type");
+                errorControl.AppendLine("Select Ornament Type.");
                 errorControl.AppendLine();
             }
 
             if (!string.IsNullOrWhiteSpace(OrderDetails.quantity) && !Helper.IsValidInteger(OrderDetails.quantity))
             {
-                errorControl.AppendLine("Enter Valid jewel Quantity");
+                errorControl.AppendLine("Enter valid jewel Quantity. Example: 1.");
                 errorControl.AppendLine();
             }
 
-            if (string.IsNullOrWhiteSpace(OrderDetails.jewelPurity))
+            if (!string.IsNullOrWhiteSpace(OrderDetails.jewelPurity) && !Helper.IsValidDecimal(OrderDetails.jewelPurity, 100))
             {
-                errorControl.AppendLine("Enter Jewel Purity");
+                errorControl.AppendLine("Jewel Purity should not be Empty. Value should be 0 to 100.");
                 errorControl.AppendLine();
-            }
-            else
-            {
-                decimal number;
-                Decimal.TryParse(OrderDetails.jewelPurity, out number);
-                if (!Helper.IsValidDecimal(OrderDetails.jewelPurity))
-                {
-                    errorControl.AppendLine("Enter Valid Jewel Purity. Example 88.00");
-                    errorControl.AppendLine();
-                }
-                else if (number < 100 || number <= 0)
-                {
-                    errorControl.AppendLine("Enter Valid Jewel Purity. Value should be 0 to 100");
-                    errorControl.AppendLine();
-                }
             }
 
             if (OrderDetails.isRateFreeze)
@@ -579,23 +566,15 @@ namespace JewellPro
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(OrderDetails.wastage))
+            if (!string.IsNullOrWhiteSpace(OrderDetails.wastage) && !Helper.IsValidDecimal(OrderDetails.wastage))
             {
-                if (!Helper.IsValidDecimal(OrderDetails.wastage))
-                {
-                    errorControl.AppendLine("Enter Valid Jewel Wastage. Example 7.50 or 3");
-                    errorControl.AppendLine();
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(OrderDetails.netWeight))
-            {
-                errorControl.AppendLine("Enter Jewellery Net Weight");
+                errorControl.AppendLine("Enter valid Jewel Wastage. Example 7.50 or 3");
                 errorControl.AppendLine();
             }
-            else if (!Helper.IsValidDecimal(OrderDetails.netWeight))
+
+            if (!Helper.IsValidDecimal(OrderDetails.netWeight))
             {
-                errorControl.AppendLine("Enter Valid Weight. Example 48.560");
+                errorControl.AppendLine("Enter valid Weight. Example 48.560");
                 errorControl.AppendLine();
             }
 
@@ -944,36 +923,11 @@ namespace JewellPro
             advancedSearch.ShowDialog();
         }
 
-        public void SearchDetailsCallback(Customer searchCustomer)
-        {
-            foreach (Customer customer in CustomerDetails)
-            {
-                if (customer.id == searchCustomer.id)
-                {
-                    SelectedCustomer = customer;
-                    break;
-                }
-            }
-        }
-
         void OnResetOrderDetailsCommand()
         {
             OrderDetailsButtonLabel = Convert.ToString(UserControlState.Create);
             SelectedJewelType = null;
             OrderDetails = Helper.GenerateNewOrderDetailsInstance();
-        }
-
-        void OnGeneratePrintCommand()
-        {
-            try
-            {
-                
-
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex.Message);
-            }
         }
 
         ReportStatus OnGenerateExcelCommand()

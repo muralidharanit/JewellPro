@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Windows;
-using Twilio.Rest.Api.V2010.Account.Usage.Record;
 
 namespace JewellPro
 {
@@ -21,13 +20,13 @@ namespace JewellPro
         {
             InitializeComponent();
             mainWindowViewModel = _mainWindowViewModel;
-            
+
             lstbxStandardRates.ItemsSource = Helper.GetStandardMetalRates();
 
-            txtPureGoldRate.Text = (lstbxStandardRates.ItemsSource as ObservableCollection<Rate>).First(x => x.name == "24 K").rate.ToString();
+            txtPureGoldRate.Text = (lstbxStandardRates.ItemsSource as ObservableCollection<Rate>).First(x => x.name == "22 K").rate.ToString();
             txtSilverRate.Text = (lstbxStandardRates.ItemsSource as ObservableCollection<Rate>).First(x => x.name == "Silver").rate.ToString();
         }
-        
+
         void OnSaveCommandclick(object sender, RoutedEventArgs e)
         {
             if (ValidateRateDetails())
@@ -55,7 +54,7 @@ namespace JewellPro
             btnOk.IsEnabled = true;
             txtWarning.Text = "";
 
-            if(lstbxStandardRates.ItemsSource != null)
+            if (lstbxStandardRates.ItemsSource != null)
             {
                 foreach (Rate obj in lstbxStandardRates.ItemsSource)
                 {

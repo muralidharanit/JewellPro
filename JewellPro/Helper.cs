@@ -1,10 +1,8 @@
 ﻿using CommonLayer;
-using JewellPro;
 using Npgsql;
 using System;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Data.Common;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -15,14 +13,13 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using Twilio.TwiML.Voice;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace JewellPro
 {
@@ -33,7 +30,7 @@ namespace JewellPro
         public static int MaxDescriptionLimit = 80;
         public static string SenderEmail = "";
         public static string SenderPassword = "";
-        
+
         public static string NumberToWords(int number)
         {
             if (number == 0)
@@ -108,7 +105,10 @@ namespace JewellPro
             return null;
         }
 
-        public static StackPanel AddDynamicControls(string lblContent, string value, bool isReadonly = true, MouseButtonEventHandler Image_MouseLeftButtonUp = null, string symbol = "", Style textBlockStyle = null, Style textBoxStyle = null, object identifier = null)
+        public static StackPanel AddDynamicControls(string lblContent, string value, 
+            bool isReadonly = true, MouseButtonEventHandler Image_MouseLeftButtonUp = null, 
+            string symbol = "", Style textBlockStyle = null, Style textBoxStyle = null, 
+            object identifier = null, bool showDisplayInBillCheckBox = false, bool displayInBillCheckBoxValue = false)
         {
             StackPanel contentPanel = new StackPanel();
             contentPanel.Orientation = Orientation.Horizontal;
@@ -117,8 +117,18 @@ namespace JewellPro
             contentPanel.Name = "dt" + DateTime.Now.ToString("yyyyMMddHHmmssffffff");
             Console.WriteLine(contentPanel.Name);
 
+            if(showDisplayInBillCheckBox)
+            {
+                CheckBox checkBox = new CheckBox
+                {
+                    IsChecked = displayInBillCheckBoxValue,
+                    Margin = new Thickness(0, 0, 3, 10)
+                };
+                contentPanel.Children.Add(checkBox);
+            }
+
             TextBlock label = new TextBlock();
-            label.Text = lblContent + " : "+ symbol;
+            label.Text = lblContent + " : " + symbol;
             label.Tag = lblContent;
             label.Style = textBlockStyle;
 
@@ -188,7 +198,7 @@ namespace JewellPro
                     return Convert.ToString(_purity);
                 }
             }
-            else if(selectedPurity != null)
+            else if (selectedPurity != null)
             {
                 return selectedPurity.purity;
             }
@@ -257,14 +267,14 @@ namespace JewellPro
             decimal total = 0.000M;
             foreach (DetectionControl ctrl in orderDetails.detectionDetails)
             {
-                if(!string.IsNullOrEmpty(ctrl.value))
+                if (!string.IsNullOrEmpty(ctrl.value))
                 {
                     _ = Decimal.TryParse(ctrl.value, out decimal value);
                     total = total + value;
                 }
             }
             return Convert.ToString(Math.Round(total, 3));
-        }        
+        }
 
         public static ObservableCollection<DetectionControl> GetDetectionControls(string entity = "", int orderId = 0)
         {
@@ -328,7 +338,7 @@ namespace JewellPro
         {
             ObservableCollection<ChargesControl> chargesControls = GetAllChargesControls();
 
-            if(orderId > 0)
+            if (orderId > 0)
             {
                 string order_charges_details = "SELECT * FROM customer_order_charges_details where fk_order_details_id = " + orderId;
                 ObservableCollection<ChargesControl> chargesDetails = null;
@@ -358,13 +368,13 @@ namespace JewellPro
                         }
                     }
 
-                    if(chargesControls != null  && chargesControls.Count > 0 && chargesDetails != null && chargesDetails.Count > 0)
+                    if (chargesControls != null && chargesControls.Count > 0 && chargesDetails != null && chargesDetails.Count > 0)
                     {
-                        foreach(ChargesControl ctrl in chargesControls)
+                        foreach (ChargesControl ctrl in chargesControls)
                         {
                             foreach (ChargesControl chrgeVal in chargesDetails)
                             {
-                                if(ctrl.id == chrgeVal.id)
+                                if (ctrl.id == chrgeVal.id)
                                 {
                                     ctrl.value = chrgeVal.value;
                                     ctrl.pkId = chrgeVal.pkId;
@@ -499,7 +509,7 @@ namespace JewellPro
                         Gender gender = new Gender
                         {
                             id = Convert.ToInt32(dataReader["Id"]),
-                            name = Convert.ToString(dataReader["gender"])                            
+                            name = Convert.ToString(dataReader["gender"])
                         };
                         GenderCollection.Add(gender);
                     }
@@ -617,7 +627,7 @@ namespace JewellPro
                 Logger.LogError(ex.Message);
             }
             return detectionControls;
-        }        
+        }
 
         public string GetNextOrderRefNo()
         {
@@ -644,8 +654,8 @@ namespace JewellPro
                 Logger.LogError(ex);
             }
             return Convert.ToString(orderRefNo);
-        }        
-        
+        }
+
         public static string Truncate(string value)
         {
             return value.Length <= MaxDescriptionLimit ? value : value.Substring(0, MaxDescriptionLimit) + "...";
@@ -716,7 +726,7 @@ namespace JewellPro
             }
 
             return mbInfo;
-        }       
+        }
 
         public static ObservableCollection<Rate> GetRates()
         {
@@ -761,15 +771,15 @@ namespace JewellPro
             ObservableCollection<Rate> StandardRates = new ObservableCollection<Rate>();
             ObservableCollection<Rate> rates = Helper.GetRates();
 
-            int pureGoldRate = rates.First(x => x.name.ToLower() == "gold").rate;
+            decimal pureGoldRate = rates.First(x => x.name.ToLower() == "gold").rate;
             Configuration.PureGoldRate = Convert.ToString(pureGoldRate);
             int silverRate = rates.First(x => x.name.ToLower() == "silver").rate;
             Configuration.SilverRate = Convert.ToString(silverRate);
 
-            StandardRates.Add(new Rate { name = "24 K", rate = pureGoldRate, purity = 24, description = "24 K Gold :", id = 1 });
-            StandardRates.Add(new Rate { name = "22 K", rate = (int)(pureGoldRate / 100 * 92), purity = 22, description = "22 K Gold :", id = 2 });
-            StandardRates.Add(new Rate { name = "20 K", rate = (int)(pureGoldRate / 100 * 85), purity = 20, description = "20 K Gold :", id = 3 });
-            StandardRates.Add(new Rate { name = "18 K", rate = (int)(pureGoldRate / 100 * 78), purity = 18, description = "18 K Gold :", id = 4 });
+            StandardRates.Add(new Rate { name = "24 K", rate = (int)Math.Round(pureGoldRate / 22 * 24), purity = 24, description = "24 K Gold :", id = 1 });
+            StandardRates.Add(new Rate { name = "22 K", rate = (int)pureGoldRate, purity = 22, description = "22 K Gold :", id = 2 });
+            StandardRates.Add(new Rate { name = "20 K", rate = (int)Math.Round(pureGoldRate / 22 * 20), purity = 20, description = "20 K Gold :", id = 3 });
+            StandardRates.Add(new Rate { name = "18 K", rate = (int)Math.Round(pureGoldRate / 22 * 18), purity = 18, description = "18 K Gold :", id = 4 });
             StandardRates.Add(new Rate { name = "Silver", rate = silverRate, purity = 100, description = "Silver :", id = 5 });
 
             foreach (var obj in CommanDetails.user.userPreference.Rates)
@@ -778,7 +788,7 @@ namespace JewellPro
                 {
                     if (obj.name == rate.name && obj.isChecked)
                     {
-                        rate.isChecked= true;
+                        rate.isChecked = true;
                         break;
                     }
                 }
@@ -797,75 +807,73 @@ namespace JewellPro
             return false;
         }
 
-        public static bool IsValidDecimal(string value, int pointPrecision = 3)
+        public static bool IsValidDecimal(string value, decimal limit = 0)
         {
-            decimal number;
-            if (Decimal.TryParse(value, out number))
+            if (decimal.TryParse(value, out decimal number) && number >= 1 && (limit <= 1 || number <= limit))
             {
                 return true;
             }
+
             return false;
         }
 
         public static bool IsValidInteger(string value)
         {
-            decimal number;
-            if (Decimal.TryParse(value, out number))
+            if (decimal.TryParse(value, out decimal number) && number >= 1)
             {
                 return true;
             }
             return false;
         }
 
-
-
-
-        public static string GetSubstringByString(string a, string b, string c)
-        {
-            if(c.IndexOf(a) == -1)
-            {
-                return string.Empty;
-            }
-            else if (c.IndexOf(b) == -1)
-            {
-                return string.Empty;
-            }
-            else
-            {
-                return c.Substring((c.IndexOf(a) + a.Length), (c.IndexOf(b) - c.IndexOf(a) - a.Length));
-            }
-        }
-
         public static decimal GetGoldCharges(OrderDetails orderDetails)
         {
-            
-            decimal goldCharge = 0;
-            var t = (Convert.ToDecimal(Configuration.PureGoldRate) * Convert.ToDecimal(orderDetails.jewelPurity)) / 100;
+            return Math.Round(Convert.ToDecimal(orderDetails.freezeRate) * Convert.ToDecimal(orderDetails.netWeight));
+        }
 
-            goldCharge = t * Convert.ToDecimal(orderDetails.netWeight);
-            return goldCharge;
+        public static decimal GetGoldChargesWithWastage(OrderDetails orderDetails)
+        {
+            decimal goldCharge = GetGoldCharges(orderDetails);
+            decimal goldWastage = Math.Round(goldCharge * Convert.ToDecimal(orderDetails.wastage) / 100);
+            return goldCharge + goldWastage;
+        }
+
+        public static decimal GetCharges(OrderDetails orderDetails)
+        {
+            decimal totalcharges = 0;
+            foreach (var charges in from charges in orderDetails.chargesDetails
+                                    where !string.IsNullOrWhiteSpace(charges.value) && IsValidDecimal(charges.value)
+                                    select charges)
+            {
+                totalcharges += Convert.ToDecimal(charges.value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(orderDetails.makingCharge) && IsValidDecimal(orderDetails.makingCharge))
+                totalcharges += Convert.ToDecimal(orderDetails.makingCharge);
+
+            return totalcharges;
         }
 
         public static decimal GetEstimatedValue(OrderDetails orderDetails)
         {
-            decimal goldCharge = 0;
             var t = (Convert.ToDecimal(Configuration.PureGoldRate) * Convert.ToDecimal(orderDetails.jewelPurity)) / 100;
 
-            goldCharge = t * Convert.ToDecimal(orderDetails.netWeight);
+            decimal goldCharge = t * Convert.ToDecimal(orderDetails.netWeight);
 
             decimal watageVal = 0;
-            watageVal = (goldCharge * Convert.ToDecimal(orderDetails.wastage)) / 100;
+
+            if (!string.IsNullOrWhiteSpace(orderDetails.wastage))
+                watageVal = (goldCharge * Convert.ToDecimal(orderDetails.wastage)) / 100;
 
             return goldCharge + watageVal;
         }
 
         public static string FormatRupees(decimal rupee)
         {
-            string formattedPrice = string.Empty;
-            formattedPrice = (Math.Round(rupee)).ToString("N", new CultureInfo("hi-IN"));            
+            string formattedPrice = (Math.Round(rupee)).ToString("N", new CultureInfo("hi-IN"));
             return formattedPrice;
         }
-        
+
         public static OrderDetails GenerateNewOrderDetailsInstance()
         {
             OrderDetails OrderDetails = new OrderDetails();
@@ -882,7 +890,7 @@ namespace JewellPro
         public static string GetGuid()
         {
             Guid guid = Guid.NewGuid();
-            string uuid = guid.ToString().Substring(1,6);
+            string uuid = guid.ToString().Substring(1, 6);
             uuid += DateTime.Now.ToString("yyyyMMddHHmmss");
             return uuid;
         }

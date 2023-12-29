@@ -112,7 +112,7 @@
                                     </Style>
                                 </StackPanel.Style>
                                 <TextBlock Style="{StaticResource JPTextBlock}"  >
-                                    <TextBlock Text="Freeze Rate : (24K) " />
+                                    <TextBlock Text="Freeze Rate : (22K) " />
                                 </TextBlock>
                                 <TextBox Style="{StaticResource JPTextBox}" Text="{Binding Order.freezeRate, Mode =TwoWay, UpdateSourceTrigger=PropertyChanged}"  FontWeight="Bold"/>
                             </StackPanel>

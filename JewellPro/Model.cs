@@ -276,7 +276,7 @@ namespace JewellPro
     [Serializable]
     public class ChargesControl : CustomControls
     {
-
+        public bool isDisplayInBill { get; set; }
     }
 
     [Serializable]
